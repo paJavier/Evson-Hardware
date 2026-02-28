@@ -1,0 +1,49 @@
+﻿using Microsoft.Data.Sqlite;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EvsonHardware.Data
+{
+    public class Database
+    {
+        private static string connectionString = "Data Source=pos.db";
+
+        public static SqliteConnection GetConnection()
+        {
+            return new SqliteConnection(connectionString);
+        }
+
+        public static void Initialize()
+        {
+            using var conn = GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+
+            cmd.CommandText =
+            @"
+            CREATE TABLE IF NOT EXISTS User (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+
+            CREATE TABLE IF NOT EXISTS Product (
+                product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_name TEXT NOT NULL,
+                price REAL NOT NULL,
+                stock INTEGER NOT NULL
+            );
+            ";
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+}
+
