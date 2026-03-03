@@ -50,16 +50,19 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges19 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges20 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges21 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges22 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges23 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges24 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges25 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges26 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges27 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges28 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges29 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges30 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges31 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges32 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges33 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges34 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges22 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges25 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges28 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             guna2ShadowPanel1 = new Guna.UI2.WinForms.Guna2ShadowPanel();
             logoutbtn = new Guna.UI2.WinForms.Guna2Button();
             reportbtn = new Guna.UI2.WinForms.Guna2Button();
@@ -75,14 +78,28 @@
             userbtn = new Guna.UI2.WinForms.Guna2Button();
             searchbar = new Guna.UI2.WinForms.Guna2TextBox();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
-            guna2GradientPanel1 = new Guna.UI2.WinForms.Guna2GradientPanel();
-            guna2GradientPanel2 = new Guna.UI2.WinForms.Guna2GradientPanel();
-            guna2GradientPanel3 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            RevenuePanel = new Guna.UI2.WinForms.Guna2GradientPanel();
+            ProfitPanel = new Guna.UI2.WinForms.Guna2GradientPanel();
+            ExpensesPanel = new Guna.UI2.WinForms.Guna2GradientPanel();
             guna2GradientPanel4 = new Guna.UI2.WinForms.Guna2GradientPanel();
             guna2GradientPanel5 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            hovertext = new Guna.UI2.WinForms.Guna2HtmlToolTip();
+            revenuelbl = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            Profitlbl = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            Expenseslbl = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            revenueprice = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            guna2HtmlLabel4 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            guna2HtmlLabel5 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            guna2CircleProgressBar1 = new Guna.UI2.WinForms.Guna2CircleProgressBar();
+            guna2CircleProgressBar2 = new Guna.UI2.WinForms.Guna2CircleProgressBar();
+            guna2CircleProgressBar3 = new Guna.UI2.WinForms.Guna2CircleProgressBar();
             guna2ShadowPanel1.SuspendLayout();
             TopPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)logo).BeginInit();
+            RevenuePanel.SuspendLayout();
+            ProfitPanel.SuspendLayout();
+            ExpensesPanel.SuspendLayout();
             SuspendLayout();
             // 
             // guna2ShadowPanel1
@@ -248,6 +265,7 @@
             homebtn.Font = new Font("Segoe UI", 9F);
             homebtn.ForeColor = Color.White;
             homebtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
+            homebtn.HoverState.Font = new Font("Sitka Display", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             homebtn.Image = (Image)resources.GetObject("homebtn.Image");
             homebtn.ImageSize = new Size(260, 220);
             homebtn.Location = new Point(8, 43);
@@ -266,11 +284,11 @@
             TopPanel.Controls.Add(userbtn);
             TopPanel.Controls.Add(searchbar);
             TopPanel.FillColor = Color.LightGoldenrodYellow;
-            TopPanel.Location = new Point(87, 17);
+            TopPanel.Location = new Point(87, 19);
             TopPanel.Name = "TopPanel";
             TopPanel.Radius = 10;
             TopPanel.ShadowColor = Color.Black;
-            TopPanel.Size = new Size(1125, 63);
+            TopPanel.Size = new Size(1138, 63);
             TopPanel.TabIndex = 3;
             // 
             // logo
@@ -342,6 +360,7 @@
             searchbar.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
             searchbar.DisabledState.ForeColor = Color.FromArgb(138, 138, 138);
             searchbar.DisabledState.PlaceholderForeColor = Color.FromArgb(138, 138, 138);
+            searchbar.FillColor = Color.Beige;
             searchbar.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
             searchbar.Font = new Font("Sitka Display", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             searchbar.ForeColor = Color.DarkOliveGreen;
@@ -364,79 +383,241 @@
             exitbtn.AutoRoundedCorners = true;
             exitbtn.BackColor = Color.Transparent;
             exitbtn.BorderColor = Color.Transparent;
-            exitbtn.BorderRadius = 16;
             exitbtn.CustomizableEdges = customizableEdges20;
             exitbtn.DisabledState.BorderColor = Color.DarkGray;
             exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             exitbtn.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
             exitbtn.FillColor = Color.Transparent;
-            exitbtn.Font = new Font("Sitka Small", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            exitbtn.Font = new Font("Sitka Small", 8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(1216, 6);
+            exitbtn.Location = new Point(1226, 0);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges21;
-            exitbtn.Size = new Size(34, 39);
+            exitbtn.Size = new Size(33, 26);
             exitbtn.TabIndex = 18;
             exitbtn.Text = "X";
             // 
-            // guna2GradientPanel1
+            // RevenuePanel
             // 
-            guna2GradientPanel1.CustomizableEdges = customizableEdges22;
-            guna2GradientPanel1.FillColor = Color.LemonChiffon;
-            guna2GradientPanel1.FillColor2 = Color.PaleGreen;
-            guna2GradientPanel1.Location = new Point(104, 93);
-            guna2GradientPanel1.Name = "guna2GradientPanel1";
-            guna2GradientPanel1.ShadowDecoration.CustomizableEdges = customizableEdges23;
-            guna2GradientPanel1.Size = new Size(361, 109);
-            guna2GradientPanel1.TabIndex = 19;
+            RevenuePanel.BackColor = Color.Transparent;
+            RevenuePanel.BorderRadius = 15;
+            RevenuePanel.Controls.Add(guna2CircleProgressBar1);
+            RevenuePanel.Controls.Add(guna2HtmlLabel5);
+            RevenuePanel.Controls.Add(revenueprice);
+            RevenuePanel.Controls.Add(revenuelbl);
+            RevenuePanel.CustomizableEdges = customizableEdges23;
+            RevenuePanel.FillColor = Color.LemonChiffon;
+            RevenuePanel.FillColor2 = Color.PaleGreen;
+            RevenuePanel.Location = new Point(104, 93);
+            RevenuePanel.Name = "RevenuePanel";
+            RevenuePanel.ShadowDecoration.CustomizableEdges = customizableEdges24;
+            RevenuePanel.Size = new Size(361, 109);
+            RevenuePanel.TabIndex = 19;
             // 
-            // guna2GradientPanel2
+            // ProfitPanel
             // 
-            guna2GradientPanel2.CustomizableEdges = customizableEdges24;
-            guna2GradientPanel2.FillColor = Color.LemonChiffon;
-            guna2GradientPanel2.FillColor2 = Color.PaleGreen;
-            guna2GradientPanel2.Location = new Point(483, 93);
-            guna2GradientPanel2.Name = "guna2GradientPanel2";
-            guna2GradientPanel2.ShadowDecoration.CustomizableEdges = customizableEdges25;
-            guna2GradientPanel2.Size = new Size(361, 109);
-            guna2GradientPanel2.TabIndex = 20;
+            ProfitPanel.BackColor = Color.Transparent;
+            ProfitPanel.BorderRadius = 15;
+            ProfitPanel.Controls.Add(guna2CircleProgressBar2);
+            ProfitPanel.Controls.Add(guna2HtmlLabel3);
+            ProfitPanel.Controls.Add(Profitlbl);
+            ProfitPanel.CustomizableEdges = customizableEdges26;
+            ProfitPanel.FillColor = Color.LemonChiffon;
+            ProfitPanel.FillColor2 = Color.PaleGreen;
+            ProfitPanel.Location = new Point(483, 93);
+            ProfitPanel.Name = "ProfitPanel";
+            ProfitPanel.ShadowDecoration.CustomizableEdges = customizableEdges27;
+            ProfitPanel.Size = new Size(361, 109);
+            ProfitPanel.TabIndex = 20;
             // 
-            // guna2GradientPanel3
+            // ExpensesPanel
             // 
-            guna2GradientPanel3.CustomizableEdges = customizableEdges26;
-            guna2GradientPanel3.FillColor = Color.LemonChiffon;
-            guna2GradientPanel3.FillColor2 = Color.PaleGreen;
-            guna2GradientPanel3.Location = new Point(864, 93);
-            guna2GradientPanel3.Name = "guna2GradientPanel3";
-            guna2GradientPanel3.ShadowDecoration.CustomizableEdges = customizableEdges27;
-            guna2GradientPanel3.Size = new Size(361, 109);
-            guna2GradientPanel3.TabIndex = 20;
+            ExpensesPanel.BackColor = Color.Transparent;
+            ExpensesPanel.BorderRadius = 15;
+            ExpensesPanel.Controls.Add(guna2CircleProgressBar3);
+            ExpensesPanel.Controls.Add(guna2HtmlLabel4);
+            ExpensesPanel.Controls.Add(Expenseslbl);
+            ExpensesPanel.CustomizableEdges = customizableEdges29;
+            ExpensesPanel.FillColor = Color.LemonChiffon;
+            ExpensesPanel.FillColor2 = Color.PaleGreen;
+            ExpensesPanel.Location = new Point(864, 93);
+            ExpensesPanel.Name = "ExpensesPanel";
+            ExpensesPanel.ShadowDecoration.CustomizableEdges = customizableEdges30;
+            ExpensesPanel.Size = new Size(361, 109);
+            ExpensesPanel.TabIndex = 20;
             // 
             // guna2GradientPanel4
             // 
-            guna2GradientPanel4.CustomizableEdges = customizableEdges28;
-            guna2GradientPanel4.FillColor = Color.YellowGreen;
-            guna2GradientPanel4.FillColor2 = Color.Beige;
+            guna2GradientPanel4.BackColor = Color.Transparent;
+            guna2GradientPanel4.BorderRadius = 15;
+            guna2GradientPanel4.CustomizableEdges = customizableEdges31;
+            guna2GradientPanel4.FillColor = Color.WhiteSmoke;
+            guna2GradientPanel4.FillColor2 = Color.LemonChiffon;
             guna2GradientPanel4.Location = new Point(104, 218);
             guna2GradientPanel4.Name = "guna2GradientPanel4";
-            guna2GradientPanel4.ShadowDecoration.CustomizableEdges = customizableEdges29;
+            guna2GradientPanel4.ShadowDecoration.CustomizableEdges = customizableEdges32;
             guna2GradientPanel4.Size = new Size(224, 411);
             guna2GradientPanel4.TabIndex = 21;
             // 
             // guna2GradientPanel5
             // 
-            guna2GradientPanel5.CustomizableEdges = customizableEdges30;
-            guna2GradientPanel5.FillColor = Color.YellowGreen;
-            guna2GradientPanel5.FillColor2 = Color.Beige;
+            guna2GradientPanel5.BackColor = Color.Transparent;
+            guna2GradientPanel5.BorderRadius = 15;
+            guna2GradientPanel5.CustomizableEdges = customizableEdges33;
+            guna2GradientPanel5.FillColor = Color.WhiteSmoke;
+            guna2GradientPanel5.FillColor2 = Color.LemonChiffon;
             guna2GradientPanel5.Location = new Point(351, 218);
             guna2GradientPanel5.Name = "guna2GradientPanel5";
-            guna2GradientPanel5.ShadowDecoration.CustomizableEdges = customizableEdges31;
+            guna2GradientPanel5.ShadowDecoration.CustomizableEdges = customizableEdges34;
             guna2GradientPanel5.Size = new Size(874, 411);
             guna2GradientPanel5.TabIndex = 22;
+            // 
+            // hovertext
+            // 
+            hovertext.AllowLinksHandling = true;
+            hovertext.BackColor = Color.Transparent;
+            hovertext.BorderColor = Color.Transparent;
+            hovertext.ForeColor = Color.DarkGreen;
+            hovertext.MaximumSize = new Size(0, 0);
+            hovertext.ToolTipTitle = "Home";
+            // 
+            // revenuelbl
+            // 
+            revenuelbl.BackColor = Color.Transparent;
+            revenuelbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            revenuelbl.ForeColor = Color.DarkGreen;
+            revenuelbl.Location = new Point(20, 14);
+            revenuelbl.Name = "revenuelbl";
+            revenuelbl.Size = new Size(72, 31);
+            revenuelbl.TabIndex = 0;
+            revenuelbl.Text = "Revenue";
+            // 
+            // Profitlbl
+            // 
+            Profitlbl.BackColor = Color.Transparent;
+            Profitlbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Profitlbl.ForeColor = Color.DarkGreen;
+            Profitlbl.Location = new Point(21, 14);
+            Profitlbl.Name = "Profitlbl";
+            Profitlbl.Size = new Size(47, 31);
+            Profitlbl.TabIndex = 1;
+            Profitlbl.Text = "Profit";
+            // 
+            // Expenseslbl
+            // 
+            Expenseslbl.BackColor = Color.Transparent;
+            Expenseslbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Expenseslbl.ForeColor = Color.DarkGreen;
+            Expenseslbl.Location = new Point(17, 14);
+            Expenseslbl.Name = "Expenseslbl";
+            Expenseslbl.Size = new Size(78, 31);
+            Expenseslbl.TabIndex = 2;
+            Expenseslbl.Text = "Expenses";
+            // 
+            // revenueprice
+            // 
+            revenueprice.BackColor = Color.Transparent;
+            revenueprice.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            revenueprice.ForeColor = Color.DarkGreen;
+            revenueprice.Location = new Point(20, 40);
+            revenueprice.Name = "revenueprice";
+            revenueprice.Size = new Size(199, 49);
+            revenueprice.TabIndex = 1;
+            revenueprice.Text = "Place Holder";
+            // 
+            // guna2HtmlLabel3
+            // 
+            guna2HtmlLabel3.BackColor = Color.Transparent;
+            guna2HtmlLabel3.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            guna2HtmlLabel3.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel3.Location = new Point(21, 40);
+            guna2HtmlLabel3.Name = "guna2HtmlLabel3";
+            guna2HtmlLabel3.Size = new Size(199, 49);
+            guna2HtmlLabel3.TabIndex = 2;
+            guna2HtmlLabel3.Text = "Place Holder";
+            // 
+            // guna2HtmlLabel4
+            // 
+            guna2HtmlLabel4.BackColor = Color.Transparent;
+            guna2HtmlLabel4.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            guna2HtmlLabel4.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel4.Location = new Point(17, 40);
+            guna2HtmlLabel4.Name = "guna2HtmlLabel4";
+            guna2HtmlLabel4.Size = new Size(199, 49);
+            guna2HtmlLabel4.TabIndex = 3;
+            guna2HtmlLabel4.Text = "Place Holder";
+            // 
+            // guna2HtmlLabel5
+            // 
+            guna2HtmlLabel5.BackColor = Color.Transparent;
+            guna2HtmlLabel5.Location = new Point(304, 16);
+            guna2HtmlLabel5.Name = "guna2HtmlLabel5";
+            guna2HtmlLabel5.Size = new Size(3, 2);
+            guna2HtmlLabel5.TabIndex = 19;
+            // 
+            // guna2CircleProgressBar1
+            // 
+            guna2CircleProgressBar1.FillColor = Color.Khaki;
+            guna2CircleProgressBar1.FillThickness = 5;
+            guna2CircleProgressBar1.Font = new Font("Segoe UI", 12F);
+            guna2CircleProgressBar1.ForeColor = Color.White;
+            guna2CircleProgressBar1.Location = new Point(247, 16);
+            guna2CircleProgressBar1.Minimum = 0;
+            guna2CircleProgressBar1.Name = "guna2CircleProgressBar1";
+            guna2CircleProgressBar1.ProgressColor = Color.Green;
+            guna2CircleProgressBar1.ProgressColor2 = Color.LimeGreen;
+            guna2CircleProgressBar1.ProgressEndCap = System.Drawing.Drawing2D.LineCap.Triangle;
+            guna2CircleProgressBar1.ProgressThickness = 5;
+            guna2CircleProgressBar1.ShadowDecoration.CustomizableEdges = customizableEdges22;
+            guna2CircleProgressBar1.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
+            guna2CircleProgressBar1.Size = new Size(75, 75);
+            guna2CircleProgressBar1.TabIndex = 20;
+            guna2CircleProgressBar1.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
+            guna2CircleProgressBar1.Value = 56;
+            // 
+            // guna2CircleProgressBar2
+            // 
+            guna2CircleProgressBar2.FillColor = Color.Khaki;
+            guna2CircleProgressBar2.FillThickness = 5;
+            guna2CircleProgressBar2.Font = new Font("Segoe UI", 12F);
+            guna2CircleProgressBar2.ForeColor = Color.White;
+            guna2CircleProgressBar2.Location = new Point(268, 16);
+            guna2CircleProgressBar2.Minimum = 0;
+            guna2CircleProgressBar2.Name = "guna2CircleProgressBar2";
+            guna2CircleProgressBar2.ProgressColor = Color.Green;
+            guna2CircleProgressBar2.ProgressColor2 = Color.LimeGreen;
+            guna2CircleProgressBar2.ProgressEndCap = System.Drawing.Drawing2D.LineCap.Triangle;
+            guna2CircleProgressBar2.ProgressThickness = 5;
+            guna2CircleProgressBar2.ShadowDecoration.CustomizableEdges = customizableEdges25;
+            guna2CircleProgressBar2.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
+            guna2CircleProgressBar2.Size = new Size(75, 75);
+            guna2CircleProgressBar2.TabIndex = 21;
+            guna2CircleProgressBar2.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
+            guna2CircleProgressBar2.Value = 56;
+            // 
+            // guna2CircleProgressBar3
+            // 
+            guna2CircleProgressBar3.FillColor = Color.Khaki;
+            guna2CircleProgressBar3.FillThickness = 5;
+            guna2CircleProgressBar3.Font = new Font("Segoe UI", 12F);
+            guna2CircleProgressBar3.ForeColor = Color.White;
+            guna2CircleProgressBar3.Location = new Point(263, 16);
+            guna2CircleProgressBar3.Minimum = 0;
+            guna2CircleProgressBar3.Name = "guna2CircleProgressBar3";
+            guna2CircleProgressBar3.ProgressColor = Color.Green;
+            guna2CircleProgressBar3.ProgressColor2 = Color.LimeGreen;
+            guna2CircleProgressBar3.ProgressEndCap = System.Drawing.Drawing2D.LineCap.Triangle;
+            guna2CircleProgressBar3.ProgressThickness = 5;
+            guna2CircleProgressBar3.ShadowDecoration.CustomizableEdges = customizableEdges28;
+            guna2CircleProgressBar3.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
+            guna2CircleProgressBar3.Size = new Size(75, 75);
+            guna2CircleProgressBar3.TabIndex = 21;
+            guna2CircleProgressBar3.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
+            guna2CircleProgressBar3.Value = 56;
             // 
             // Dashboard_Form
             // 
@@ -447,9 +628,9 @@
             ClientSize = new Size(1257, 644);
             Controls.Add(guna2GradientPanel5);
             Controls.Add(guna2GradientPanel4);
-            Controls.Add(guna2GradientPanel3);
-            Controls.Add(guna2GradientPanel2);
-            Controls.Add(guna2GradientPanel1);
+            Controls.Add(ExpensesPanel);
+            Controls.Add(ProfitPanel);
+            Controls.Add(RevenuePanel);
             Controls.Add(exitbtn);
             Controls.Add(TopPanel);
             Controls.Add(guna2ShadowPanel1);
@@ -461,6 +642,12 @@
             TopPanel.ResumeLayout(false);
             TopPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)logo).EndInit();
+            RevenuePanel.ResumeLayout(false);
+            RevenuePanel.PerformLayout();
+            ProfitPanel.ResumeLayout(false);
+            ProfitPanel.PerformLayout();
+            ExpensesPanel.ResumeLayout(false);
+            ExpensesPanel.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -481,10 +668,22 @@
         private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
         private Guna.UI2.WinForms.Guna2Button exitbtn;
         private Guna.UI2.WinForms.Guna2CirclePictureBox logo;
-        private Guna.UI2.WinForms.Guna2GradientPanel guna2GradientPanel1;
-        private Guna.UI2.WinForms.Guna2GradientPanel guna2GradientPanel2;
-        private Guna.UI2.WinForms.Guna2GradientPanel guna2GradientPanel3;
+        private Guna.UI2.WinForms.Guna2GradientPanel RevenuePanel;
+        private Guna.UI2.WinForms.Guna2GradientPanel ProfitPanel;
+        private Guna.UI2.WinForms.Guna2GradientPanel ExpensesPanel;
         private Guna.UI2.WinForms.Guna2GradientPanel guna2GradientPanel4;
         private Guna.UI2.WinForms.Guna2GradientPanel guna2GradientPanel5;
+        private Guna.UI2.WinForms.Guna2HtmlToolTip hovertext;
+        private PopupEventHandler hovertext_Popup;
+        private Guna.UI2.WinForms.Guna2HtmlLabel revenueprice;
+        private Guna.UI2.WinForms.Guna2HtmlLabel revenuelbl;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel3;
+        private Guna.UI2.WinForms.Guna2HtmlLabel Profitlbl;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel4;
+        private Guna.UI2.WinForms.Guna2HtmlLabel Expenseslbl;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel5;
+        private Guna.UI2.WinForms.Guna2CircleProgressBar guna2CircleProgressBar1;
+        private Guna.UI2.WinForms.Guna2CircleProgressBar guna2CircleProgressBar2;
+        private Guna.UI2.WinForms.Guna2CircleProgressBar guna2CircleProgressBar3;
     }
 }
