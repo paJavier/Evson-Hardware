@@ -10,16 +10,11 @@ using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
 {
-    public partial class Dashboard_Form : Form
+    public partial class POSForm : Form
     {
-        public Dashboard_Form()
+        public POSForm()
         {
             InitializeComponent();
-        }
-
-        private void pnlSidebar_Paint(object sender, PaintEventArgs e)
-        {
-
         }
     }
 }
