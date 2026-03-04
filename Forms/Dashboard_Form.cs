@@ -101,13 +101,13 @@ namespace EvsonHardware.Forms
         private void Expensesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(expensesbtn);
-            MessageBox.Show("Open Expenses Module");
+            CustomMessageBox.Show("Open Expenses Module");
         }
 
         private void Reportbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(reportbtn);
-            MessageBox.Show("Open Reports Module");
+            CustomMessageBox.Show("Open Reports Module");
         }
 
         private void Logoutbtn_Click(object sender, EventArgs e)
@@ -190,7 +190,7 @@ namespace EvsonHardware.Forms
                 string price = productGrid.Rows[e.RowIndex].Cells[1].Value.ToString();
                 string stock = productGrid.Rows[e.RowIndex].Cells[2].Value.ToString();
 
-                MessageBox.Show(
+                CustomMessageBox.Show(
                     $"Product: {name}\nPrice: ₱{price}\nStock: {stock}",
                     "Product Info"
                 );
