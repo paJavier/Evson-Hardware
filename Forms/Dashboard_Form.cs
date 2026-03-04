@@ -11,11 +11,11 @@ namespace EvsonHardware.Forms
         private string _role;
         private int _userId;
 
-        public Dashboard_Form(string role, int userId)  
+        public Dashboard_Form(string role, int userId)
         {
             InitializeComponent();
             _role = role;
-            _userId = userId;  
+            _userId = userId;
             WireEvents();
             ConfigureAccess();
         }
@@ -174,6 +174,11 @@ namespace EvsonHardware.Forms
             // guna2GradientPanel1, guna2GradientPanel2 etc.
             // Example:
             // lblSalesToday.Text = "₱ " + salesToday.ToString("N2");
+        }
+
+        private void guna2HtmlLabel1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
