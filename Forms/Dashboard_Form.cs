@@ -1,4 +1,5 @@
 ﻿using EvsonHardware.Data;
+using Guna.UI2.WinForms;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Drawing;
@@ -10,6 +11,7 @@ namespace EvsonHardware.Forms
     {
         private string _role;
         private int _userId;
+        private DataGridView productGrid;
 
         public Dashboard_Form(string role, int userId)
         {
@@ -18,7 +20,10 @@ namespace EvsonHardware.Forms
             _userId = userId;
             WireEvents();
             ConfigureAccess();
-;        }
+
+            InitializeSearchGrid();
+            LoadDashboardStats();
+        }
 
         public Dashboard_Form()
         {
@@ -36,7 +41,7 @@ namespace EvsonHardware.Forms
             reportbtn.Click += Reportbtn_Click;
             logoutbtn.Click += Logoutbtn_Click;
             exitbtn.Click += Exitbtn_Click;
-            searchbar.TextChanged += Searchbar_TextChanged;
+            searchbar.KeyDown += Searchbar_KeyDown;
         }
 
         // ================================
@@ -119,37 +124,103 @@ namespace EvsonHardware.Forms
         // ================================
         // GLOBAL SEARCH
         // ================================
-        private void Searchbar_TextChanged(object sender, EventArgs e)
+        private void SearchProduct(string searchText)
         {
-            if (string.IsNullOrWhiteSpace(searchbar.Text))
+            if (string.IsNullOrWhiteSpace(searchText))
                 return;
+
+            productGrid.Rows.Clear();
 
             using var conn = Database.GetConnection();
             conn.Open();
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-                SELECT product_name, price, stock
-                FROM Product
-                WHERE product_name LIKE $search
-                LIMIT 1";
+            SELECT product_name, price, stock
+            FROM product_stock
+            WHERE product_name LIKE $search
+            LIMIT 10";
 
-            cmd.Parameters.AddWithValue("$search", "%" + searchbar.Text + "%");
+            cmd.Parameters.AddWithValue("$search", "%" + searchText + "%");
 
             using var reader = cmd.ExecuteReader();
 
-            if (reader.Read())
+            while (reader.Read())
             {
-                string name = reader.GetString(0);
-                double price = reader.GetDouble(1);
-                int stock = reader.GetInt32(2);
+                productGrid.Rows.Add(
+                    reader.GetString(0),
+                    reader.GetDouble(1),
+                    reader.GetInt32(2)
+                );
+            }
+        }
+
+        private void Searchbar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                SearchProduct(searchbar.Text);
+            }
+        }
+
+        private void InitializeSearchGrid()
+        {
+            productGrid = new DataGridView();
+            productGrid.Dock = DockStyle.Fill;
+
+            productGrid.CellClick += ProductGrid_CellClick;
+
+            productGrid.ColumnCount = 3;
+            productGrid.Columns[0].Name = "Product";
+            productGrid.Columns[1].Name = "Price";
+            productGrid.Columns[2].Name = "Stock";
+
+            productGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            productGrid.ReadOnly = true;
+            productGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+
+            dynamicpanel.Controls.Add(productGrid);
+        }
+
+        private void ProductGrid_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                string name = productGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
+                string price = productGrid.Rows[e.RowIndex].Cells[1].Value.ToString();
+                string stock = productGrid.Rows[e.RowIndex].Cells[2].Value.ToString();
 
                 MessageBox.Show(
-                    $"Product: {name}\nPrice: ₱{price:N2}\nStock: {stock}",
-                    "Search Result",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    $"Product: {name}\nPrice: ₱{price}\nStock: {stock}",
+                    "Product Info"
+                );
             }
+        }
+        private void ShowProductResult(string name, double price, int stock)
+        {
+            dynamicpanel.Controls.Clear();
+
+            Label lblName = new Label();
+            lblName.Text = name;
+            lblName.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+            lblName.Location = new Point(30, 30);
+            lblName.AutoSize = true;
+
+            Label lblPrice = new Label();
+            lblPrice.Text = "Price: ₱" + price.ToString("N2");
+            lblPrice.Font = new Font("Segoe UI", 12);
+            lblPrice.Location = new Point(30, 80);
+            lblPrice.AutoSize = true;
+
+            Label lblStock = new Label();
+            lblStock.Text = "Stock: " + stock;
+            lblStock.Font = new Font("Segoe UI", 12);
+            lblStock.Location = new Point(30, 120);
+            lblStock.AutoSize = true;
+
+            dynamicpanel.Controls.Add(lblName);
+            dynamicpanel.Controls.Add(lblPrice);
+            dynamicpanel.Controls.Add(lblStock);
         }
 
         // ================================
@@ -160,25 +231,74 @@ namespace EvsonHardware.Forms
             using var conn = Database.GetConnection();
             conn.Open();
 
-            // Example: Sales Today
-            var cmd = conn.CreateCommand();
-            cmd.CommandText = @"
-                SELECT IFNULL(SUM(total_amount),0)
-                FROM Sale
-                WHERE sale_date = date('now')";
+            // DAILY REVENUE
+            var revenueCmd = conn.CreateCommand();
+            revenueCmd.CommandText = @"
+            SELECT IFNULL(total_sales,0)
+            FROM daily_revenue
+            WHERE revenue_date = DATE('now')";
 
-            var result = cmd.ExecuteScalar();
-            decimal salesToday = Convert.ToDecimal(result);
+            var revenue = revenueCmd.ExecuteScalar();
+            decimal dailyRevenue = revenue == null ? 0 : Convert.ToDecimal(revenue);
 
-            // You can later display this inside labels inside:
-            // guna2GradientPanel1, guna2GradientPanel2 etc.
-            // Example:
-            // lblSalesToday.Text = "₱ " + salesToday.ToString("N2");
+            revenueamt.Text = "₱ " + dailyRevenue.ToString("N2");
+
+            // DAILY EXPENSES
+            var expenseCmd = conn.CreateCommand();
+            expenseCmd.CommandText = @"
+            SELECT IFNULL(SUM(amount),0)
+            FROM expense
+            WHERE DATE(expense_date) = DATE('now')";
+
+            var expense = expenseCmd.ExecuteScalar();
+            decimal dailyExpenses = Convert.ToDecimal(expense);
+
+            expensesamt.Text = "₱ " + dailyExpenses.ToString("N2");
+
+            // DAILY PROFIT
+            decimal profit = dailyRevenue - dailyExpenses;
+
+            profitamt.Text = "₱ " + profit.ToString("N2");
+
+            LoadRevenueBreakdown();
         }
 
+        private void LoadRevenueBreakdown()
+        {
+            productGrid.Rows.Clear();
+
+            using var conn = Database.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+            SELECT 
+            p.product_name,
+            SUM(sd.quantity) as qty,
+            SUM(sd.quantity * sd.unit_price) as total
+            FROM sales_details sd
+            JOIN product p ON p.product_id = sd.product_id
+            JOIN sale s ON s.sale_id = sd.sale_id
+            WHERE DATE(s.sale_date) = DATE('now')
+            GROUP BY p.product_id
+            ORDER BY total DESC
+            LIMIT 10";
+
+            using var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                productGrid.Rows.Add(
+                    reader.GetString(0),
+                    reader.GetInt32(1),
+                    reader.GetDouble(2)
+                );
+            }
+        }
         private void guna2HtmlLabel1_Click(object sender, EventArgs e)
         {
 
-        }       
+        }
+
     }
 }
