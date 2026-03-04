@@ -18,7 +18,7 @@ namespace EvsonHardware.Forms
             _userId = userId;
             WireEvents();
             ConfigureAccess();
-        }
+;        }
 
         public Dashboard_Form()
         {
@@ -179,6 +179,6 @@ namespace EvsonHardware.Forms
         private void guna2HtmlLabel1_Click(object sender, EventArgs e)
         {
 
-        }
+        }       
     }
 }

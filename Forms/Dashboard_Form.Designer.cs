@@ -675,7 +675,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(2);
             Name = "Dashboard_Form";
-            Text = "Evson Hardware";
+            Text = " ";
             guna2ShadowPanel1.ResumeLayout(false);
             TopPanel.ResumeLayout(false);
             TopPanel.PerformLayout();
