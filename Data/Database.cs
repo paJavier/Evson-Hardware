@@ -5,7 +5,7 @@ namespace EvsonHardware.Data
 {
     public class Database
     {
-        private static string connectionString = "Data Source=EvsonHardware.db";
+        private static string connectionString = "Data Source=evson_hardware.sqlite";
 
         public static SqliteConnection GetConnection()
         {
