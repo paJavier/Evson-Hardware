@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
@@ -17,6 +18,9 @@ namespace EvsonHardware.Forms
 
             lblTitle.Text = title;
             lblMessage.Text = message;
+
+            RoundCorners(this, 20);
+            RoundCorners(btnOK, 15);
         }
 
         private void InitializeComponents()
@@ -58,9 +62,28 @@ namespace EvsonHardware.Forms
             btnOK.ForeColor = Color.White;
             btnOK.FlatStyle = FlatStyle.Flat;
             btnOK.FlatAppearance.BorderSize = 0;
+
             btnOK.Click += (s, e) => { this.Close(); };
 
             this.Controls.Add(btnOK);
+        }
+
+        private void RoundCorners(Control control, int radius)
+        {
+            Rectangle bounds = new Rectangle(0, 0, control.Width, control.Height);
+
+            GraphicsPath path = new GraphicsPath();
+
+            int diameter = radius * 2;
+
+            path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180, 90);
+            path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270, 90);
+            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
+            path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90, 90);
+
+            path.CloseAllFigures();
+
+            control.Region = new Region(path);
         }
 
         public static void Show(string message, string title = "Message")

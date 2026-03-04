@@ -79,7 +79,7 @@
             homebtn = new Guna.UI2.WinForms.Guna2Button();
             TopPanel = new Guna.UI2.WinForms.Guna2ShadowPanel();
             logo = new Guna.UI2.WinForms.Guna2CirclePictureBox();
-            guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            userlbl = new Guna.UI2.WinForms.Guna2HtmlLabel();
             guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             userbtn = new Guna.UI2.WinForms.Guna2Button();
             searchbar = new Guna.UI2.WinForms.Guna2TextBox();
@@ -296,7 +296,7 @@
             // 
             TopPanel.BackColor = Color.Transparent;
             TopPanel.Controls.Add(logo);
-            TopPanel.Controls.Add(guna2HtmlLabel2);
+            TopPanel.Controls.Add(userlbl);
             TopPanel.Controls.Add(guna2HtmlLabel1);
             TopPanel.Controls.Add(userbtn);
             TopPanel.Controls.Add(searchbar);
@@ -324,14 +324,16 @@
             logo.TabIndex = 18;
             logo.TabStop = false;
             // 
-            // guna2HtmlLabel2
+            // userlbl
             // 
-            guna2HtmlLabel2.BackColor = Color.Transparent;
-            guna2HtmlLabel2.Location = new Point(1006, 27);
-            guna2HtmlLabel2.Name = "guna2HtmlLabel2";
-            guna2HtmlLabel2.Size = new Size(36, 27);
-            guna2HtmlLabel2.TabIndex = 17;
-            guna2HtmlLabel2.Text = "user";
+            userlbl.BackColor = Color.Transparent;
+            userlbl.Font = new Font("Sitka Banner", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            userlbl.ForeColor = Color.ForestGreen;
+            userlbl.Location = new Point(942, 26);
+            userlbl.Name = "userlbl";
+            userlbl.Size = new Size(89, 28);
+            userlbl.TabIndex = 17;
+            userlbl.Text = "         current user";
             // 
             // guna2HtmlLabel1
             // 
@@ -345,7 +347,6 @@
             guna2HtmlLabel1.Size = new Size(137, 31);
             guna2HtmlLabel1.TabIndex = 16;
             guna2HtmlLabel1.Text = "Evson Hardware";
-            guna2HtmlLabel1.Click += guna2HtmlLabel1_Click;
             // 
             // userbtn
             // 
@@ -362,12 +363,13 @@
             userbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             userbtn.Image = (Image)resources.GetObject("userbtn.Image");
             userbtn.ImageSize = new Size(260, 220);
-            userbtn.Location = new Point(1056, 7);
+            userbtn.Location = new Point(1066, 14);
             userbtn.Name = "userbtn";
             userbtn.PressedColor = Color.DarkGreen;
             userbtn.ShadowDecoration.CustomizableEdges = customizableEdges17;
-            userbtn.Size = new Size(49, 68);
+            userbtn.Size = new Size(39, 56);
             userbtn.TabIndex = 15;
+            userbtn.Click += userbtn_Click;
             // 
             // searchbar
             // 
@@ -729,7 +731,7 @@
         private Guna.UI2.WinForms.Guna2ShadowPanel TopPanel;
         private Guna.UI2.WinForms.Guna2TextBox searchbar;
         private Guna.UI2.WinForms.Guna2Button userbtn;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel2;
+        private Guna.UI2.WinForms.Guna2HtmlLabel userlbl;
         private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
         private Guna.UI2.WinForms.Guna2Button exitbtn;
         private Guna.UI2.WinForms.Guna2CirclePictureBox logo;

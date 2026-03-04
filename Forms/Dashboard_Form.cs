@@ -23,6 +23,7 @@ namespace EvsonHardware.Forms
 
             InitializeSearchGrid();
             LoadDashboardStats();
+            LoadCurrentUser();
         }
 
         public Dashboard_Form()
@@ -42,6 +43,7 @@ namespace EvsonHardware.Forms
             logoutbtn.Click += Logoutbtn_Click;
             exitbtn.Click += Exitbtn_Click;
             searchbar.KeyDown += Searchbar_KeyDown;
+            userbtn.Click += userbtn_Click;
         }
 
         // ================================
@@ -295,10 +297,89 @@ namespace EvsonHardware.Forms
                 );
             }
         }
-        private void guna2HtmlLabel1_Click(object sender, EventArgs e)
-        {
 
+        private void LoadCurrentUser()
+        {
+            using var conn = Database.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+            SELECT e.employee_name
+            FROM users u
+            JOIN employee e ON u.employee_id = e.employee_id
+            WHERE u.user_id = $id
+            LIMIT 1
+        ";
+
+            cmd.Parameters.AddWithValue("$id", _userId);
+
+            var result = cmd.ExecuteScalar();
+
+            if (result != null)
+                userlbl.Text = result.ToString();
+            else
+                userlbl.Text = "Unknown User";
         }
 
+        private void userbtn_Click(object sender, EventArgs e)
+        {
+            using var conn = Database.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+            SELECT u.user_id, e.employee_name
+            FROM users u
+            JOIN employee e ON u.employee_id = e.employee_id
+            WHERE u.is_active = 1";
+
+            using var reader = cmd.ExecuteReader();
+
+            Dictionary<string, int> users = new();
+
+            while (reader.Read())
+            {
+                users.Add(reader.GetString(1), reader.GetInt32(0));
+            }
+
+            var selectionForm = new UserSelectionForm(users);
+
+            if (selectionForm.ShowDialog() != DialogResult.OK)
+                return;
+
+            int selectedUserId = selectionForm.SelectedUserId;
+
+            string username = users.First(x => x.Value == selectedUserId).Key;
+
+            var passwordForm = new PasswordPromptForm(username);
+
+            if (passwordForm.ShowDialog() != DialogResult.OK)
+                return;
+
+            string passwordHash = Models.PasswordHasher.Hash(passwordForm.EnteredPassword);
+
+            var verifyCmd = conn.CreateCommand();
+            verifyCmd.CommandText = @"
+            SELECT role
+            FROM users
+            WHERE user_id = $id
+            AND password_hash = $pass";
+
+            verifyCmd.Parameters.AddWithValue("$id", selectedUserId);
+            verifyCmd.Parameters.AddWithValue("$pass", passwordHash);
+
+            var role = verifyCmd.ExecuteScalar();
+
+            if (role != null)
+            {
+                this.Hide();
+                new Dashboard_Form(role.ToString(), selectedUserId).Show();
+            }
+            else
+            {
+                CustomMessageBox.Show("Incorrect password.", "Access Denied");
+            }
+        }
     }
 }
