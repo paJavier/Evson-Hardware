@@ -9,13 +9,13 @@ namespace EvsonHardware.Forms
     public partial class Dashboard_Form : Form
     {
         private string _role;
+        private int _userId;
 
-        public Dashboard_Form(string role)
+        public Dashboard_Form(string role, int userId)  
         {
             InitializeComponent();
-
             _role = role;
-
+            _userId = userId;  
             WireEvents();
             ConfigureAccess();
         }
@@ -82,13 +82,15 @@ namespace EvsonHardware.Forms
         private void Salesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(salesbtn);
-            MessageBox.Show("Open POS Module");
+            var form = new SalesForm();
+            form.ShowDialog();
         }
 
         private void Inventorybtn_Click(object sender, EventArgs e)
         {
             ActivateButton(inventorybtn);
-            MessageBox.Show("Open Inventory Module");
+            var form = new InventoryForm();
+            form.ShowDialog();
         }
 
         private void Expensesbtn_Click(object sender, EventArgs e)
