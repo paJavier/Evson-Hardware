@@ -31,6 +31,9 @@
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SalesForm));
             lblTitle = new Label();
             pnlHeader = new Panel();
             pnlActions = new Panel();
@@ -47,6 +50,7 @@
             lblCustomer = new Label();
             txtReceipt = new TextBox();
             lblReceipt = new Label();
+            exitbtn = new Guna.UI2.WinForms.Guna2Button();
             pnlHeader.SuspendLayout();
             pnlActions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numQty).BeginInit();
@@ -60,13 +64,14 @@
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 12);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(258, 37);
+            lblTitle.Size = new Size(207, 30);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Point of Sale (POS)";
             // 
             // pnlHeader
             // 
             pnlHeader.BackColor = Color.FromArgb(30, 30, 60);
+            pnlHeader.Controls.Add(exitbtn);
             pnlHeader.Controls.Add(lblTitle);
             pnlHeader.Location = new Point(0, 0);
             pnlHeader.Name = "pnlHeader";
@@ -76,7 +81,6 @@
             // pnlActions
             // 
             pnlActions.BackColor = Color.FromArgb(240, 243, 248);
-            pnlActions.BorderStyle = BorderStyle.FixedSingle;
             pnlActions.Controls.Add(btnBrowse);
             pnlActions.Controls.Add(lblSelectedProduct);
             pnlActions.Controls.Add(lblQty);
@@ -110,7 +114,7 @@
             lblSelectedProduct.ForeColor = Color.FromArgb(30, 90, 160);
             lblSelectedProduct.Location = new Point(162, 15);
             lblSelectedProduct.Name = "lblSelectedProduct";
-            lblSelectedProduct.Size = new Size(102, 20);
+            lblSelectedProduct.Size = new Size(84, 15);
             lblSelectedProduct.TabIndex = 1;
             lblSelectedProduct.Text = "Selected: None";
             // 
@@ -121,7 +125,7 @@
             lblQty.ForeColor = Color.FromArgb(80, 80, 100);
             lblQty.Location = new Point(483, 15);
             lblQty.Name = "lblQty";
-            lblQty.Size = new Size(35, 20);
+            lblQty.Size = new Size(29, 15);
             lblQty.TabIndex = 2;
             lblQty.Text = "Qty:";
             // 
@@ -132,7 +136,7 @@
             numQty.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
             numQty.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numQty.Name = "numQty";
-            numQty.Size = new Size(65, 29);
+            numQty.Size = new Size(65, 24);
             numQty.TabIndex = 3;
             numQty.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
@@ -208,7 +212,7 @@
             lblTotal.ForeColor = Color.FromArgb(30, 30, 60);
             lblTotal.Location = new Point(490, 412);
             lblTotal.Name = "lblTotal";
-            lblTotal.Size = new Size(152, 35);
+            lblTotal.Size = new Size(124, 28);
             lblTotal.TabIndex = 8;
             lblTotal.Text = "Total: ₱0.00";
             // 
@@ -233,7 +237,7 @@
             txtCustomer.Font = new Font("Segoe UI", 9.5F);
             txtCustomer.Location = new Point(460, 71);
             txtCustomer.Name = "txtCustomer";
-            txtCustomer.Size = new Size(270, 29);
+            txtCustomer.Size = new Size(270, 24);
             txtCustomer.TabIndex = 4;
             // 
             // lblCustomer
@@ -243,7 +247,7 @@
             lblCustomer.ForeColor = Color.FromArgb(80, 80, 100);
             lblCustomer.Location = new Point(336, 75);
             lblCustomer.Name = "lblCustomer";
-            lblCustomer.Size = new Size(119, 20);
+            lblCustomer.Size = new Size(97, 15);
             lblCustomer.TabIndex = 3;
             lblCustomer.Text = "Customer Name:";
             // 
@@ -252,7 +256,7 @@
             txtReceipt.Font = new Font("Segoe UI", 9.5F);
             txtReceipt.Location = new Point(155, 71);
             txtReceipt.Name = "txtReceipt";
-            txtReceipt.Size = new Size(175, 29);
+            txtReceipt.Size = new Size(175, 24);
             txtReceipt.TabIndex = 2;
             // 
             // lblReceipt
@@ -262,13 +266,40 @@
             lblReceipt.ForeColor = Color.FromArgb(80, 80, 100);
             lblReceipt.Location = new Point(20, 74);
             lblReceipt.Name = "lblReceipt";
-            lblReceipt.Size = new Size(147, 20);
+            lblReceipt.Size = new Size(116, 15);
             lblReceipt.TabIndex = 1;
             lblReceipt.Text = "Receipt # (Optional):";
+            // 
+            // exitbtn
+            // 
+            exitbtn.AutoRoundedCorners = true;
+            exitbtn.BackColor = Color.Transparent;
+            exitbtn.BorderColor = Color.Transparent;
+            exitbtn.CustomizableEdges = customizableEdges1;
+            exitbtn.DisabledState.BorderColor = Color.DarkGray;
+            exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
+            exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
+            exitbtn.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
+            exitbtn.FillColor = Color.Transparent;
+            exitbtn.Font = new Font("Sitka Small", 8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            exitbtn.ForeColor = Color.DarkRed;
+            exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
+            exitbtn.ImageSize = new Size(260, 220);
+            exitbtn.Location = new Point(702, 11);
+            exitbtn.Margin = new Padding(2);
+            exitbtn.Name = "exitbtn";
+            exitbtn.PressedColor = Color.DarkGreen;
+            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            exitbtn.Size = new Size(38, 31);
+            exitbtn.TabIndex = 19;
+            exitbtn.Text = "X";
+            exitbtn.Click += exitbtn_Click;
             // 
             // SalesForm
             // 
             BackColor = Color.FromArgb(245, 247, 250);
+            BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
+            BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(760, 520);
             Controls.Add(pnlHeader);
             Controls.Add(lblReceipt);
@@ -280,6 +311,7 @@
             Controls.Add(btnRemove);
             Controls.Add(lblTotal);
             Controls.Add(btnCheckout);
+            FormBorderStyle = FormBorderStyle.None;
             Name = "SalesForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Evson Hardware — Sales";
@@ -292,5 +324,6 @@
             ResumeLayout(false);
             PerformLayout();
         }
+        private Guna.UI2.WinForms.Guna2Button exitbtn;
     }
 }

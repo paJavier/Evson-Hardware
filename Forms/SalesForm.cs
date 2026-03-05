@@ -1,7 +1,9 @@
-﻿using System;
+﻿using EvsonHardware.Data;
+using Microsoft.Data.Sqlite;
+using System;
 using System.Data;
+using System.Security.Cryptography;
 using System.Windows.Forms;
-using EvsonHardware.Data;
 
 namespace EvsonHardware
 {
@@ -101,6 +103,7 @@ namespace EvsonHardware
 
         private void btnCheckout_Click(object sender, EventArgs e)
         {
+
             if (dgvCart.Rows.Count == 0)
             {
                 MessageBox.Show("Cart is empty.", "Nothing to Checkout",
@@ -118,13 +121,27 @@ namespace EvsonHardware
             try
             {
                 // Check stock via product_stock view before committing
+                using var conn = Database.GetConnection();
+                conn.Open();
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "PRAGMA busy_timeout = 5000;";
+                cmd.ExecuteNonQuery();
+
+                var wal = conn.CreateCommand();
+                wal.CommandText = "PRAGMA journal_mode=WAL;";
+                wal.ExecuteNonQuery();
+
+                // Check stock using the same connection
                 foreach (DataGridViewRow row in dgvCart.Rows)
                 {
                     if (row.IsNewRow) continue;
+
                     int pid = Convert.ToInt32(row.Cells["ID"].Value);
                     int reqQty = Convert.ToInt32(row.Cells["Qty"].Value);
                     string pname = row.Cells["Product"].Value.ToString();
-                    int inStock = GetStock(pid);
+
+                    int inStock = GetStock(pid, conn);
 
                     if (inStock < reqQty)
                     {
@@ -134,8 +151,7 @@ namespace EvsonHardware
                     }
                 }
 
-                using var conn = Database.GetConnection();
-                conn.Open();
+
                 using var tr = conn.BeginTransaction();
 
                 // sale columns: receipt_number, sale_date, customer_name, total_amount, user_id
@@ -150,7 +166,7 @@ namespace EvsonHardware
                 c1.Parameters.AddWithValue("@c", string.IsNullOrWhiteSpace(txtCustomer.Text)
                     ? (object)DBNull.Value : txtCustomer.Text.Trim());
                 c1.Parameters.AddWithValue("@t", currentTotal);
-                long saleId = (long)c1.ExecuteScalar();
+                long saleId = Convert.ToInt64(c1.ExecuteScalar());
 
                 // sales_details columns: sale_id, product_id, quantity, unit_price, subtotal
                 foreach (DataGridViewRow row in dgvCart.Rows)
@@ -181,15 +197,18 @@ namespace EvsonHardware
         }
 
         // Reads stock from product_stock view — no calculation in code
-        private int GetStock(int productId)
+        private int GetStock(int productId, SqliteConnection conn)
         {
-            using var conn = Database.GetConnection();
-            conn.Open();
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT stock FROM product_stock WHERE product_id = @id;";
+            cmd.CommandText = "SELECT CAST(stock AS INTEGER) FROM product_stock WHERE CAST(product_id AS INTEGER) = @id LIMIT 1;";
             cmd.Parameters.AddWithValue("@id", productId);
-            var result = cmd.ExecuteScalar();
-            return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
+
+            object result = cmd.ExecuteScalar();
+
+            if (result != null && result != DBNull.Value)
+                return Convert.ToInt32(result);
+
+            return 0;
         }
 
         private void UpdateTotal() => lblTotal.Text = $"Total: ₱{currentTotal:F2}";
@@ -210,6 +229,11 @@ namespace EvsonHardware
             txtCustomer.Clear();
             txtReceipt.Clear();
             ResetStaging();
+        }
+
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            this.Hide();
         }
     }
 }

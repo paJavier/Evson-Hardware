@@ -94,7 +94,10 @@ namespace EvsonHardware
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = "SELECT category_id, category_name FROM category ORDER BY category_name;";
                 var dt = new DataTable();
-                dt.Load(cmd.ExecuteReader());
+                using (var reader = cmd.ExecuteReader())
+                {
+                    dt.Load(reader);
+                }
 
                 var all = dt.NewRow();
                 all["category_id"] = 0;
@@ -145,7 +148,10 @@ namespace EvsonHardware
                 cmd.Parameters.AddWithValue("@catId", categoryId);
 
                 var dt = new DataTable();
-                dt.Load(cmd.ExecuteReader());
+                using (var reader = cmd.ExecuteReader())
+                {
+                    dt.Load(reader);
+                }
                 dgvProducts.DataSource = dt;
 
                 if (dgvProducts.Columns["ID"] != null)
