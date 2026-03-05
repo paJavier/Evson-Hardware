@@ -1,5 +1,4 @@
 ﻿using EvsonHardware.Data;
-using Microsoft.Data.Sqlite;
 using System;
 using System.Data;
 using System.Windows.Forms;
@@ -13,26 +12,8 @@ namespace EvsonHardware
         public InventoryForm()
         {
             InitializeComponent();
-            EnsureDefaultCategory();
             LoadCategories();
             LoadInventory();
-        }
-
-        // Failsafe: Ensures at least one category exists
-        private void EnsureDefaultCategory()
-        {
-            try
-            {
-                using var conn = Database.GetConnection();
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = "INSERT INTO Category (category_name) SELECT 'General Hardware' WHERE NOT EXISTS (SELECT 1 FROM Category LIMIT 1);";
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error ensuring default category: " + ex.Message);
-            }
         }
 
         private void LoadCategories()
@@ -42,17 +23,16 @@ namespace EvsonHardware
                 using var conn = Database.GetConnection();
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT category_id, category_name FROM Category ORDER BY category_name;";
+                cmd.CommandText = "SELECT category_id, category_name FROM category ORDER BY category_name;";
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
-
                 cmbCategory.DataSource = dt;
                 cmbCategory.DisplayMember = "category_name";
                 cmbCategory.ValueMember = "category_id";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading categories: " + ex.Message);
+                MessageBox.Show("LoadCategories error: " + ex.Message);
             }
         }
 
@@ -64,24 +44,21 @@ namespace EvsonHardware
                 conn.Open();
                 var cmd = conn.CreateCommand();
 
-                // Simplified stock: Supply - Sales only.
-                // Add Adjustment_Details and Return_Details back when those modules are built.
+                // product_stock view: product_id, product_name, price, category_name, stock
+                // product table:      product_id, product_name, unit, price, category_id, description, brandname, reorder_level
                 cmd.CommandText = @"
-                    SELECT 
-                        p.product_id    AS ID,
-                        p.product_name  AS Name,
-                        c.category_name AS Category,
-                        p.brandname     AS Brand,
-                        p.price         AS Price,
-                        p.unit          AS Unit,
-                        p.reorder_level AS Reorder,
-                        (
-                            COALESCE((SELECT SUM(quantity) FROM Supply_Details WHERE product_id = p.product_id), 0)
-                          - COALESCE((SELECT SUM(quantity) FROM Sales_Details  WHERE product_id = p.product_id), 0)
-                        ) AS Stock
-                    FROM Product p
-                    LEFT JOIN Category c ON p.category_id = c.category_id
-                    ORDER BY p.product_name;";
+                    SELECT
+                        ps.product_id    AS ID,
+                        ps.product_name  AS Name,
+                        ps.category_name AS Category,
+                        p.brandname      AS Brand,
+                        ps.price         AS Price,
+                        p.unit           AS Unit,
+                        p.reorder_level  AS Reorder,
+                        ps.stock         AS Stock
+                    FROM product_stock ps
+                    JOIN product p ON ps.product_id = p.product_id
+                    ORDER BY ps.product_name;";
 
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
@@ -90,7 +67,7 @@ namespace EvsonHardware
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading inventory: " + ex.Message);
+                MessageBox.Show("LoadInventory error: " + ex.Message);
             }
         }
 
@@ -98,7 +75,7 @@ namespace EvsonHardware
         {
             if (e.RowIndex < 0) return;
 
-            DataGridViewRow row = dgvInventory.Rows[e.RowIndex];
+            var row = dgvInventory.Rows[e.RowIndex];
             selectedProductId = Convert.ToInt32(row.Cells["ID"].Value);
 
             txtName.Text = row.Cells["Name"].Value?.ToString() ?? "";
@@ -113,9 +90,17 @@ namespace EvsonHardware
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtName.Text) || cmbCategory.SelectedValue == null)
+            if (string.IsNullOrWhiteSpace(txtName.Text))
             {
-                MessageBox.Show("Name and Category are required.", "Validation",
+                MessageBox.Show("Product name is required.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            int catId = GetSelectedCategoryId();
+            if (catId == 0)
+            {
+                MessageBox.Show("Please select a category.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -126,52 +111,52 @@ namespace EvsonHardware
                 conn.Open();
                 var cmd = conn.CreateCommand();
 
-                if (selectedProductId == 0) // ADD NEW
+                if (selectedProductId == 0)
                 {
+                    // product columns: product_name, unit, price, category_id, description, brandname, reorder_level
                     cmd.CommandText = @"
-                        INSERT INTO Product (product_name, brandname, unit, price, reorder_level, category_id) 
-                        VALUES (@name, @brand, @unit, @price, @reorder, @catId);";
+                        INSERT INTO product (product_name, unit, price, category_id, description, brandname, reorder_level)
+                        VALUES (@name, @unit, @price, @catId, @desc, @brand, @reorder);";
                 }
-                else // UPDATE EXISTING
+                else
                 {
                     cmd.CommandText = @"
-                        UPDATE Product SET 
+                        UPDATE product SET
                             product_name  = @name,
-                            brandname     = @brand,
                             unit          = @unit,
                             price         = @price,
-                            reorder_level = @reorder,
-                            category_id   = @catId
+                            category_id   = @catId,
+                            description   = @desc,
+                            brandname     = @brand,
+                            reorder_level = @reorder
                         WHERE product_id  = @id;";
                     cmd.Parameters.AddWithValue("@id", selectedProductId);
                 }
 
                 cmd.Parameters.AddWithValue("@name", txtName.Text.Trim());
-                cmd.Parameters.AddWithValue("@brand", txtBrand.Text.Trim());
                 cmd.Parameters.AddWithValue("@unit", txtUnit.Text.Trim());
                 cmd.Parameters.AddWithValue("@price", numPrice.Value);
+                cmd.Parameters.AddWithValue("@catId", catId);
+                cmd.Parameters.AddWithValue("@desc", "");
+                cmd.Parameters.AddWithValue("@brand", txtBrand.Text.Trim());
                 cmd.Parameters.AddWithValue("@reorder", numReorder.Value);
-                cmd.Parameters.AddWithValue("@catId", GetSelectedCategoryId());
 
                 cmd.ExecuteNonQuery();
-                MessageBox.Show("Product saved successfully!", "Saved",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Product saved!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
                 LoadInventory();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error saving: " + ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Save error: " + ex.Message);
             }
         }
 
-        // Adds stock by inserting into Supply tables
         private void btnRestock_Click(object sender, EventArgs e)
         {
             if (selectedProductId == 0 || numRestockQty.Value <= 0)
             {
-                MessageBox.Show("Select a product and enter a quantity greater than 0.", "Validation",
+                MessageBox.Show("Select a product and enter quantity > 0.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -180,60 +165,53 @@ namespace EvsonHardware
             {
                 using var conn = Database.GetConnection();
                 conn.Open();
-                using var transaction = conn.BeginTransaction();
+                using var tr = conn.BeginTransaction();
 
-                // 1. Create Supply header
-                var cmdSupply = conn.CreateCommand();
-                cmdSupply.Transaction = transaction;
-                cmdSupply.CommandText = @"
-                    INSERT INTO Supply (supply_date, supplier_name, user_id, total_amount) 
-                    VALUES (@date, 'Quick Restock', 1, 0);
-                    SELECT last_insert_rowid();";
-                cmdSupply.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-                long supplyId = (long)cmdSupply.ExecuteScalar();
+                // supply columns: supply_date, supplier_name, employee_id, user_id, total_amount
+                var c1 = conn.CreateCommand();
+                c1.Transaction = tr;
+                c1.CommandText = @"
+                    INSERT INTO supply (supply_date, supplier_name, employee_id, user_id, total_amount)
+                    VALUES (@date, 'Quick Restock', NULL, 1, 0);";
+                c1.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                c1.ExecuteNonQuery();
 
-                // 2. Create Supply detail
-                // Note: Supply_Details has no subtotal column — only supply_id, product_id, quantity, unit_cost
-                var cmdDetail = conn.CreateCommand();
-                cmdDetail.Transaction = transaction;
-                cmdDetail.CommandText = @"
-                    INSERT INTO Supply_Details (supply_id, product_id, quantity, unit_cost) 
-                    VALUES (@supplyId, @prodId, @qty, 0);";
-                cmdDetail.Parameters.AddWithValue("@supplyId", supplyId);
-                cmdDetail.Parameters.AddWithValue("@prodId", selectedProductId);
-                cmdDetail.Parameters.AddWithValue("@qty", (int)numRestockQty.Value);
-                cmdDetail.ExecuteNonQuery();
+                var c2 = conn.CreateCommand();
+                c2.Transaction = tr;
+                c2.CommandText = "SELECT last_insert_rowid();";
+                long supplyId = (long)c2.ExecuteScalar();
 
-                transaction.Commit();
-                MessageBox.Show($"Successfully added {(int)numRestockQty.Value} units to stock!", "Restock Complete",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // supply_details columns: supply_id, product_id, quantity, unit_cost, subtotal
+                var c3 = conn.CreateCommand();
+                c3.Transaction = tr;
+                c3.CommandText = @"
+                    INSERT INTO supply_details (supply_id, product_id, quantity, unit_cost, subtotal)
+                    VALUES (@sid, @pid, @qty, 0, 0);";
+                c3.Parameters.AddWithValue("@sid", supplyId);
+                c3.Parameters.AddWithValue("@pid", selectedProductId);
+                c3.Parameters.AddWithValue("@qty", (int)numRestockQty.Value);
+                c3.ExecuteNonQuery();
+
+                tr.Commit();
+                MessageBox.Show($"Added {(int)numRestockQty.Value} units. Supply ID: {supplyId}",
+                    "Restock Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 numRestockQty.Value = 0;
                 LoadInventory();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Restock failed: " + ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Restock error: " + ex.Message);
             }
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            ClearForm();
-        }
+        private void btnClear_Click(object sender, EventArgs e) => ClearForm();
 
-        // ── Helpers ───────────────────────────────────────────────────
-
-        /// <summary>
-        /// Safely reads the selected category ID from the ComboBox.
-        /// </summary>
         private int GetSelectedCategoryId()
         {
-            if (cmbCategory.SelectedItem == null) return 0;
-            var row = cmbCategory.SelectedItem as DataRowView;
-            if (row == null) return 0;
-            return Convert.ToInt32(row["category_id"]);
+            if (cmbCategory.SelectedItem is DataRowView row)
+                return Convert.ToInt32(row["category_id"]);
+            return 0;
         }
 
         private void ClearForm()
