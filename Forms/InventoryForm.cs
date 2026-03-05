@@ -247,5 +247,10 @@ namespace EvsonHardware
             lblSelectedStock.Text = "Selected Stock: 0";
             dgvInventory.ClearSelection();
         }
+
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
     }
 }

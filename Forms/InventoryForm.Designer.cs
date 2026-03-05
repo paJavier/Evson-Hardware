@@ -36,6 +36,8 @@
 
         private void InitializeComponent()
         {
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(InventoryForm));
             lblTitle = new Label();
             dgvInventory = new DataGridView();
@@ -59,6 +61,7 @@
             lblRestockQty = new Label();
             numRestockQty = new NumericUpDown();
             btnRestock = new Button();
+            exitbtn = new Guna.UI2.WinForms.Guna2Button();
             ((System.ComponentModel.ISupportInitialize)dgvInventory).BeginInit();
             grpDetails.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numPrice).BeginInit();
@@ -75,7 +78,7 @@
             lblTitle.ForeColor = Color.White;
             lblTitle.Location = new Point(20, 20);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(343, 48);
+            lblTitle.Size = new Size(235, 32);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "Inventory Manager";
             // 
@@ -131,14 +134,14 @@
             // 
             txtName.Location = new Point(120, 32);
             txtName.Name = "txtName";
-            txtName.Size = new Size(150, 31);
+            txtName.Size = new Size(150, 23);
             txtName.TabIndex = 1;
             // 
             // lblBrand
             // 
             lblBrand.Location = new Point(300, 35);
             lblBrand.Name = "lblBrand";
-            lblBrand.Size = new Size(100, 23);
+            lblBrand.Size = new Size(74, 28);
             lblBrand.TabIndex = 2;
             lblBrand.Text = "Brand:";
             // 
@@ -146,7 +149,7 @@
             // 
             txtBrand.Location = new Point(380, 32);
             txtBrand.Name = "txtBrand";
-            txtBrand.Size = new Size(150, 31);
+            txtBrand.Size = new Size(150, 23);
             txtBrand.TabIndex = 3;
             // 
             // lblCategory
@@ -162,24 +165,23 @@
             cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCategory.Location = new Point(120, 72);
             cmbCategory.Name = "cmbCategory";
-            cmbCategory.Size = new Size(150, 33);
+            cmbCategory.Size = new Size(150, 23);
             cmbCategory.TabIndex = 5;
             // 
             // lblUnit
             // 
-            lblUnit.Location = new Point(300, 75);
+            lblUnit.Location = new Point(300, 77);
             lblUnit.Name = "lblUnit";
-            lblUnit.Size = new Size(100, 23);
+            lblUnit.Size = new Size(61, 28);
             lblUnit.TabIndex = 6;
-            lblUnit.Text = "Unit (e.g. pcs):";
+            lblUnit.Text = "Unit:";
             // 
             // txtUnit
             // 
             txtUnit.Location = new Point(380, 72);
             txtUnit.Name = "txtUnit";
-            txtUnit.Size = new Size(150, 31);
+            txtUnit.Size = new Size(150, 23);
             txtUnit.TabIndex = 7;
-            txtUnit.Text = "pcs";
             // 
             // lblPrice
             // 
@@ -195,24 +197,23 @@
             numPrice.Location = new Point(120, 112);
             numPrice.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numPrice.Name = "numPrice";
-            numPrice.Size = new Size(150, 31);
+            numPrice.Size = new Size(150, 23);
             numPrice.TabIndex = 9;
             // 
             // lblReorder
             // 
             lblReorder.Location = new Point(300, 115);
             lblReorder.Name = "lblReorder";
-            lblReorder.Size = new Size(100, 23);
+            lblReorder.Size = new Size(74, 32);
             lblReorder.TabIndex = 10;
-            lblReorder.Text = "Reorder Alert At:";
+            lblReorder.Text = "Reorder:";
             // 
             // numReorder
             // 
             numReorder.Location = new Point(380, 112);
             numReorder.Name = "numReorder";
-            numReorder.Size = new Size(150, 31);
+            numReorder.Size = new Size(150, 23);
             numReorder.TabIndex = 11;
-            numReorder.Value = new decimal(new int[] { 10, 0, 0, 0 });
             // 
             // btnSave
             // 
@@ -256,7 +257,7 @@
             lblSelectedStock.ForeColor = Color.DarkGreen;
             lblSelectedStock.Location = new Point(20, 40);
             lblSelectedStock.Name = "lblSelectedStock";
-            lblSelectedStock.Size = new Size(174, 28);
+            lblSelectedStock.Size = new Size(124, 19);
             lblSelectedStock.TabIndex = 0;
             lblSelectedStock.Text = "Selected Stock: 0";
             // 
@@ -273,7 +274,7 @@
             numRestockQty.Location = new Point(150, 88);
             numRestockQty.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
             numRestockQty.Name = "numRestockQty";
-            numRestockQty.Size = new Size(100, 31);
+            numRestockQty.Size = new Size(100, 23);
             numRestockQty.TabIndex = 2;
             // 
             // btnRestock
@@ -288,15 +289,41 @@
             btnRestock.UseVisualStyleBackColor = false;
             btnRestock.Click += btnRestock_Click;
             // 
+            // exitbtn
+            // 
+            exitbtn.AutoRoundedCorners = true;
+            exitbtn.BackColor = Color.Transparent;
+            exitbtn.BorderColor = Color.Transparent;
+            exitbtn.CustomizableEdges = customizableEdges1;
+            exitbtn.DisabledState.BorderColor = Color.DarkGray;
+            exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
+            exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
+            exitbtn.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
+            exitbtn.FillColor = Color.Transparent;
+            exitbtn.Font = new Font("Sitka Small", 8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            exitbtn.ForeColor = Color.DarkRed;
+            exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
+            exitbtn.ImageSize = new Size(260, 220);
+            exitbtn.Location = new Point(927, 3);
+            exitbtn.Name = "exitbtn";
+            exitbtn.PressedColor = Color.DarkGreen;
+            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            exitbtn.Size = new Size(41, 48);
+            exitbtn.TabIndex = 19;
+            exitbtn.Text = "X";
+            exitbtn.Click += exitbtn_Click;
+            // 
             // InventoryForm
             // 
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(980, 620);
+            Controls.Add(exitbtn);
             Controls.Add(lblTitle);
             Controls.Add(dgvInventory);
             Controls.Add(grpDetails);
             Controls.Add(grpRestock);
+            FormBorderStyle = FormBorderStyle.None;
             Name = "InventoryForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Evson Hardware - Inventory";
@@ -311,5 +338,6 @@
             ResumeLayout(false);
             PerformLayout();
         }
+        private Guna.UI2.WinForms.Guna2Button exitbtn;
     }
 }
