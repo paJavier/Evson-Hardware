@@ -7,23 +7,27 @@ namespace EvsonHardware.Forms
 {
     public class CustomMessageBox : Form
     {
-        private Label lblTitle;
-        private Label lblMessage;
-        private Button btnOK;
-        private Panel headerPanel;
+        private Label lblTitle = null!;
+        private Label lblMessage = null!;
+        private Button btnOK = null!;
+        private Button btnYes = null!;
+        private Button btnNo = null!;
+        private Panel headerPanel = null!;
 
-        public CustomMessageBox(string message, string title)
+        public CustomMessageBox(string message, string title, MessageBoxButtons buttons)
         {
-            InitializeComponents();
+            InitializeComponents(buttons);
 
             lblTitle.Text = title;
             lblMessage.Text = message;
 
             RoundCorners(this, 20);
             RoundCorners(btnOK, 15);
+            RoundCorners(btnYes, 15);
+            RoundCorners(btnNo, 15);
         }
 
-        private void InitializeComponents()
+        private void InitializeComponents(MessageBoxButtons buttons)
         {
             this.Size = new Size(380, 200);
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -63,9 +67,51 @@ namespace EvsonHardware.Forms
             btnOK.FlatStyle = FlatStyle.Flat;
             btnOK.FlatAppearance.BorderSize = 0;
 
+            btnOK.DialogResult = DialogResult.OK;
             btnOK.Click += (s, e) => { this.Close(); };
-
             this.Controls.Add(btnOK);
+
+            // YES BUTTON
+            btnYes = new Button();
+            btnYes.Text = "Yes";
+            btnYes.Size = new Size(90, 35);
+            btnYes.Location = new Point((this.Width / 2) - 100, 130);
+            btnYes.BackColor = Color.SeaGreen;
+            btnYes.ForeColor = Color.White;
+            btnYes.FlatStyle = FlatStyle.Flat;
+            btnYes.FlatAppearance.BorderSize = 0;
+            btnYes.DialogResult = DialogResult.Yes;
+            btnYes.Click += (s, e) => { this.Close(); };
+            this.Controls.Add(btnYes);
+
+            // NO BUTTON
+            btnNo = new Button();
+            btnNo.Text = "No";
+            btnNo.Size = new Size(90, 35);
+            btnNo.Location = new Point((this.Width / 2) + 10, 130);
+            btnNo.BackColor = Color.DarkSeaGreen;
+            btnNo.ForeColor = Color.White;
+            btnNo.FlatStyle = FlatStyle.Flat;
+            btnNo.FlatAppearance.BorderSize = 0;
+            btnNo.DialogResult = DialogResult.No;
+            btnNo.Click += (s, e) => { this.Close(); };
+            this.Controls.Add(btnNo);
+
+            if (buttons == MessageBoxButtons.YesNo)
+            {
+                btnOK.Visible = false;
+                btnYes.Visible = true;
+                btnNo.Visible = true;
+                this.AcceptButton = btnYes;
+                this.CancelButton = btnNo;
+            }
+            else
+            {
+                btnOK.Visible = true;
+                btnYes.Visible = false;
+                btnNo.Visible = false;
+                this.AcceptButton = btnOK;
+            }
         }
 
         private void RoundCorners(Control control, int radius)
@@ -86,10 +132,47 @@ namespace EvsonHardware.Forms
             control.Region = new Region(path);
         }
 
-        public static void Show(string message, string title = "Message")
+        /*  public static void Show(string message, string title = "Message")
+          {
+              CustomMessageBox box = new CustomMessageBox(message, title);
+              box.ShowDialog();
+          }*/
+
+        public static DialogResult Show(string message)
         {
-            CustomMessageBox box = new CustomMessageBox(message, title);
-            box.ShowDialog();
+            return Show(message, "Message");
+        }
+
+        public static DialogResult Show(
+            string message,
+            string title,
+            MessageBoxButtons buttons = MessageBoxButtons.OK,
+            MessageBoxIcon icon = MessageBoxIcon.Information)
+        {
+            if (buttons != MessageBoxButtons.OK && buttons != MessageBoxButtons.YesNo)
+            {
+                return MessageBox.Show(message, title, buttons, icon);
+            }
+
+            using CustomMessageBox box = new CustomMessageBox(message, title, buttons);
+            return box.ShowDialog();
+        }
+
+        public static DialogResult Show(
+            IWin32Window? owner,
+            string message,
+            string title = "Message",
+            MessageBoxButtons buttons = MessageBoxButtons.OK,
+            MessageBoxIcon icon = MessageBoxIcon.Information)
+        {
+            if (buttons != MessageBoxButtons.OK && buttons != MessageBoxButtons.YesNo)
+            {
+                return MessageBox.Show(owner, message, title, buttons, icon);
+            }
+
+            using CustomMessageBox box = new CustomMessageBox(message, title, buttons);
+            box.StartPosition = owner == null ? FormStartPosition.CenterScreen : FormStartPosition.CenterParent;
+            return owner == null ? box.ShowDialog() : box.ShowDialog(owner);
         }
     }
 }

@@ -23,7 +23,21 @@ namespace EvsonHardware
                 using var conn = Database.GetConnection();
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT category_id, category_name FROM category ORDER BY category_name;";
+                cmd.CommandText = @"
+                    SELECT
+                        COALESCE(
+                            MIN(CASE
+                                WHEN TRIM(IFNULL(category_id, '')) GLOB '[0-9]*'
+                                     AND TRIM(IFNULL(category_id, '')) <> ''
+                                THEN CAST(category_id AS INTEGER)
+                            END),
+                            MIN(rowid)
+                        ) AS category_id,
+                        TRIM(category_name) AS category_name
+                    FROM category
+                    WHERE TRIM(IFNULL(category_name, '')) <> ''
+                    GROUP BY LOWER(TRIM(category_name))
+                    ORDER BY TRIM(category_name);";
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
                 cmbCategory.DataSource = dt;
@@ -44,26 +58,39 @@ namespace EvsonHardware
                 conn.Open();
                 var cmd = conn.CreateCommand();
 
-                // product_stock view: product_id, product_name, price, category_name, stock
-                // product table:      product_id, product_name, unit, price, category_id, description, brandname, reorder_level
-                cmd.CommandText = @"
+                string supplyDetailsTable = ResolveSupplyDetailsTable(conn);
+                string salesDetailsTable = ResolveSalesDetailsTable(conn);
+
+                cmd.CommandText = $@"
                     SELECT
-                        ps.product_id    AS ID,
-                        ps.product_name  AS Name,
-                        ps.category_name AS Category,
-                        p.brandname      AS Brand,
-                        ps.price         AS Price,
-                        p.unit           AS Unit,
-                        p.reorder_level  AS Reorder,
-                        ps.stock         AS Stock
-                    FROM product_stock ps
-                    JOIN product p ON ps.product_id = p.product_id
-                    ORDER BY ps.product_name;";
+                        p.product_id     AS ID,
+                        p.product_name   AS Name,
+                        COALESCE(c.category_name, '') AS Category,
+                        COALESCE(p.brandname, '')     AS Brand,
+                        COALESCE(p.price, 0)          AS Price,
+                        COALESCE(p.unit, 'pcs')       AS Unit,
+                        COALESCE(p.reorder_level, 10) AS Reorder,
+                        (
+                            COALESCE(
+                                (SELECT SUM(quantity) FROM {supplyDetailsTable} WHERE CAST(product_id AS INTEGER) = p.product_id), 0
+                            )
+                            -
+                            COALESCE(
+                                (SELECT SUM(quantity) FROM {salesDetailsTable} WHERE CAST(product_id AS INTEGER) = p.product_id), 0
+                            )
+                        )              AS Stock
+                    FROM product p
+                    LEFT JOIN category c ON c.category_id = p.category_id
+                    ORDER BY p.product_name;";
 
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
                 dgvInventory.DataSource = dt;
                 dgvInventory.ClearSelection();
+                if (dgvInventory.Rows.Count > 0)
+                {
+                    dgvInventory.FirstDisplayedScrollingRowIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -76,16 +103,17 @@ namespace EvsonHardware
             if (e.RowIndex < 0) return;
 
             var row = dgvInventory.Rows[e.RowIndex];
-            selectedProductId = Convert.ToInt32(row.Cells["ID"].Value);
+            selectedProductId = GetCellInt(row, "ID", 0);
 
-            txtName.Text = row.Cells["Name"].Value?.ToString() ?? "";
-            txtBrand.Text = row.Cells["Brand"].Value?.ToString() ?? "";
-            txtUnit.Text = row.Cells["Unit"].Value?.ToString() ?? "pcs";
-            numPrice.Value = Convert.ToDecimal(row.Cells["Price"].Value);
-            numReorder.Value = Convert.ToDecimal(row.Cells["Reorder"].Value);
-            cmbCategory.Text = row.Cells["Category"].Value?.ToString() ?? "";
+            txtName.Text = GetCellString(row, "Name", "");
+            txtBrand.Text = GetCellString(row, "Brand", "");
+            txtUnit.Text = GetCellString(row, "Unit", "pcs");
+            numPrice.Value = GetCellDecimal(row, "Price", 0m);
+            numReorder.Value = GetCellDecimal(row, "Reorder", 10m);
+            cmbCategory.Text = GetCellString(row, "Category", "");
 
-            lblSelectedStock.Text = $"Selected Stock: {row.Cells["Stock"].Value} {row.Cells["Unit"].Value}";
+            decimal stock = GetCellDecimal(row, "Stock", 0m);
+            lblSelectedStock.Text = $"Selected Stock: {stock} {txtUnit.Text}";
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -115,8 +143,11 @@ namespace EvsonHardware
                 {
                     // product columns: product_name, unit, price, category_id, description, brandname, reorder_level
                     cmd.CommandText = @"
-                        INSERT INTO product (product_name, unit, price, category_id, description, brandname, reorder_level)
-                        VALUES (@name, @unit, @price, @catId, @desc, @brand, @reorder);";
+                        INSERT INTO product (product_id, product_name, unit, price, category_id, description, brandname, reorder_level)
+                        VALUES (
+                            (SELECT COALESCE(MAX(CAST(product_id AS INTEGER)), 0) + 1 FROM product),
+                            @name, @unit, @price, @catId, @desc, @brand, @reorder
+                        );";
                 }
                 else
                 {
@@ -170,22 +201,20 @@ namespace EvsonHardware
                 // supply columns: supply_date, supplier_name, employee_id, user_id, total_amount
                 var c1 = conn.CreateCommand();
                 c1.Transaction = tr;
+                long supplyId = GetNextNumericId(conn, "supply", "supply_id", tr);
                 c1.CommandText = @"
-                    INSERT INTO supply (supply_date, supplier_name, employee_id, user_id, total_amount)
-                    VALUES (@date, 'Quick Restock', NULL, 1, 0);";
+                    INSERT INTO supply (supply_id, supply_date, supplier_name, employee_id, user_id, total_amount)
+                    VALUES (@sid, @date, 'Quick Restock', NULL, 1, 0);";
+                c1.Parameters.AddWithValue("@sid", supplyId);
                 c1.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 c1.ExecuteNonQuery();
 
-                var c2 = conn.CreateCommand();
-                c2.Transaction = tr;
-                c2.CommandText = "SELECT last_insert_rowid();";
-                long supplyId = (long)c2.ExecuteScalar();
-
                 // supply_details columns: supply_id, product_id, quantity, unit_cost, subtotal
+                string supplyDetailsTable = ResolveSupplyDetailsTable(conn, tr);
                 var c3 = conn.CreateCommand();
                 c3.Transaction = tr;
-                c3.CommandText = @"
-                    INSERT INTO supply_details (supply_id, product_id, quantity, unit_cost, subtotal)
+                c3.CommandText = $@"
+                    INSERT INTO {supplyDetailsTable} (supply_id, product_id, quantity, unit_cost, subtotal)
                     VALUES (@sid, @pid, @qty, 0, 0);";
                 c3.Parameters.AddWithValue("@sid", supplyId);
                 c3.Parameters.AddWithValue("@pid", selectedProductId);
@@ -206,6 +235,61 @@ namespace EvsonHardware
         }
 
         private void btnClear_Click(object sender, EventArgs e) => ClearForm();
+
+        private static bool TableExists(Microsoft.Data.Sqlite.SqliteConnection conn, string tableName, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        {
+            var cmd = conn.CreateCommand();
+            cmd.Transaction = tr;
+            cmd.CommandText = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = @name LIMIT 1;";
+            cmd.Parameters.AddWithValue("@name", tableName);
+            return cmd.ExecuteScalar() != null;
+        }
+
+        private static string ResolveSupplyDetailsTable(Microsoft.Data.Sqlite.SqliteConnection conn, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        {
+            if (TableExists(conn, "supply_details_fixed", tr)) return "supply_details_fixed";
+            if (TableExists(conn, "supply_details", tr)) return "supply_details";
+            throw new InvalidOperationException("No supply details table found (expected supply_details or supply_details_fixed).");
+        }
+
+        private static string ResolveSalesDetailsTable(Microsoft.Data.Sqlite.SqliteConnection conn, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        {
+            if (TableExists(conn, "sales_details_fixed", tr)) return "sales_details_fixed";
+            if (TableExists(conn, "sales_details", tr)) return "sales_details";
+            throw new InvalidOperationException("No sales details table found (expected sales_details or sales_details_fixed).");
+        }
+
+        private static long GetNextNumericId(
+            Microsoft.Data.Sqlite.SqliteConnection conn,
+            string tableName,
+            string idColumn,
+            Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        {
+            var cmd = conn.CreateCommand();
+            cmd.Transaction = tr;
+            cmd.CommandText = $"SELECT COALESCE(MAX(CAST({idColumn} AS INTEGER)), 0) + 1 FROM {tableName};";
+            return Convert.ToInt64(cmd.ExecuteScalar());
+        }
+
+        private static string GetCellString(DataGridViewRow row, string columnName, string fallback)
+        {
+            object? value = row.Cells[columnName].Value;
+            return value == null || value == DBNull.Value ? fallback : value.ToString() ?? fallback;
+        }
+
+        private static int GetCellInt(DataGridViewRow row, string columnName, int fallback)
+        {
+            object? value = row.Cells[columnName].Value;
+            if (value == null || value == DBNull.Value) return fallback;
+            return int.TryParse(value.ToString(), out int parsed) ? parsed : fallback;
+        }
+
+        private static decimal GetCellDecimal(DataGridViewRow row, string columnName, decimal fallback)
+        {
+            object? value = row.Cells[columnName].Value;
+            if (value == null || value == DBNull.Value) return fallback;
+            return decimal.TryParse(value.ToString(), out decimal parsed) ? parsed : fallback;
+        }
 
         private int GetSelectedCategoryId()
         {

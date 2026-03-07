@@ -54,8 +54,7 @@ namespace EvsonHardware
         {
             if (stagedProductId == 0)
             {
-                MessageBox.Show("Please select a product first.", "No Product",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                CustomMessageBox.Show("Please select a product first.", "No Product");
                 return;
             }
 
@@ -70,8 +69,9 @@ namespace EvsonHardware
                     int newQty = existingQty + qtyToAdd;
                     if (newQty > stagedAvailableStock)
                     {
-                        MessageBox.Show($"Only {stagedAvailableStock - existingQty} more unit(s) available.",
-                            "Insufficient Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        CustomMessageBox.Show($"Only {stagedAvailableStock - existingQty} more unit(s) available.",
+                            "Insufficient Stock");
+
                         return;
                     }
                     decimal newSub = stagedPrice * newQty;
@@ -107,13 +107,15 @@ namespace EvsonHardware
 
             if (dgvCart.Rows.Count == 0)
             {
-                MessageBox.Show("Cart is empty.", "Nothing to Checkout",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                CustomMessageBox.Show("Cart is empty.", "Nothing to Checkout");
                 return;
             }
 
-            if (MessageBox.Show($"Process sale for ₱{currentTotal:F2}?", "Confirm Sale",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            if (CustomMessageBox.Show(
+                $"Process sale for ₱{currentTotal:F2}?",
+                "Confirm Sale",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question) != DialogResult.Yes) return;
 
             string receiptNum = string.IsNullOrWhiteSpace(txtReceipt.Text)
                 ? "REC-" + DateTime.Now.ToString("yyyyMMddHHmmss")
@@ -142,8 +144,8 @@ namespace EvsonHardware
 
                     if (inStock < reqQty)
                     {
-                        MessageBox.Show($"Not enough stock for '{pname}'.\nNeeded: {reqQty}, Available: {inStock}",
-                            "Stock Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        CustomMessageBox.Show($"Not enough stock for '{pname}'.\nNeeded: {reqQty}, Available: {inStock}",
+                            "Stock Error");
                         return;
                     }
                 }
@@ -183,10 +185,9 @@ namespace EvsonHardware
                 }
 
                 tr.Commit();
-                MessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: ₱{currentTotal:F2}",
-                    "Sale Processed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CustomMessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: ₱{currentTotal:F2}",
+                "Sale Processed");
                 ClearCart();
-                ResetStaging();
                 RefreshDashboard();
 
                 stagedAvailableStock = 0;
@@ -194,7 +195,7 @@ namespace EvsonHardware
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Sale error: " + ex.Message);
+                CustomMessageBox.Show(this, "Sale error: " + ex.Message);
             }
         }
 

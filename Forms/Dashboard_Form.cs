@@ -44,7 +44,6 @@ namespace EvsonHardware.Forms
             logoutbtn.Click += Logoutbtn_Click;
             exitbtn.Click += Exitbtn_Click;
             searchbar.KeyDown += Searchbar_KeyDown;
-            userbtn.Click += userbtn_Click;
         }
 
         // ================================
@@ -52,6 +51,10 @@ namespace EvsonHardware.Forms
         // ================================
         private void ConfigureAccess()
         {
+            returnbtn.Visible = true;
+            expensesbtn.Visible = true;
+            reportbtn.Visible = true;
+
             if (_role == "Cashier")
             {
                 returnbtn.Visible = false;
@@ -147,7 +150,9 @@ namespace EvsonHardware.Forms
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-                SELECT product_name, price, stock
+                SELECT
+                    ROUND(price, 2) AS Price,
+                    CAST(stock AS INTEGER) AS Stock
                 FROM product_stock
                 WHERE product_name LIKE $search
                 LIMIT 10";
@@ -176,17 +181,37 @@ namespace EvsonHardware.Forms
         {
             productGrid = new DataGridView();
             productGrid.Dock = DockStyle.Fill;
+            productGrid.AutoGenerateColumns = false;
+            productGrid.AllowUserToAddRows = false;
+            productGrid.AllowUserToDeleteRows = false;
 
             productGrid.CellClick += ProductGrid_CellClick;
 
-            productGrid.ColumnCount = 3;
-            productGrid.Columns[0].Name = "Product";
-            productGrid.Columns[1].Name = "Price";
-            productGrid.Columns[2].Name = "Stock";
+            productGrid.Columns.Clear();
+
+            var priceCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Price",
+                HeaderText = "Price",
+                DataPropertyName = "Price",
+                DefaultCellStyle = { Format = "N2", Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            var stockCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Stock",
+                HeaderText = "Stock",
+                DataPropertyName = "Stock",
+                DefaultCellStyle = { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            productGrid.Columns.Add(priceCol);
+            productGrid.Columns.Add(stockCol);
 
             productGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             productGrid.ReadOnly = true;
             productGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            productGrid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
             dynamicpanel.Controls.Add(productGrid);
         }
@@ -195,12 +220,11 @@ namespace EvsonHardware.Forms
         {
             if (e.RowIndex >= 0)
             {
-                string name = productGrid.Rows[e.RowIndex].Cells[0].Value.ToString();
-                string price = productGrid.Rows[e.RowIndex].Cells[1].Value.ToString();
-                string stock = productGrid.Rows[e.RowIndex].Cells[2].Value.ToString();
+                string price = productGrid.Rows[e.RowIndex].Cells["Price"].Value?.ToString() ?? "0";
+                string stock = productGrid.Rows[e.RowIndex].Cells["Stock"].Value?.ToString() ?? "0";
 
                 CustomMessageBox.Show(
-                    $"Product: {name}\nPrice: ₱{price}\nStock: {stock}",
+                    $"Price: ₱{price}\nStock: {stock}",
                     "Product Info"
                 );
             }
@@ -282,15 +306,13 @@ namespace EvsonHardware.Forms
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 SELECT 
-                p.product_name,
-                SUM(sd.quantity) as qty,
-                SUM(sd.quantity * sd.unit_price) as total
+                ROUND(sd.unit_price, 2) AS Price,
+                SUM(sd.quantity) AS Stock
                 FROM sales_details_fixed sd
-                JOIN product p ON p.product_id = sd.product_id
                 JOIN sale s ON s.sale_id = sd.sale_id
                 WHERE DATE(s.sale_date) = DATE('now')
-                GROUP BY p.product_id
-                ORDER BY total DESC
+                GROUP BY ROUND(sd.unit_price, 2)
+                ORDER BY Price ASC
                 LIMIT 10";
 
             var dt = new DataTable();
@@ -310,21 +332,36 @@ namespace EvsonHardware.Forms
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-            SELECT e.employee_name
+            SELECT
+                COALESCE(
+                    e.employee_name,
+                    (
+                        SELECT e2.employee_name
+                        FROM employee e2
+                        WHERE LOWER(TRIM(e2.position)) = LOWER(TRIM(u.role))
+                        ORDER BY e2.employee_id
+                        LIMIT 1
+                    ),
+                    u.username
+                ) AS display_name
             FROM users u
-            JOIN employee e ON u.employee_id = e.employee_id
+            LEFT JOIN employee e ON u.employee_id = e.employee_id
             WHERE u.user_id = $id
             LIMIT 1
         ";
 
             cmd.Parameters.AddWithValue("$id", _userId);
 
-            var result = cmd.ExecuteScalar();
-
-            if (result != null)
-                userlbl.Text = result.ToString();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                string displayName = reader.IsDBNull(0) ? "Unknown User" : reader.GetString(0);
+                userlbl.Text = displayName;
+            }
             else
+            {
                 userlbl.Text = "Unknown User";
+            }
         }
 
         private void userbtn_Click(object sender, EventArgs e)
@@ -334,10 +371,34 @@ namespace EvsonHardware.Forms
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-            SELECT u.user_id, e.employee_name
+            SELECT
+                u.user_id,
+                COALESCE(
+                    e.employee_name,
+                    (
+                        SELECT e2.employee_name
+                        FROM employee e2
+                        WHERE LOWER(TRIM(e2.position)) = LOWER(TRIM(u.role))
+                        ORDER BY e2.employee_id
+                        LIMIT 1
+                    ),
+                    u.username
+                ) AS employee_name,
+                COALESCE(
+                    e.position,
+                    (
+                        SELECT e2.position
+                        FROM employee e2
+                        WHERE LOWER(TRIM(e2.position)) = LOWER(TRIM(u.role))
+                        ORDER BY e2.employee_id
+                        LIMIT 1
+                    ),
+                    u.role
+                ) AS employee_role
             FROM users u
-            JOIN employee e ON u.employee_id = e.employee_id
-            WHERE u.is_active = 1";
+            LEFT JOIN employee e ON u.employee_id = e.employee_id
+            WHERE u.is_active = 1
+            ORDER BY employee_name";
 
             using var reader = cmd.ExecuteReader();
 
@@ -345,7 +406,21 @@ namespace EvsonHardware.Forms
 
             while (reader.Read())
             {
-                users.Add(reader.GetString(1), reader.GetInt32(0));
+                int uid = reader.GetInt32(0);
+                string employeeName = reader.GetString(1);
+                string employeeRole = reader.IsDBNull(2) ? "No Role" : reader.GetString(2);
+                string displayName = $"{employeeName} ({employeeRole})";
+
+                if (users.ContainsKey(displayName))
+                    displayName = $"{displayName} [ID:{uid}]";
+
+                users[displayName] = uid;
+            }
+
+            if (users.Count == 0)
+            {
+                CustomMessageBox.Show("No active users found.", "Switch User");
+                return;
             }
 
             var selectionForm = new UserSelectionForm(users);
@@ -355,9 +430,9 @@ namespace EvsonHardware.Forms
 
             int selectedUserId = selectionForm.SelectedUserId;
 
-            string username = users.First(x => x.Value == selectedUserId).Key;
+            string selectedUserLabel = users.First(x => x.Value == selectedUserId).Key;
 
-            var passwordForm = new PasswordPromptForm(username);
+            var passwordForm = new PasswordPromptForm(selectedUserLabel);
 
             if (passwordForm.ShowDialog() != DialogResult.OK)
                 return;
@@ -374,12 +449,15 @@ namespace EvsonHardware.Forms
             verifyCmd.Parameters.AddWithValue("$id", selectedUserId);
             verifyCmd.Parameters.AddWithValue("$pass", passwordHash);
 
-            var role = verifyCmd.ExecuteScalar();
+            var roleObj = verifyCmd.ExecuteScalar();
 
-            if (role != null)
+            if (roleObj != null)
             {
-                this.Hide();
-                new Dashboard_Form(role.ToString(), selectedUserId).Show();
+                _userId = selectedUserId;
+                _role = roleObj.ToString() ?? _role;
+                ConfigureAccess();
+                LoadCurrentUser();
+                CustomMessageBox.Show("User switched successfully.", "Switch User");
             }
             else
             {
@@ -399,7 +477,11 @@ namespace EvsonHardware.Forms
             conn.Open();
 
             var cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT product_name, price, stock FROM product_stock";
+            cmd.CommandText = @"
+                SELECT
+                    ROUND(price, 2) AS Price,
+                    CAST(stock AS INTEGER) AS Stock
+                FROM product_stock";
 
             var dt = new DataTable();
             using (var reader = cmd.ExecuteReader())

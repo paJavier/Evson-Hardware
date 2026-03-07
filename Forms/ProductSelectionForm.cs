@@ -3,6 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using EvsonHardware.Data;
+using EvsonHardware.Forms;
 
 namespace EvsonHardware
 {
@@ -43,7 +44,21 @@ namespace EvsonHardware
                 using var conn = Database.GetConnection();
                 conn.Open();
                 var cmd = conn.CreateCommand();
-                cmd.CommandText = "SELECT category_id, category_name FROM category ORDER BY category_name;";
+                cmd.CommandText = @"
+                    SELECT
+                        COALESCE(
+                            MIN(CASE
+                                WHEN TRIM(IFNULL(category_id, '')) GLOB '[0-9]*'
+                                     AND TRIM(IFNULL(category_id, '')) <> ''
+                                THEN CAST(category_id AS INTEGER)
+                            END),
+                            MIN(rowid)
+                        ) AS category_id,
+                        TRIM(category_name) AS category_name
+                    FROM category
+                    WHERE TRIM(IFNULL(category_name, '')) <> ''
+                    GROUP BY LOWER(TRIM(category_name))
+                    ORDER BY TRIM(category_name);";
                 var dt = new DataTable();
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -60,7 +75,7 @@ namespace EvsonHardware
                 cmbCategory.ValueMember = "category_id";
                 cmbCategory.SelectedIndex = 0;
             }
-            catch (Exception ex) { MessageBox.Show("LoadCategories error: " + ex.Message); }
+            catch (Exception ex) { CustomMessageBox.Show("LoadCategories error: " + ex.Message, "Error"); }
         }
 
         private int GetSelectedCategoryId()
@@ -101,13 +116,17 @@ namespace EvsonHardware
                     dt.Load(reader);
                 }
                 dgvProducts.DataSource = dt;
+                if (dgvProducts.Rows.Count > 0)
+                {
+                    dgvProducts.FirstDisplayedScrollingRowIndex = 0;
+                }
 
                 if (dgvProducts.Columns["ID"] != null)
                     dgvProducts.Columns["ID"].Visible = false;
 
                 lblStock.Text = $"{dt.Rows.Count} product(s) found";
             }
-            catch (Exception ex) { MessageBox.Show("LoadProducts error: " + ex.Message); }
+            catch (Exception ex) { CustomMessageBox.Show("LoadProducts error: " + ex.Message, "Error"); }
         }
 
         private void DgvProducts_SelectionChanged(object sender, EventArgs e)
@@ -131,7 +150,7 @@ namespace EvsonHardware
         {
             if (dgvProducts.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Please select a product first.", "No Selection",
+                CustomMessageBox.Show("Please select a product first.", "No Selection",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -141,7 +160,7 @@ namespace EvsonHardware
 
             if (stock <= 0)
             {
-                MessageBox.Show("This product is out of stock. Please restock it in Inventory first.",
+                CustomMessageBox.Show("This product is out of stock. Please restock it in Inventory first.",
                     "Out of Stock", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -155,22 +174,23 @@ namespace EvsonHardware
             Close();
         }
 
+
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges14 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges15 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges16 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges17 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges18 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges19 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges20 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ProductSelectionForm));
             lblTitle = new Label();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
@@ -206,7 +226,7 @@ namespace EvsonHardware
             exitbtn.AutoRoundedCorners = true;
             exitbtn.BackColor = Color.Transparent;
             exitbtn.BorderColor = Color.Transparent;
-            exitbtn.CustomizableEdges = customizableEdges11;
+            exitbtn.CustomizableEdges = customizableEdges1;
             exitbtn.DisabledState.BorderColor = Color.DarkGray;
             exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -216,17 +236,18 @@ namespace EvsonHardware
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(641, -2);
+            exitbtn.Location = new Point(640, 0);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
-            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges12;
+            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
             exitbtn.Size = new Size(41, 48);
             exitbtn.TabIndex = 20;
             exitbtn.Text = "X";
+            exitbtn.Click += exitbtn_Click;
             // 
             // txtSearch
             // 
-            txtSearch.CustomizableEdges = customizableEdges13;
+            txtSearch.CustomizableEdges = customizableEdges3;
             txtSearch.DefaultText = "";
             txtSearch.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
             txtSearch.DisabledState.FillColor = Color.FromArgb(226, 226, 226);
@@ -241,7 +262,7 @@ namespace EvsonHardware
             txtSearch.Name = "txtSearch";
             txtSearch.PlaceholderText = "";
             txtSearch.SelectedText = "";
-            txtSearch.ShadowDecoration.CustomizableEdges = customizableEdges14;
+            txtSearch.ShadowDecoration.CustomizableEdges = customizableEdges4;
             txtSearch.Size = new Size(335, 30);
             txtSearch.TabIndex = 21;
             // 
@@ -275,7 +296,7 @@ namespace EvsonHardware
             cmbCategory.BackColor = Color.PaleGoldenrod;
             cmbCategory.BorderColor = Color.Transparent;
             cmbCategory.BorderThickness = 0;
-            cmbCategory.CustomizableEdges = customizableEdges15;
+            cmbCategory.CustomizableEdges = customizableEdges5;
             cmbCategory.DrawMode = DrawMode.OwnerDrawFixed;
             cmbCategory.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbCategory.FillColor = Color.Cornsilk;
@@ -285,7 +306,7 @@ namespace EvsonHardware
             cmbCategory.ItemHeight = 30;
             cmbCategory.Location = new Point(508, 10);
             cmbCategory.Name = "cmbCategory";
-            cmbCategory.ShadowDecoration.CustomizableEdges = customizableEdges16;
+            cmbCategory.ShadowDecoration.CustomizableEdges = customizableEdges6;
             cmbCategory.Size = new Size(140, 36);
             cmbCategory.TabIndex = 0;
             cmbCategory.SelectedIndexChanged += cmbCategory_SelectedIndexChanged;
@@ -303,32 +324,31 @@ namespace EvsonHardware
             // 
             // dgvProducts
             // 
-            dataGridViewCellStyle4.BackColor = Color.White;
-            dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.BackColor = Color.White;
+            dgvProducts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             dgvProducts.BackgroundColor = Color.PaleGoldenrod;
-            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = Color.FromArgb(100, 88, 255);
-            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle5.ForeColor = Color.White;
-            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
-            dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
-            dgvProducts.ColumnHeadersHeight = 4;
-            dgvProducts.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
-            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = Color.White;
-            dataGridViewCellStyle6.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle6.ForeColor = Color.FromArgb(71, 69, 94);
-            dataGridViewCellStyle6.SelectionBackColor = Color.FromArgb(231, 229, 255);
-            dataGridViewCellStyle6.SelectionForeColor = Color.FromArgb(71, 69, 94);
-            dataGridViewCellStyle6.WrapMode = DataGridViewTriState.False;
-            dgvProducts.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(100, 88, 255);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle2.ForeColor = Color.White;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dgvProducts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dgvProducts.ColumnHeadersHeight = 28;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.White;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = Color.FromArgb(71, 69, 94);
+            dataGridViewCellStyle3.SelectionBackColor = Color.FromArgb(231, 229, 255);
+            dataGridViewCellStyle3.SelectionForeColor = Color.FromArgb(71, 69, 94);
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dgvProducts.DefaultCellStyle = dataGridViewCellStyle3;
             dgvProducts.GridColor = Color.Cornsilk;
             dgvProducts.Location = new Point(15, 140);
             dgvProducts.Name = "dgvProducts";
             dgvProducts.RowHeadersVisible = false;
-            dgvProducts.Size = new Size(645, 244);
+            dgvProducts.Size = new Size(657, 245);
             dgvProducts.TabIndex = 24;
             dgvProducts.ThemeStyle.AlternatingRowsStyle.BackColor = Color.White;
             dgvProducts.ThemeStyle.AlternatingRowsStyle.Font = null;
@@ -341,8 +361,8 @@ namespace EvsonHardware
             dgvProducts.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
             dgvProducts.ThemeStyle.HeaderStyle.Font = new Font("Segoe UI", 9F);
             dgvProducts.ThemeStyle.HeaderStyle.ForeColor = Color.White;
-            dgvProducts.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
-            dgvProducts.ThemeStyle.HeaderStyle.Height = 4;
+            dgvProducts.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvProducts.ThemeStyle.HeaderStyle.Height = 28;
             dgvProducts.ThemeStyle.ReadOnly = false;
             dgvProducts.ThemeStyle.RowsStyle.BackColor = Color.White;
             dgvProducts.ThemeStyle.RowsStyle.BorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
@@ -351,8 +371,8 @@ namespace EvsonHardware
             dgvProducts.ThemeStyle.RowsStyle.Height = 25;
             dgvProducts.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(231, 229, 255);
             dgvProducts.ThemeStyle.RowsStyle.SelectionForeColor = Color.FromArgb(71, 69, 94);
-            dgvProducts.DoubleClick += dgvProducts_DoubleClick;
             dgvProducts.SelectionChanged += DgvProducts_SelectionChanged;
+            dgvProducts.DoubleClick += dgvProducts_DoubleClick;
             // 
             // lblStock
             // 
@@ -368,8 +388,10 @@ namespace EvsonHardware
             // btnCancel
             // 
             btnCancel.BackColor = Color.Transparent;
+            btnCancel.BorderColor = Color.WhiteSmoke;
             btnCancel.BorderRadius = 25;
-            btnCancel.CustomizableEdges = customizableEdges17;
+            btnCancel.BorderThickness = 1;
+            btnCancel.CustomizableEdges = customizableEdges7;
             btnCancel.DisabledState.BorderColor = Color.DarkGray;
             btnCancel.DisabledState.CustomBorderColor = Color.DarkGray;
             btnCancel.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -377,9 +399,9 @@ namespace EvsonHardware
             btnCancel.FillColor = Color.IndianRed;
             btnCancel.Font = new Font("Sitka Display Semibold", 9.749999F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCancel.ForeColor = Color.White;
-            btnCancel.Location = new Point(408, 400);
+            btnCancel.Location = new Point(420, 403);
             btnCancel.Name = "btnCancel";
-            btnCancel.ShadowDecoration.CustomizableEdges = customizableEdges18;
+            btnCancel.ShadowDecoration.CustomizableEdges = customizableEdges8;
             btnCancel.Size = new Size(123, 54);
             btnCancel.TabIndex = 26;
             btnCancel.Text = "Cancel";
@@ -388,8 +410,10 @@ namespace EvsonHardware
             // btnSelect
             // 
             btnSelect.BackColor = Color.Transparent;
+            btnSelect.BorderColor = Color.WhiteSmoke;
             btnSelect.BorderRadius = 25;
-            btnSelect.CustomizableEdges = customizableEdges19;
+            btnSelect.BorderThickness = 1;
+            btnSelect.CustomizableEdges = customizableEdges9;
             btnSelect.DisabledState.BorderColor = Color.DarkGray;
             btnSelect.DisabledState.CustomBorderColor = Color.DarkGray;
             btnSelect.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -397,9 +421,9 @@ namespace EvsonHardware
             btnSelect.FillColor = Color.ForestGreen;
             btnSelect.Font = new Font("Sitka Display Semibold", 9.749999F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnSelect.ForeColor = Color.White;
-            btnSelect.Location = new Point(537, 400);
+            btnSelect.Location = new Point(549, 403);
             btnSelect.Name = "btnSelect";
-            btnSelect.ShadowDecoration.CustomizableEdges = customizableEdges20;
+            btnSelect.ShadowDecoration.CustomizableEdges = customizableEdges10;
             btnSelect.Size = new Size(123, 54);
             btnSelect.TabIndex = 27;
             btnSelect.Text = "Select";
@@ -409,7 +433,7 @@ namespace EvsonHardware
             // 
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(684, 481);
+            ClientSize = new Size(688, 481);
             Controls.Add(btnSelect);
             Controls.Add(btnCancel);
             Controls.Add(lblStock);
@@ -419,6 +443,7 @@ namespace EvsonHardware
             Controls.Add(lblTitle);
             FormBorderStyle = FormBorderStyle.None;
             Name = "ProductSelectionForm";
+            StartPosition = FormStartPosition.CenterScreen;
             guna2ShadowPanel1.ResumeLayout(false);
             guna2ShadowPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
@@ -461,5 +486,11 @@ namespace EvsonHardware
         {
             SelectProduct();
         }
+
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
+

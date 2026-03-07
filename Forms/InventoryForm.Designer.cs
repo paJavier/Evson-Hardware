@@ -348,8 +348,8 @@
             dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
             dgvInventory.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-            dgvInventory.ColumnHeadersHeight = 4;
-            dgvInventory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
+            dgvInventory.ColumnHeadersHeight = 28;
+            dgvInventory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = Color.White;
             dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
@@ -375,8 +375,8 @@
             dgvInventory.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
             dgvInventory.ThemeStyle.HeaderStyle.Font = new Font("Segoe UI", 9F);
             dgvInventory.ThemeStyle.HeaderStyle.ForeColor = Color.White;
-            dgvInventory.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
-            dgvInventory.ThemeStyle.HeaderStyle.Height = 4;
+            dgvInventory.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvInventory.ThemeStyle.HeaderStyle.Height = 28;
             dgvInventory.ThemeStyle.ReadOnly = false;
             dgvInventory.ThemeStyle.RowsStyle.BackColor = Color.White;
             dgvInventory.ThemeStyle.RowsStyle.BorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;

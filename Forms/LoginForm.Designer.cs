@@ -49,7 +49,7 @@
             forgotpass.ActiveLinkColor = Color.Blue;
             forgotpass.AutoSize = true;
             forgotpass.BackColor = Color.Transparent;
-            forgotpass.Location = new Point(226, 317);
+            forgotpass.Location = new Point(229, 283);
             forgotpass.Name = "forgotpass";
             forgotpass.Size = new Size(103, 20);
             forgotpass.TabIndex = 8;
@@ -60,7 +60,7 @@
             // 
             loginbtn.BackColor = Color.Transparent;
             loginbtn.BorderColor = Color.LemonChiffon;
-            loginbtn.BorderRadius = 30;
+            loginbtn.BorderRadius = 25;
             loginbtn.BorderThickness = 2;
             loginbtn.CustomBorderColor = Color.Transparent;
             loginbtn.CustomizableEdges = customizableEdges1;
@@ -72,11 +72,11 @@
             loginbtn.FocusedColor = Color.PaleGreen;
             loginbtn.Font = new Font("Sitka Display", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             loginbtn.ForeColor = Color.White;
-            loginbtn.Location = new Point(132, 407);
+            loginbtn.Location = new Point(97, 331);
             loginbtn.Name = "loginbtn";
             loginbtn.PressedColor = Color.Green;
             loginbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            loginbtn.Size = new Size(214, 67);
+            loginbtn.Size = new Size(197, 54);
             loginbtn.TabIndex = 13;
             loginbtn.Text = "Login";
             loginbtn.Click += loginbtn_Click;
@@ -97,7 +97,7 @@
             usertxt.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
             usertxt.Font = new Font("Segoe UI", 9F);
             usertxt.HoverState.BorderColor = Color.FromArgb(94, 148, 255);
-            usertxt.Location = new Point(94, 166);
+            usertxt.Location = new Point(65, 137);
             usertxt.Margin = new Padding(4, 5, 4, 5);
             usertxt.Name = "usertxt";
             usertxt.PlaceholderForeColor = Color.DarkSeaGreen;
@@ -123,7 +123,7 @@
             passwordtxt.FocusedState.BorderColor = Color.FromArgb(94, 148, 255);
             passwordtxt.Font = new Font("Segoe UI", 9F);
             passwordtxt.HoverState.BorderColor = Color.FromArgb(94, 148, 255);
-            passwordtxt.Location = new Point(94, 251);
+            passwordtxt.Location = new Point(65, 217);
             passwordtxt.Margin = new Padding(4, 5, 4, 5);
             passwordtxt.Name = "passwordtxt";
             passwordtxt.PasswordChar = '*';
@@ -145,11 +145,11 @@
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             exitbtn.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
             exitbtn.FillColor = Color.Transparent;
-            exitbtn.Font = new Font("Sitka Small", 8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            exitbtn.Font = new Font("Sitka Small", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(420, 12);
+            exitbtn.Location = new Point(353, 2);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges8;
@@ -163,9 +163,10 @@
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            BackColor = Color.Green;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
-            BackgroundImageLayout = ImageLayout.Zoom;
-            ClientSize = new Size(473, 529);
+            BackgroundImageLayout = ImageLayout.Stretch;
+            ClientSize = new Size(396, 437);
             Controls.Add(exitbtn);
             Controls.Add(passwordtxt);
             Controls.Add(usertxt);

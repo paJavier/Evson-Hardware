@@ -76,11 +76,11 @@
             // lblSelectedProduct
             // 
             lblSelectedProduct.AutoSize = true;
-            lblSelectedProduct.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            lblSelectedProduct.ForeColor = Color.White;
+            lblSelectedProduct.Font = new Font("Sitka Small Semibold", 11.249999F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            lblSelectedProduct.ForeColor = Color.Honeydew;
             lblSelectedProduct.Location = new Point(166, 25);
             lblSelectedProduct.Name = "lblSelectedProduct";
-            lblSelectedProduct.Size = new Size(79, 19);
+            lblSelectedProduct.Size = new Size(123, 21);
             lblSelectedProduct.TabIndex = 1;
             lblSelectedProduct.Text = "Selected: None";
             // 

@@ -15,6 +15,7 @@ namespace EvsonHardware.Forms
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.Beige;
+            this.KeyPreview = true;
 
             RoundCorners(this, 20);
 
@@ -48,7 +49,7 @@ namespace EvsonHardware.Forms
             Button confirm = new Button();
             confirm.Text = "Login";
             confirm.Size = new Size(120, 40);
-            confirm.Location = new Point(140, 170);
+            confirm.Location = new Point(70, 170);
 
             confirm.BackColor = Color.SeaGreen;
             confirm.ForeColor = Color.White;
@@ -67,9 +68,29 @@ namespace EvsonHardware.Forms
                 this.Close();
             };
 
+            Button cancel = new Button();
+            cancel.Text = "Close (Esc)";
+            cancel.Size = new Size(120, 40);
+            cancel.Location = new Point(210, 170);
+            cancel.BackColor = Color.DimGray;
+            cancel.ForeColor = Color.White;
+            cancel.FlatStyle = FlatStyle.Flat;
+            cancel.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            cancel.FlatAppearance.BorderSize = 0;
+            RoundCorners(cancel, 15);
+            cancel.Click += (s, e) =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            };
+
             this.Controls.Add(userLabel);
             this.Controls.Add(passwordBox);
             this.Controls.Add(confirm);
+            this.Controls.Add(cancel);
+
+            this.AcceptButton = confirm;
+            this.CancelButton = cancel;
         }
 
         private void RoundCorners(Control control, int radius)
