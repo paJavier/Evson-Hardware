@@ -51,7 +51,7 @@
             forgotpass.BackColor = Color.Transparent;
             forgotpass.Location = new Point(226, 317);
             forgotpass.Name = "forgotpass";
-            forgotpass.Size = new Size(151, 29);
+            forgotpass.Size = new Size(103, 20);
             forgotpass.TabIndex = 8;
             forgotpass.TabStop = true;
             forgotpass.Text = "Forgot Password?";
@@ -62,6 +62,7 @@
             loginbtn.BorderColor = Color.LemonChiffon;
             loginbtn.BorderRadius = 30;
             loginbtn.BorderThickness = 2;
+            loginbtn.CustomBorderColor = Color.Transparent;
             loginbtn.CustomizableEdges = customizableEdges1;
             loginbtn.DisabledState.BorderColor = Color.DarkGray;
             loginbtn.DisabledState.CustomBorderColor = Color.DarkGray;
@@ -71,7 +72,7 @@
             loginbtn.FocusedColor = Color.PaleGreen;
             loginbtn.Font = new Font("Sitka Display", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             loginbtn.ForeColor = Color.White;
-            loginbtn.Location = new Point(134, 403);
+            loginbtn.Location = new Point(132, 407);
             loginbtn.Name = "loginbtn";
             loginbtn.PressedColor = Color.Green;
             loginbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
@@ -159,7 +160,7 @@
             // 
             // LoginForm
             // 
-            AutoScaleDimensions = new SizeF(144F, 144F);
+            AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");

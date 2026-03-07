@@ -1,16 +1,22 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace EvsonHardware.Data
 {
-    public class Database
+    public static class Database
     {
-        private static string connectionString =
-            @"Data Source=Data\evson_hardware.sqlite;Cache=Shared;Mode=ReadWriteCreate;";
-
         public static SqliteConnection GetConnection()
         {
-            return new SqliteConnection(connectionString);
+            // Go from bin/Debug → project root
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            string dbPath = Path.GetFullPath(
+                Path.Combine(baseDir, @"..\..\..\Data\evson_hardware.sqlite")
+            );
+
+            return new SqliteConnection($"Data Source={dbPath}");
         }
     }
 }

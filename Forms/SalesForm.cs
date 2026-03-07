@@ -1,4 +1,5 @@
 ﻿using EvsonHardware.Data;
+using EvsonHardware.Forms;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Data;
@@ -101,7 +102,7 @@ namespace EvsonHardware
             UpdateTotal();
         }
 
-        private void btnCheckout_Click(object sender, EventArgs e)
+        private void btnSale_Click(object sender, EventArgs e)
         {
 
             if (dgvCart.Rows.Count == 0)
@@ -127,10 +128,6 @@ namespace EvsonHardware
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = "PRAGMA busy_timeout = 5000;";
                 cmd.ExecuteNonQuery();
-
-                var wal = conn.CreateCommand();
-                wal.CommandText = "PRAGMA journal_mode=WAL;";
-                wal.ExecuteNonQuery();
 
                 // Check stock using the same connection
                 foreach (DataGridViewRow row in dgvCart.Rows)
@@ -175,7 +172,7 @@ namespace EvsonHardware
                     var c2 = conn.CreateCommand();
                     c2.Transaction = tr;
                     c2.CommandText = @"
-                        INSERT INTO sales_details (sale_id, product_id, quantity, unit_price, subtotal)
+                        INSERT INTO sales_details_fixed (sale_id, product_id, quantity, unit_price, subtotal)
                         VALUES (@sid, @pid, @qty, @price, @sub);";
                     c2.Parameters.AddWithValue("@sid", saleId);
                     c2.Parameters.AddWithValue("@pid", Convert.ToInt32(row.Cells["ID"].Value));
@@ -189,6 +186,11 @@ namespace EvsonHardware
                 MessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: ₱{currentTotal:F2}",
                     "Sale Processed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearCart();
+                ResetStaging();
+                RefreshDashboard();
+
+                stagedAvailableStock = 0;
+                lblSelectedProduct.Text = "Selected: None";
             }
             catch (Exception ex)
             {
@@ -224,16 +226,32 @@ namespace EvsonHardware
         private void ClearCart()
         {
             dgvCart.Rows.Clear();
+
             currentTotal = 0m;
             UpdateTotal();
+
             txtCustomer.Clear();
             txtReceipt.Clear();
             ResetStaging();
+        }
+
+        private void RefreshDashboard()
+        {
+            if (Application.OpenForms["Dashboard_Form"] is Dashboard_Form dashboard)
+            {
+                dashboard.RefreshData();
+            }
         }
 
         private void exitbtn_Click(object sender, EventArgs e)
         {
             this.Hide();
         }
+
+        private void lblTitle_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

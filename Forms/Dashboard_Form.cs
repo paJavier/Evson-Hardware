@@ -2,6 +2,7 @@
 using Guna.UI2.WinForms;
 using Microsoft.Data.Sqlite;
 using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -91,6 +92,8 @@ namespace EvsonHardware.Forms
             ActivateButton(salesbtn);
             var form = new SalesForm();
             form.ShowDialog();
+
+            RefreshData();
         }
 
         private void Inventorybtn_Click(object sender, EventArgs e)
@@ -98,18 +101,24 @@ namespace EvsonHardware.Forms
             ActivateButton(inventorybtn);
             var form = new InventoryForm();
             form.ShowDialog();
+
+            RefreshData();
         }
 
         private void Expensesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(expensesbtn);
             CustomMessageBox.Show("Open Expenses Module");
+
+            RefreshData();
         }
 
         private void Reportbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(reportbtn);
             CustomMessageBox.Show("Open Reports Module");
+
+            RefreshData();
         }
 
         private void Logoutbtn_Click(object sender, EventArgs e)
@@ -131,30 +140,28 @@ namespace EvsonHardware.Forms
             if (string.IsNullOrWhiteSpace(searchText))
                 return;
 
-            productGrid.Rows.Clear();
+            productGrid.DataSource = null;
 
             using var conn = Database.GetConnection();
             conn.Open();
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-            SELECT product_name, price, stock
-            FROM product_stock
-            WHERE product_name LIKE $search
-            LIMIT 10";
+                SELECT product_name, price, stock
+                FROM product_stock
+                WHERE product_name LIKE $search
+                LIMIT 10";
 
             cmd.Parameters.AddWithValue("$search", "%" + searchText + "%");
 
-            using var reader = cmd.ExecuteReader();
+            var dt = new DataTable();
 
-            while (reader.Read())
+            using (var reader = cmd.ExecuteReader())
             {
-                productGrid.Rows.Add(
-                    reader.GetString(0),
-                    reader.GetDouble(1),
-                    reader.GetInt32(2)
-                );
+                dt.Load(reader);
             }
+
+            productGrid.DataSource = dt;
         }
 
         private void Searchbar_KeyDown(object sender, KeyEventArgs e)
@@ -267,36 +274,34 @@ namespace EvsonHardware.Forms
 
         private void LoadRevenueBreakdown()
         {
-            productGrid.Rows.Clear();
+            productGrid.DataSource = null;
 
             using var conn = Database.GetConnection();
             conn.Open();
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-            SELECT 
-            p.product_name,
-            SUM(sd.quantity) as qty,
-            SUM(sd.quantity * sd.unit_price) as total
-            FROM sales_details sd
-            JOIN product p ON p.product_id = sd.product_id
-            JOIN sale s ON s.sale_id = sd.sale_id
-            WHERE DATE(s.sale_date) = DATE('now')
-            GROUP BY p.product_id
-            ORDER BY total DESC
-            LIMIT 10";
+                SELECT 
+                p.product_name,
+                SUM(sd.quantity) as qty,
+                SUM(sd.quantity * sd.unit_price) as total
+                FROM sales_details_fixed sd
+                JOIN product p ON p.product_id = sd.product_id
+                JOIN sale s ON s.sale_id = sd.sale_id
+                WHERE DATE(s.sale_date) = DATE('now')
+                GROUP BY p.product_id
+                ORDER BY total DESC
+                LIMIT 10";
 
-            using var reader = cmd.ExecuteReader();
+            var dt = new DataTable();
 
-            while (reader.Read())
+            using (var reader = cmd.ExecuteReader())
             {
-                productGrid.Rows.Add(
-                    reader.GetString(0),
-                    reader.GetInt32(1),
-                    reader.GetDouble(2)
-                );
+                dt.Load(reader);
             }
-        }
+
+            productGrid.DataSource = dt;
+        }        
 
         private void LoadCurrentUser()
         {
@@ -380,6 +385,29 @@ namespace EvsonHardware.Forms
             {
                 CustomMessageBox.Show("Incorrect password.", "Access Denied");
             }
+        }
+
+        public void RefreshData()
+        {
+            LoadStockGrid();
+            LoadDashboardStats();
+        }
+
+        private void LoadStockGrid()
+        {
+            using var conn = Database.GetConnection();
+            conn.Open();
+
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT product_name, price, stock FROM product_stock";
+
+            var dt = new DataTable();
+            using (var reader = cmd.ExecuteReader())
+            {
+                dt.Load(reader);
+            }
+
+            productGrid.DataSource = dt; 
         }
     }
 }

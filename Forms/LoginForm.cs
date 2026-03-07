@@ -23,6 +23,7 @@ namespace EvsonHardware.Forms
         }
 
         private void loginbtn_Click(object sender, EventArgs e)
+
         {
             string username = usertxt.Text.Trim();
             string rawPassword = passwordtxt.Text.Trim();

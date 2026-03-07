@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Content Include="Data\evson_hardware.sqlite">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

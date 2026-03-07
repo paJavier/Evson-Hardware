@@ -123,11 +123,12 @@
             guna2ShadowPanel1.Controls.Add(salesbtn);
             guna2ShadowPanel1.Controls.Add(homebtn);
             guna2ShadowPanel1.FillColor = Color.SeaGreen;
-            guna2ShadowPanel1.Location = new Point(16, 33);
+            guna2ShadowPanel1.Location = new Point(11, 20);
+            guna2ShadowPanel1.Margin = new Padding(2, 2, 2, 2);
             guna2ShadowPanel1.Name = "guna2ShadowPanel1";
             guna2ShadowPanel1.Radius = 10;
             guna2ShadowPanel1.ShadowColor = Color.DarkSeaGreen;
-            guna2ShadowPanel1.Size = new Size(81, 805);
+            guna2ShadowPanel1.Size = new Size(57, 483);
             guna2ShadowPanel1.TabIndex = 2;
             // 
             // logoutbtn
@@ -145,11 +146,12 @@
             logoutbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             logoutbtn.Image = (Image)resources.GetObject("logoutbtn.Image");
             logoutbtn.ImageSize = new Size(260, 220);
-            logoutbtn.Location = new Point(16, 686);
+            logoutbtn.Location = new Point(11, 412);
+            logoutbtn.Margin = new Padding(2, 2, 2, 2);
             logoutbtn.Name = "logoutbtn";
             logoutbtn.PressedColor = Color.DarkGreen;
             logoutbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            logoutbtn.Size = new Size(49, 52);
+            logoutbtn.Size = new Size(34, 31);
             logoutbtn.TabIndex = 14;
             hovertext.SetToolTip(logoutbtn, "Logout");
             // 
@@ -168,11 +170,12 @@
             reportbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             reportbtn.Image = (Image)resources.GetObject("reportbtn.Image");
             reportbtn.ImageSize = new Size(260, 220);
-            reportbtn.Location = new Point(16, 376);
+            reportbtn.Location = new Point(11, 226);
+            reportbtn.Margin = new Padding(2, 2, 2, 2);
             reportbtn.Name = "reportbtn";
             reportbtn.PressedColor = Color.DarkGreen;
             reportbtn.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            reportbtn.Size = new Size(49, 53);
+            reportbtn.Size = new Size(34, 32);
             reportbtn.TabIndex = 13;
             hovertext.SetToolTip(reportbtn, "Report");
             // 
@@ -191,11 +194,12 @@
             expensesbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             expensesbtn.Image = (Image)resources.GetObject("expensesbtn.Image");
             expensesbtn.ImageSize = new Size(260, 220);
-            expensesbtn.Location = new Point(16, 311);
+            expensesbtn.Location = new Point(11, 187);
+            expensesbtn.Margin = new Padding(2, 2, 2, 2);
             expensesbtn.Name = "expensesbtn";
             expensesbtn.PressedColor = Color.DarkGreen;
             expensesbtn.ShadowDecoration.CustomizableEdges = customizableEdges6;
-            expensesbtn.Size = new Size(49, 58);
+            expensesbtn.Size = new Size(34, 35);
             expensesbtn.TabIndex = 12;
             hovertext.SetToolTip(expensesbtn, "Expenses");
             // 
@@ -214,11 +218,12 @@
             returnbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             returnbtn.Image = (Image)resources.GetObject("returnbtn.Image");
             returnbtn.ImageSize = new Size(260, 200);
-            returnbtn.Location = new Point(16, 246);
+            returnbtn.Location = new Point(11, 148);
+            returnbtn.Margin = new Padding(2, 2, 2, 2);
             returnbtn.Name = "returnbtn";
             returnbtn.PressedColor = Color.DarkGreen;
             returnbtn.ShadowDecoration.CustomizableEdges = customizableEdges8;
-            returnbtn.Size = new Size(49, 55);
+            returnbtn.Size = new Size(34, 33);
             returnbtn.TabIndex = 11;
             hovertext.SetToolTip(returnbtn, "Return");
             // 
@@ -237,11 +242,12 @@
             inventorybtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             inventorybtn.Image = (Image)resources.GetObject("inventorybtn.Image");
             inventorybtn.ImageSize = new Size(300, 300);
-            inventorybtn.Location = new Point(16, 172);
+            inventorybtn.Location = new Point(11, 103);
+            inventorybtn.Margin = new Padding(2, 2, 2, 2);
             inventorybtn.Name = "inventorybtn";
             inventorybtn.PressedColor = Color.DarkGreen;
             inventorybtn.ShadowDecoration.CustomizableEdges = customizableEdges10;
-            inventorybtn.Size = new Size(49, 63);
+            inventorybtn.Size = new Size(34, 38);
             inventorybtn.TabIndex = 10;
             hovertext.SetToolTip(inventorybtn, "Inventory");
             // 
@@ -260,11 +266,12 @@
             salesbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             salesbtn.Image = (Image)resources.GetObject("salesbtn.Image");
             salesbtn.ImageSize = new Size(300, 300);
-            salesbtn.Location = new Point(16, 109);
+            salesbtn.Location = new Point(11, 65);
+            salesbtn.Margin = new Padding(2, 2, 2, 2);
             salesbtn.Name = "salesbtn";
             salesbtn.PressedColor = Color.DarkGreen;
             salesbtn.ShadowDecoration.CustomizableEdges = customizableEdges12;
-            salesbtn.Size = new Size(49, 52);
+            salesbtn.Size = new Size(34, 31);
             salesbtn.TabIndex = 9;
             hovertext.SetToolTip(salesbtn, "Sales");
             // 
@@ -284,11 +291,12 @@
             homebtn.HoverState.Font = new Font("Sitka Display", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             homebtn.Image = (Image)resources.GetObject("homebtn.Image");
             homebtn.ImageSize = new Size(260, 220);
-            homebtn.Location = new Point(16, 37);
+            homebtn.Location = new Point(11, 22);
+            homebtn.Margin = new Padding(2, 2, 2, 2);
             homebtn.Name = "homebtn";
             homebtn.PressedColor = Color.DarkGreen;
             homebtn.ShadowDecoration.CustomizableEdges = customizableEdges14;
-            homebtn.Size = new Size(49, 58);
+            homebtn.Size = new Size(34, 35);
             homebtn.TabIndex = 8;
             hovertext.SetToolTip(homebtn, "Home");
             // 
@@ -301,11 +309,12 @@
             TopPanel.Controls.Add(userbtn);
             TopPanel.Controls.Add(searchbar);
             TopPanel.FillColor = Color.LightGoldenrodYellow;
-            TopPanel.Location = new Point(114, 33);
+            TopPanel.Location = new Point(80, 20);
+            TopPanel.Margin = new Padding(2, 2, 2, 2);
             TopPanel.Name = "TopPanel";
             TopPanel.Radius = 10;
             TopPanel.ShadowColor = Color.Goldenrod;
-            TopPanel.Size = new Size(1124, 85);
+            TopPanel.Size = new Size(787, 51);
             TopPanel.TabIndex = 3;
             // 
             // logo
@@ -315,11 +324,12 @@
             logo.FillColor = Color.Transparent;
             logo.Image = (Image)resources.GetObject("logo.Image");
             logo.ImageRotate = 0F;
-            logo.Location = new Point(17, 0);
+            logo.Location = new Point(12, 0);
+            logo.Margin = new Padding(2, 2, 2, 2);
             logo.Name = "logo";
             logo.ShadowDecoration.CustomizableEdges = customizableEdges15;
             logo.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            logo.Size = new Size(89, 78);
+            logo.Size = new Size(62, 47);
             logo.SizeMode = PictureBoxSizeMode.CenterImage;
             logo.TabIndex = 18;
             logo.TabStop = false;
@@ -329,9 +339,10 @@
             userlbl.BackColor = Color.Transparent;
             userlbl.Font = new Font("Sitka Banner", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
             userlbl.ForeColor = Color.ForestGreen;
-            userlbl.Location = new Point(942, 26);
+            userlbl.Location = new Point(659, 16);
+            userlbl.Margin = new Padding(2, 2, 2, 2);
             userlbl.Name = "userlbl";
-            userlbl.Size = new Size(89, 28);
+            userlbl.Size = new Size(62, 20);
             userlbl.TabIndex = 17;
             userlbl.Text = "         current user";
             // 
@@ -342,9 +353,10 @@
             guna2HtmlLabel1.BackgroundImageLayout = ImageLayout.Zoom;
             guna2HtmlLabel1.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             guna2HtmlLabel1.ForeColor = Color.DarkGreen;
-            guna2HtmlLabel1.Location = new Point(124, 23);
+            guna2HtmlLabel1.Location = new Point(87, 14);
+            guna2HtmlLabel1.Margin = new Padding(2, 2, 2, 2);
             guna2HtmlLabel1.Name = "guna2HtmlLabel1";
-            guna2HtmlLabel1.Size = new Size(137, 31);
+            guna2HtmlLabel1.Size = new Size(90, 21);
             guna2HtmlLabel1.TabIndex = 16;
             guna2HtmlLabel1.Text = "Evson Hardware";
             // 
@@ -363,11 +375,12 @@
             userbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             userbtn.Image = (Image)resources.GetObject("userbtn.Image");
             userbtn.ImageSize = new Size(260, 220);
-            userbtn.Location = new Point(1066, 14);
+            userbtn.Location = new Point(746, 8);
+            userbtn.Margin = new Padding(2, 2, 2, 2);
             userbtn.Name = "userbtn";
             userbtn.PressedColor = Color.DarkGreen;
             userbtn.ShadowDecoration.CustomizableEdges = customizableEdges17;
-            userbtn.Size = new Size(39, 56);
+            userbtn.Size = new Size(27, 34);
             userbtn.TabIndex = 15;
             userbtn.Click += userbtn_Click;
             // 
@@ -391,14 +404,14 @@
             searchbar.IconLeft = (Image)resources.GetObject("searchbar.IconLeft");
             searchbar.IconLeftOffset = new Point(-60, 0);
             searchbar.IconLeftSize = new Size(150, 120);
-            searchbar.Location = new Point(308, 23);
-            searchbar.Margin = new Padding(6, 8, 6, 8);
+            searchbar.Location = new Point(216, 14);
+            searchbar.Margin = new Padding(4, 5, 4, 5);
             searchbar.Name = "searchbar";
             searchbar.PlaceholderForeColor = Color.DarkOliveGreen;
             searchbar.PlaceholderText = "Search Item";
             searchbar.SelectedText = "";
             searchbar.ShadowDecoration.CustomizableEdges = customizableEdges19;
-            searchbar.Size = new Size(584, 40);
+            searchbar.Size = new Size(409, 24);
             searchbar.TabIndex = 0;
             // 
             // exitbtn
@@ -416,11 +429,12 @@
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(1244, 0);
+            exitbtn.Location = new Point(871, 0);
+            exitbtn.Margin = new Padding(2, 2, 2, 2);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges21;
-            exitbtn.Size = new Size(41, 48);
+            exitbtn.Size = new Size(29, 29);
             exitbtn.TabIndex = 18;
             exitbtn.Text = "X";
             // 
@@ -435,10 +449,11 @@
             RevenuePanel.CustomizableEdges = customizableEdges24;
             RevenuePanel.FillColor = Color.LemonChiffon;
             RevenuePanel.FillColor2 = Color.PaleGreen;
-            RevenuePanel.Location = new Point(130, 162);
+            RevenuePanel.Location = new Point(91, 97);
+            RevenuePanel.Margin = new Padding(2, 2, 2, 2);
             RevenuePanel.Name = "RevenuePanel";
             RevenuePanel.ShadowDecoration.CustomizableEdges = customizableEdges25;
-            RevenuePanel.Size = new Size(361, 143);
+            RevenuePanel.Size = new Size(253, 86);
             RevenuePanel.TabIndex = 19;
             // 
             // revenueprogress
@@ -446,11 +461,12 @@
             revenueprogress.CausesValidation = false;
             revenueprogress.CustomizableEdges = customizableEdges22;
             revenueprogress.FillColor = Color.LemonChiffon;
-            revenueprogress.Location = new Point(22, 113);
+            revenueprogress.Location = new Point(15, 68);
+            revenueprogress.Margin = new Padding(2, 2, 2, 2);
             revenueprogress.Name = "revenueprogress";
             revenueprogress.ProgressColor = Color.FromArgb(128, 255, 128);
             revenueprogress.ShadowDecoration.CustomizableEdges = customizableEdges23;
-            revenueprogress.Size = new Size(309, 10);
+            revenueprogress.Size = new Size(216, 6);
             revenueprogress.TabIndex = 20;
             revenueprogress.Text = "65";
             revenueprogress.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
@@ -460,7 +476,8 @@
             // guna2HtmlLabel5
             // 
             guna2HtmlLabel5.BackColor = Color.Transparent;
-            guna2HtmlLabel5.Location = new Point(304, 17);
+            guna2HtmlLabel5.Location = new Point(213, 10);
+            guna2HtmlLabel5.Margin = new Padding(2, 2, 2, 2);
             guna2HtmlLabel5.Name = "guna2HtmlLabel5";
             guna2HtmlLabel5.Size = new Size(3, 2);
             guna2HtmlLabel5.TabIndex = 19;
@@ -471,9 +488,10 @@
             revenueamt.BackColor = Color.Transparent;
             revenueamt.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             revenueamt.ForeColor = Color.DarkGreen;
-            revenueamt.Location = new Point(20, 40);
+            revenueamt.Location = new Point(14, 24);
+            revenueamt.Margin = new Padding(2, 2, 2, 2);
             revenueamt.Name = "revenueamt";
-            revenueamt.Size = new Size(88, 49);
+            revenueamt.Size = new Size(59, 32);
             revenueamt.TabIndex = 1;
             revenueamt.Text = "₱0.00";
             // 
@@ -482,9 +500,10 @@
             revenuelbl.BackColor = Color.Transparent;
             revenuelbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             revenuelbl.ForeColor = Color.DarkGreen;
-            revenuelbl.Location = new Point(20, 13);
+            revenuelbl.Location = new Point(14, 8);
+            revenuelbl.Margin = new Padding(2, 2, 2, 2);
             revenuelbl.Name = "revenuelbl";
-            revenuelbl.Size = new Size(72, 31);
+            revenuelbl.Size = new Size(49, 21);
             revenuelbl.TabIndex = 0;
             revenuelbl.Text = "Revenue";
             // 
@@ -494,7 +513,8 @@
             salesprogressperday.FillThickness = 5;
             salesprogressperday.Font = new Font("Segoe UI", 12F);
             salesprogressperday.ForeColor = Color.White;
-            salesprogressperday.Location = new Point(32, 144);
+            salesprogressperday.Location = new Point(22, 86);
+            salesprogressperday.Margin = new Padding(2, 2, 2, 2);
             salesprogressperday.Minimum = 0;
             salesprogressperday.Name = "salesprogressperday";
             salesprogressperday.ProgressColor = Color.Green;
@@ -503,7 +523,7 @@
             salesprogressperday.ProgressThickness = 5;
             salesprogressperday.ShadowDecoration.CustomizableEdges = customizableEdges26;
             salesprogressperday.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            salesprogressperday.Size = new Size(153, 153);
+            salesprogressperday.Size = new Size(92, 92);
             salesprogressperday.TabIndex = 20;
             salesprogressperday.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
             salesprogressperday.Value = 56;
@@ -518,10 +538,11 @@
             ProfitPanel.CustomizableEdges = customizableEdges29;
             ProfitPanel.FillColor = Color.LemonChiffon;
             ProfitPanel.FillColor2 = Color.PaleGreen;
-            ProfitPanel.Location = new Point(508, 162);
+            ProfitPanel.Location = new Point(356, 97);
+            ProfitPanel.Margin = new Padding(2, 2, 2, 2);
             ProfitPanel.Name = "ProfitPanel";
             ProfitPanel.ShadowDecoration.CustomizableEdges = customizableEdges30;
-            ProfitPanel.Size = new Size(361, 143);
+            ProfitPanel.Size = new Size(253, 86);
             ProfitPanel.TabIndex = 20;
             // 
             // guna2ProgressBar1
@@ -529,11 +550,12 @@
             guna2ProgressBar1.CausesValidation = false;
             guna2ProgressBar1.CustomizableEdges = customizableEdges27;
             guna2ProgressBar1.FillColor = Color.LemonChiffon;
-            guna2ProgressBar1.Location = new Point(21, 113);
+            guna2ProgressBar1.Location = new Point(15, 68);
+            guna2ProgressBar1.Margin = new Padding(2, 2, 2, 2);
             guna2ProgressBar1.Name = "guna2ProgressBar1";
             guna2ProgressBar1.ProgressColor = Color.FromArgb(128, 255, 128);
             guna2ProgressBar1.ShadowDecoration.CustomizableEdges = customizableEdges28;
-            guna2ProgressBar1.Size = new Size(309, 10);
+            guna2ProgressBar1.Size = new Size(216, 6);
             guna2ProgressBar1.TabIndex = 21;
             guna2ProgressBar1.Text = "65";
             guna2ProgressBar1.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
@@ -545,9 +567,10 @@
             profitamt.BackColor = Color.Transparent;
             profitamt.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             profitamt.ForeColor = Color.DarkGreen;
-            profitamt.Location = new Point(21, 40);
+            profitamt.Location = new Point(15, 24);
+            profitamt.Margin = new Padding(2, 2, 2, 2);
             profitamt.Name = "profitamt";
-            profitamt.Size = new Size(88, 49);
+            profitamt.Size = new Size(59, 32);
             profitamt.TabIndex = 2;
             profitamt.Text = "₱0.00";
             // 
@@ -556,9 +579,10 @@
             Profitlbl.BackColor = Color.Transparent;
             Profitlbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Profitlbl.ForeColor = Color.DarkGreen;
-            Profitlbl.Location = new Point(21, 13);
+            Profitlbl.Location = new Point(15, 8);
+            Profitlbl.Margin = new Padding(2, 2, 2, 2);
             Profitlbl.Name = "Profitlbl";
-            Profitlbl.Size = new Size(47, 31);
+            Profitlbl.Size = new Size(32, 21);
             Profitlbl.TabIndex = 1;
             Profitlbl.Text = "Profit";
             // 
@@ -572,10 +596,11 @@
             ExpensesPanel.CustomizableEdges = customizableEdges33;
             ExpensesPanel.FillColor = Color.LemonChiffon;
             ExpensesPanel.FillColor2 = Color.PaleGreen;
-            ExpensesPanel.Location = new Point(890, 162);
+            ExpensesPanel.Location = new Point(623, 97);
+            ExpensesPanel.Margin = new Padding(2, 2, 2, 2);
             ExpensesPanel.Name = "ExpensesPanel";
             ExpensesPanel.ShadowDecoration.CustomizableEdges = customizableEdges34;
-            ExpensesPanel.Size = new Size(361, 143);
+            ExpensesPanel.Size = new Size(253, 86);
             ExpensesPanel.TabIndex = 20;
             // 
             // guna2ProgressBar2
@@ -583,11 +608,12 @@
             guna2ProgressBar2.CausesValidation = false;
             guna2ProgressBar2.CustomizableEdges = customizableEdges31;
             guna2ProgressBar2.FillColor = Color.LemonChiffon;
-            guna2ProgressBar2.Location = new Point(20, 113);
+            guna2ProgressBar2.Location = new Point(14, 68);
+            guna2ProgressBar2.Margin = new Padding(2, 2, 2, 2);
             guna2ProgressBar2.Name = "guna2ProgressBar2";
             guna2ProgressBar2.ProgressColor = Color.FromArgb(128, 255, 128);
             guna2ProgressBar2.ShadowDecoration.CustomizableEdges = customizableEdges32;
-            guna2ProgressBar2.Size = new Size(309, 10);
+            guna2ProgressBar2.Size = new Size(216, 6);
             guna2ProgressBar2.TabIndex = 22;
             guna2ProgressBar2.Text = "65";
             guna2ProgressBar2.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Value;
@@ -599,9 +625,10 @@
             expensesamt.BackColor = Color.Transparent;
             expensesamt.Font = new Font("Sitka Text", 16F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             expensesamt.ForeColor = Color.DarkGreen;
-            expensesamt.Location = new Point(17, 40);
+            expensesamt.Location = new Point(12, 24);
+            expensesamt.Margin = new Padding(2, 2, 2, 2);
             expensesamt.Name = "expensesamt";
-            expensesamt.Size = new Size(88, 49);
+            expensesamt.Size = new Size(59, 32);
             expensesamt.TabIndex = 3;
             expensesamt.Text = "₱0.00";
             // 
@@ -610,9 +637,10 @@
             Expenseslbl.BackColor = Color.Transparent;
             Expenseslbl.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Expenseslbl.ForeColor = Color.DarkGreen;
-            Expenseslbl.Location = new Point(17, 13);
+            Expenseslbl.Location = new Point(12, 8);
+            Expenseslbl.Margin = new Padding(2, 2, 2, 2);
             Expenseslbl.Name = "Expenseslbl";
-            Expenseslbl.Size = new Size(78, 31);
+            Expenseslbl.Size = new Size(52, 21);
             Expenseslbl.TabIndex = 2;
             Expenseslbl.Text = "Expenses";
             // 
@@ -626,10 +654,11 @@
             salespanel.CustomizableEdges = customizableEdges37;
             salespanel.FillColor = Color.WhiteSmoke;
             salespanel.FillColor2 = Color.LemonChiffon;
-            salespanel.Location = new Point(131, 330);
+            salespanel.Location = new Point(92, 198);
+            salespanel.Margin = new Padding(2, 2, 2, 2);
             salespanel.Name = "salespanel";
             salespanel.ShadowDecoration.CustomizableEdges = customizableEdges38;
-            salespanel.Size = new Size(224, 508);
+            salespanel.Size = new Size(157, 305);
             salespanel.TabIndex = 21;
             // 
             // guna2HtmlLabel3
@@ -637,9 +666,10 @@
             guna2HtmlLabel3.BackColor = Color.Transparent;
             guna2HtmlLabel3.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             guna2HtmlLabel3.ForeColor = Color.DarkGreen;
-            guna2HtmlLabel3.Location = new Point(19, 18);
+            guna2HtmlLabel3.Location = new Point(13, 11);
+            guna2HtmlLabel3.Margin = new Padding(2, 2, 2, 2);
             guna2HtmlLabel3.Name = "guna2HtmlLabel3";
-            guna2HtmlLabel3.Size = new Size(181, 31);
+            guna2HtmlLabel3.Size = new Size(120, 21);
             guna2HtmlLabel3.TabIndex = 22;
             guna2HtmlLabel3.Text = "Sales on Date Selected";
             // 
@@ -652,12 +682,13 @@
             salesdaterevenue.Font = new Font("Sitka Display", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
             salesdaterevenue.ForeColor = Color.DarkGreen;
             salesdaterevenue.Format = DateTimePickerFormat.Short;
-            salesdaterevenue.Location = new Point(21, 59);
+            salesdaterevenue.Location = new Point(15, 35);
+            salesdaterevenue.Margin = new Padding(2, 2, 2, 2);
             salesdaterevenue.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
             salesdaterevenue.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
             salesdaterevenue.Name = "salesdaterevenue";
             salesdaterevenue.ShadowDecoration.CustomizableEdges = customizableEdges36;
-            salesdaterevenue.Size = new Size(183, 38);
+            salesdaterevenue.Size = new Size(128, 23);
             salesdaterevenue.TabIndex = 21;
             salesdaterevenue.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
             // 
@@ -669,10 +700,11 @@
             dynamicpanel.CustomizableEdges = customizableEdges39;
             dynamicpanel.FillColor = Color.WhiteSmoke;
             dynamicpanel.FillColor2 = Color.LemonChiffon;
-            dynamicpanel.Location = new Point(378, 330);
+            dynamicpanel.Location = new Point(265, 198);
+            dynamicpanel.Margin = new Padding(2, 2, 2, 2);
             dynamicpanel.Name = "dynamicpanel";
             dynamicpanel.ShadowDecoration.CustomizableEdges = customizableEdges40;
-            dynamicpanel.Size = new Size(874, 508);
+            dynamicpanel.Size = new Size(612, 305);
             dynamicpanel.TabIndex = 22;
             // 
             // hovertext
@@ -685,11 +717,11 @@
             // 
             // Dashboard_Form
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(1292, 882);
+            ClientSize = new Size(904, 529);
             Controls.Add(dynamicpanel);
             Controls.Add(salespanel);
             Controls.Add(ExpensesPanel);
@@ -700,6 +732,7 @@
             Controls.Add(guna2ShadowPanel1);
             FormBorderStyle = FormBorderStyle.None;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(2, 2, 2, 2);
             Name = "Dashboard_Form";
             StartPosition = FormStartPosition.CenterScreen;
             Text = " ";
@@ -741,7 +774,6 @@
         private Guna.UI2.WinForms.Guna2GradientPanel salespanel;
         private Guna.UI2.WinForms.Guna2GradientPanel dynamicpanel;
         private Guna.UI2.WinForms.Guna2HtmlToolTip hovertext;
-        private PopupEventHandler hovertext_Popup;
         private Guna.UI2.WinForms.Guna2HtmlLabel revenueamt;
         private Guna.UI2.WinForms.Guna2HtmlLabel revenuelbl;
         private Guna.UI2.WinForms.Guna2HtmlLabel profitamt;
