@@ -1,6 +1,8 @@
-﻿using EvsonHardware.Data;
+using EvsonHardware.Data;
 using System;
 using System.Data;
+using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace EvsonHardware
@@ -8,12 +10,39 @@ namespace EvsonHardware
     public partial class InventoryForm : Form
     {
         private int selectedProductId = 0;
+        private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
 
         public InventoryForm()
         {
             InitializeComponent();
+            ApplyGridTheme();
             LoadCategories();
             LoadInventory();
+        }
+
+        private void ApplyGridTheme()
+        {
+            dgvInventory.EnableHeadersVisualStyles = false;
+            dgvInventory.BackgroundColor = Color.Ivory;
+            dgvInventory.BorderStyle = BorderStyle.FixedSingle;
+            dgvInventory.GridColor = Color.FromArgb(214, 223, 118);
+
+            dgvInventory.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+            dgvInventory.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvInventory.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+            dgvInventory.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvInventory.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dgvInventory.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvInventory.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+            dgvInventory.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvInventory.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvInventory.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvInventory.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+            dgvInventory.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
+            dgvInventory.RowHeadersVisible = false;
+            dgvInventory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         private void LoadCategories()
@@ -86,6 +115,12 @@ namespace EvsonHardware
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
                 dgvInventory.DataSource = dt;
+                if (dgvInventory.Columns["Price"] != null)
+                {
+                    dgvInventory.Columns["Price"].DefaultCellStyle.Format = "C2";
+                    dgvInventory.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
+                    dgvInventory.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+                }
                 dgvInventory.ClearSelection();
                 if (dgvInventory.Rows.Count > 0)
                 {

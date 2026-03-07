@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using System;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
@@ -13,18 +14,27 @@ namespace EvsonHardware.Forms
         private string _role;
         private int _userId;
         private DataGridView productGrid;
+        private Guna2HtmlLabel selectedRevenueDetail;
+        private Guna2HtmlLabel selectedExpensesDetail;
+        private Guna2HtmlLabel selectedProfitDetail;
+        private Guna2HtmlLabel selectedMarginDetail;
+        private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
 
         public Dashboard_Form(string role, int userId)
         {
             InitializeComponent();
             _role = role;
             _userId = userId;
+            ApplyCurrencyFonts();
             WireEvents();
             ConfigureAccess();
+            InitializeSalesPanelDetails();
+            SetDashboardDateToToday();
 
             InitializeSearchGrid();
-            LoadDashboardStats();
+            LoadDashboardStats(loadGrid: false);
             LoadCurrentUser();
+            ClearDashboardGrid();
         }
 
         public Dashboard_Form()
@@ -44,6 +54,61 @@ namespace EvsonHardware.Forms
             logoutbtn.Click += Logoutbtn_Click;
             exitbtn.Click += Exitbtn_Click;
             searchbar.KeyDown += Searchbar_KeyDown;
+            salesdaterevenue.ValueChanged += (_, __) => LoadDashboardStats(loadGrid: false);
+            Shown += (_, __) => ClearDashboardGrid();
+        }
+
+        private void ClearDashboardGrid()
+        {
+            if (productGrid == null) return;
+            productGrid.DataSource = null;
+            productGrid.Rows.Clear();
+        }
+
+        private void SetDashboardDateToToday()
+        {
+            DateTime today = DateTime.Today;
+            if (today < salesdaterevenue.MinDate) today = salesdaterevenue.MinDate;
+            if (today > salesdaterevenue.MaxDate) today = salesdaterevenue.MaxDate;
+            salesdaterevenue.Value = today;
+        }
+
+        private void InitializeSalesPanelDetails()
+        {
+            salesprogressperday.TextMode = Guna.UI2.WinForms.Enums.ProgressBarTextMode.Custom;
+            salesprogressperday.Text = FormatPeso(0m);
+            salesprogressperday.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold, GraphicsUnit.Point, 0);
+
+            selectedRevenueDetail = CreateSalesPanelLabel(new Point(12, 192), $"Revenue: {FormatPeso(0m)}");
+            selectedExpensesDetail = CreateSalesPanelLabel(new Point(12, 212), $"Expenses: {FormatPeso(0m)}");
+            selectedProfitDetail = CreateSalesPanelLabel(new Point(12, 232), $"Profit: {FormatPeso(0m)}");
+            selectedMarginDetail = CreateSalesPanelLabel(new Point(12, 252), "Margin: 0.00%");
+
+            salespanel.Controls.Add(selectedRevenueDetail);
+            salespanel.Controls.Add(selectedExpensesDetail);
+            salespanel.Controls.Add(selectedProfitDetail);
+            salespanel.Controls.Add(selectedMarginDetail);
+        }
+
+        private static Guna2HtmlLabel CreateSalesPanelLabel(Point location, string text)
+        {
+            return new Guna2HtmlLabel
+            {
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                ForeColor = Color.DarkGreen,
+                Location = location,
+                AutoSize = true,
+                Text = text
+            };
+        }
+
+        private void ApplyCurrencyFonts()
+        {
+            var pesoFont = new Font("Segoe UI", 16F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            revenueamt.Font = pesoFont;
+            profitamt.Font = pesoFont;
+            expensesamt.Font = pesoFont;
         }
 
         // ================================
@@ -87,7 +152,8 @@ namespace EvsonHardware.Forms
         private void Homebtn_Click(object sender, EventArgs e)
         {
             ActivateButton(homebtn);
-            LoadDashboardStats();
+            LoadDashboardStats(loadGrid: false);
+            ClearDashboardGrid();
         }
 
         private void Salesbtn_Click(object sender, EventArgs e)
@@ -111,7 +177,8 @@ namespace EvsonHardware.Forms
         private void Expensesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(expensesbtn);
-            CustomMessageBox.Show("Open Expenses Module");
+            using var form = new ExpenseForm();
+            form.ShowDialog();
 
             RefreshData();
         }
@@ -141,7 +208,10 @@ namespace EvsonHardware.Forms
         private void SearchProduct(string searchText)
         {
             if (string.IsNullOrWhiteSpace(searchText))
+            {
+                ClearDashboardGrid();
                 return;
+            }
 
             productGrid.DataSource = null;
 
@@ -151,10 +221,17 @@ namespace EvsonHardware.Forms
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 SELECT
-                    ROUND(price, 2) AS Price,
-                    CAST(stock AS INTEGER) AS Stock
-                FROM product_stock
-                WHERE product_name LIKE $search
+                    ps.product_name  AS Name,
+                    ps.category_name AS Category,
+                    IFNULL(p.brandname, '') AS Brand,
+                    ROUND(ps.price, 2) AS Price,
+                    CAST(ps.stock AS INTEGER) AS Stock
+                FROM product_stock ps
+                LEFT JOIN product p ON p.product_id = ps.product_id
+                WHERE ps.product_name LIKE $search
+                   OR ps.category_name LIKE $search
+                   OR IFNULL(p.brandname, '') LIKE $search
+                   OR CAST(ps.product_id AS TEXT) LIKE $search
                 LIMIT 10";
 
             cmd.Parameters.AddWithValue("$search", "%" + searchText + "%");
@@ -185,9 +262,21 @@ namespace EvsonHardware.Forms
             productGrid.AllowUserToAddRows = false;
             productGrid.AllowUserToDeleteRows = false;
 
-            productGrid.CellClick += ProductGrid_CellClick;
-
             productGrid.Columns.Clear();
+
+            var nameCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Name",
+                HeaderText = "Name",
+                DataPropertyName = "Name"
+            };
+
+            var categoryCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Category",
+                HeaderText = "Category",
+                DataPropertyName = "Category"
+            };
 
             var priceCol = new DataGridViewTextBoxColumn
             {
@@ -195,6 +284,13 @@ namespace EvsonHardware.Forms
                 HeaderText = "Price",
                 DataPropertyName = "Price",
                 DefaultCellStyle = { Format = "N2", Alignment = DataGridViewContentAlignment.MiddleCenter }
+            };
+
+            var brandCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Brand",
+                HeaderText = "Brand",
+                DataPropertyName = "Brand"
             };
 
             var stockCol = new DataGridViewTextBoxColumn
@@ -205,6 +301,9 @@ namespace EvsonHardware.Forms
                 DefaultCellStyle = { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleCenter }
             };
 
+            productGrid.Columns.Add(nameCol);
+            productGrid.Columns.Add(categoryCol);
+            productGrid.Columns.Add(brandCol);
             productGrid.Columns.Add(priceCol);
             productGrid.Columns.Add(stockCol);
 
@@ -212,23 +311,23 @@ namespace EvsonHardware.Forms
             productGrid.ReadOnly = true;
             productGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             productGrid.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            productGrid.EnableHeadersVisualStyles = false;
+            productGrid.BackgroundColor = Color.Ivory;
+            productGrid.BorderStyle = BorderStyle.None;
+            productGrid.GridColor = Color.FromArgb(214, 223, 118);
+            productGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+            productGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            productGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+            productGrid.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            productGrid.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+            productGrid.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+            productGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            productGrid.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+            productGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
 
             dynamicpanel.Controls.Add(productGrid);
         }
 
-        private void ProductGrid_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                string price = productGrid.Rows[e.RowIndex].Cells["Price"].Value?.ToString() ?? "0";
-                string stock = productGrid.Rows[e.RowIndex].Cells["Stock"].Value?.ToString() ?? "0";
-
-                CustomMessageBox.Show(
-                    $"Price: ₱{price}\nStock: {stock}",
-                    "Product Info"
-                );
-            }
-        }
         private void ShowProductResult(string name, double price, int stock)
         {
             dynamicpanel.Controls.Clear();
@@ -240,7 +339,7 @@ namespace EvsonHardware.Forms
             lblName.AutoSize = true;
 
             Label lblPrice = new Label();
-            lblPrice.Text = "Price: ₱" + price.ToString("N2");
+            lblPrice.Text = "Price: " + FormatPeso(Convert.ToDecimal(price));
             lblPrice.Font = new Font("Segoe UI", 12);
             lblPrice.Location = new Point(30, 80);
             lblPrice.AutoSize = true;
@@ -259,41 +358,100 @@ namespace EvsonHardware.Forms
         // ================================
         // DASHBOARD CARD LOGIC
         // ================================
-        private void LoadDashboardStats()
+        private void LoadDashboardStats(bool loadGrid = false)
         {
             using var conn = Database.GetConnection();
             conn.Open();
 
-            // DAILY REVENUE
+            string selectedDate = salesdaterevenue.Value.Date.ToString("yyyy-MM-dd");
+            string saleTable = ResolveSaleTable(conn);
+            string salesDetailsTable = ResolveSalesDetailsTable(conn);
+            string supplyDetailsTable = ResolveSupplyDetailsTable(conn);
+
+            // DAILY REVENUE (from actual sales records)
             var revenueCmd = conn.CreateCommand();
-            revenueCmd.CommandText = @"
-            SELECT IFNULL(total_sales,0)
-            FROM daily_revenue
-            WHERE revenue_date = DATE('now')";
+            revenueCmd.CommandText = $@"
+            SELECT COALESCE(SUM(total_amount), 0)
+            FROM {saleTable}
+            WHERE DATE(sale_date) = @day";
+            revenueCmd.Parameters.AddWithValue("@day", selectedDate);
 
             var revenue = revenueCmd.ExecuteScalar();
             decimal dailyRevenue = revenue == null ? 0 : Convert.ToDecimal(revenue);
 
-            revenueamt.Text = "₱ " + dailyRevenue.ToString("N2");
+            revenueamt.Text = FormatPeso(dailyRevenue);
 
             // DAILY EXPENSES
             var expenseCmd = conn.CreateCommand();
             expenseCmd.CommandText = @"
-            SELECT IFNULL(SUM(amount),0)
+            SELECT COALESCE(SUM(amount), 0)
             FROM expense
-            WHERE DATE(expense_date) = DATE('now')";
+            WHERE DATE(expense_date) = @day";
+            expenseCmd.Parameters.AddWithValue("@day", selectedDate);
 
             var expense = expenseCmd.ExecuteScalar();
             decimal dailyExpenses = Convert.ToDecimal(expense);
 
-            expensesamt.Text = "₱ " + dailyExpenses.ToString("N2");
+            expensesamt.Text = FormatPeso(dailyExpenses);
 
-            // DAILY PROFIT
-            decimal profit = dailyRevenue - dailyExpenses;
+            // DAILY COST OF GOODS SOLD (latest known unit cost per product)
+            var cogsCmd = conn.CreateCommand();
+            cogsCmd.CommandText = $@"
+            SELECT COALESCE(SUM(
+                CAST(sd.quantity AS REAL) * COALESCE(
+                    (
+                        SELECT CAST(sup.unit_cost AS REAL)
+                        FROM {supplyDetailsTable} sup
+                        WHERE CAST(sup.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
+                          AND COALESCE(CAST(sup.unit_cost AS REAL), 0) > 0
+                        ORDER BY ROWID DESC
+                        LIMIT 1
+                    ), 0
+                )
+            ), 0)
+            FROM {salesDetailsTable} sd
+            INNER JOIN {saleTable} s ON CAST(s.sale_id AS INTEGER) = CAST(sd.sale_id AS INTEGER)
+            WHERE DATE(s.sale_date) = @day";
+            cogsCmd.Parameters.AddWithValue("@day", selectedDate);
+            var cogsObj = cogsCmd.ExecuteScalar();
+            decimal dailyCogs = cogsObj == null ? 0 : Convert.ToDecimal(cogsObj);
 
-            profitamt.Text = "₱ " + profit.ToString("N2");
+            // DAILY PROFIT = Revenue - COGS - Expenses
+            decimal profit = dailyRevenue - dailyCogs - dailyExpenses;
 
-            LoadRevenueBreakdown();
+            profitamt.Text = FormatPeso(profit);
+
+            UpdateProfitCircleAndDetails(dailyRevenue, dailyExpenses, dailyCogs, profit);
+
+            if (loadGrid)
+                LoadRevenueBreakdown();
+        }
+
+        private void UpdateProfitCircleAndDetails(decimal dailyRevenue, decimal dailyExpenses, decimal dailyCogs, decimal profit)
+        {
+            decimal baseAmount = dailyRevenue <= 0 ? 1 : dailyRevenue;
+            int percent = ClampToPercent((profit / baseAmount) * 100m);
+
+            salesprogressperday.Value = percent;
+            salesprogressperday.ForeColor = profit < 0 ? Color.Firebrick : Color.DarkGreen;
+            salesprogressperday.ProgressColor = profit < 0 ? Color.IndianRed : Color.Green;
+            salesprogressperday.ProgressColor2 = profit < 0 ? Color.LightCoral : Color.LimeGreen;
+            salesprogressperday.Text = FormatPeso(profit);
+
+            decimal marginPercent = dailyRevenue <= 0 ? 0 : (profit / dailyRevenue) * 100m;
+            selectedRevenueDetail.Text = $"Revenue: {FormatPeso(dailyRevenue)}";
+            selectedExpensesDetail.Text = $"Expenses: {FormatPeso(dailyExpenses)}";
+            selectedProfitDetail.Text = $"Profit: {FormatPeso(profit)}";
+            selectedMarginDetail.Text = $"Margin: {marginPercent:N2}%";
+        }
+
+        private static string FormatPeso(decimal amount) => amount.ToString("C2", PhCulture);
+
+        private static int ClampToPercent(decimal value)
+        {
+            if (value < 0) return 0;
+            if (value > 100) return 100;
+            return (int)Math.Round(value);
         }
 
         private void LoadRevenueBreakdown()
@@ -306,13 +464,12 @@ namespace EvsonHardware.Forms
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 SELECT 
-                ROUND(sd.unit_price, 2) AS Price,
-                SUM(sd.quantity) AS Stock
-                FROM sales_details_fixed sd
-                JOIN sale s ON s.sale_id = sd.sale_id
-                WHERE DATE(s.sale_date) = DATE('now')
-                GROUP BY ROUND(sd.unit_price, 2)
-                ORDER BY Price ASC
+                ps.product_name  AS Name,
+                ps.category_name AS Category,
+                ROUND(ps.price, 2) AS Price,
+                CAST(ps.stock AS INTEGER) AS Stock
+                FROM product_stock ps
+                ORDER BY ps.product_name
                 LIMIT 10";
 
             var dt = new DataTable();
@@ -467,8 +624,8 @@ namespace EvsonHardware.Forms
 
         public void RefreshData()
         {
-            LoadStockGrid();
-            LoadDashboardStats();
+            LoadDashboardStats(loadGrid: false);
+            ClearDashboardGrid();
         }
 
         private void LoadStockGrid()
@@ -479,9 +636,12 @@ namespace EvsonHardware.Forms
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 SELECT
-                    ROUND(price, 2) AS Price,
-                    CAST(stock AS INTEGER) AS Stock
-                FROM product_stock";
+                    ps.product_name  AS Name,
+                    ps.category_name AS Category,
+                    ROUND(ps.price, 2) AS Price,
+                    CAST(ps.stock AS INTEGER) AS Stock
+                FROM product_stock ps
+                ORDER BY ps.product_name";
 
             var dt = new DataTable();
             using (var reader = cmd.ExecuteReader())
@@ -490,6 +650,35 @@ namespace EvsonHardware.Forms
             }
 
             productGrid.DataSource = dt; 
+        }
+
+        private static bool TableExists(SqliteConnection conn, string tableName)
+        {
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=@name LIMIT 1;";
+            cmd.Parameters.AddWithValue("@name", tableName);
+            return cmd.ExecuteScalar() != null;
+        }
+
+        private static string ResolveSaleTable(SqliteConnection conn)
+        {
+            if (TableExists(conn, "sale")) return "sale";
+            if (TableExists(conn, "sales")) return "sales";
+            throw new InvalidOperationException("No sales table found (expected sale or sales).");
+        }
+
+        private static string ResolveSalesDetailsTable(SqliteConnection conn)
+        {
+            if (TableExists(conn, "sales_details_fixed")) return "sales_details_fixed";
+            if (TableExists(conn, "sales_details")) return "sales_details";
+            throw new InvalidOperationException("No sales details table found (expected sales_details or sales_details_fixed).");
+        }
+
+        private static string ResolveSupplyDetailsTable(SqliteConnection conn)
+        {
+            if (TableExists(conn, "supply_details_fixed")) return "supply_details_fixed";
+            if (TableExists(conn, "supply_details")) return "supply_details";
+            throw new InvalidOperationException("No supply details table found (expected supply_details or supply_details_fixed).");
         }
     }
 }

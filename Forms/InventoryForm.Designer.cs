@@ -125,6 +125,7 @@
             btnClear.ForeColor = Color.DarkGreen;
             btnClear.Location = new Point(284, 153);
             btnClear.Name = "btnClear";
+            btnClear.PressedColor = Color.Green;
             btnClear.ShadowDecoration.CustomizableEdges = customizableEdges2;
             btnClear.Size = new Size(108, 29);
             btnClear.TabIndex = 15;
@@ -148,7 +149,7 @@
             btnSave.ForeColor = Color.White;
             btnSave.Location = new Point(133, 153);
             btnSave.Name = "btnSave";
-            btnSave.PressedColor = Color.DarkGreen;
+            btnSave.PressedColor = Color.SeaGreen;
             btnSave.ShadowDecoration.CustomizableEdges = customizableEdges4;
             btnSave.Size = new Size(108, 29);
             btnSave.TabIndex = 14;
@@ -264,7 +265,6 @@
             // 
             // btnRestock
             // 
-            btnRestock.BorderColor = Color.LightGoldenrodYellow;
             btnRestock.BorderRadius = 15;
             btnRestock.BorderThickness = 1;
             btnRestock.CustomizableEdges = customizableEdges5;
@@ -277,8 +277,9 @@
             btnRestock.ForeColor = Color.White;
             btnRestock.Location = new Point(102, 153);
             btnRestock.Name = "btnRestock";
+            btnRestock.PressedColor = Color.LightGreen;
             btnRestock.ShadowDecoration.CustomizableEdges = customizableEdges6;
-            btnRestock.Size = new Size(108, 29);
+            btnRestock.Size = new Size(112, 29);
             btnRestock.TabIndex = 16;
             btnRestock.Text = "Add Stock";
             btnRestock.Click += btnRestock_Click;
@@ -321,15 +322,15 @@
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             exitbtn.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
             exitbtn.FillColor = Color.Transparent;
-            exitbtn.Font = new Font("Sitka Small", 8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            exitbtn.Font = new Font("Sitka Small", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(862, -1);
+            exitbtn.Location = new Point(868, 5);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges8;
-            exitbtn.Size = new Size(41, 48);
+            exitbtn.Size = new Size(30, 38);
             exitbtn.TabIndex = 19;
             exitbtn.Text = "X";
             exitbtn.Click += exitbtn_Click;
@@ -349,7 +350,6 @@
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
             dgvInventory.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             dgvInventory.ColumnHeadersHeight = 28;
-            dgvInventory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = Color.White;
             dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);

@@ -3,6 +3,8 @@ using EvsonHardware.Forms;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Data;
+using System.Drawing;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Windows.Forms;
 
@@ -15,11 +17,20 @@ namespace EvsonHardware
         private string stagedProductName = "";
         private decimal stagedPrice = 0m;
         private int stagedAvailableStock = 0;
+        private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
 
         public SalesForm()
         {
             InitializeComponent();
+            ApplyCurrencyFonts();
             SetupCartGrid();
+        }
+
+        private void ApplyCurrencyFonts()
+        {
+            var pesoFont = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblTotal.Font = pesoFont;
+            lblSelectedProduct.Font = pesoFont;
         }
 
         private void SetupCartGrid()
@@ -44,7 +55,7 @@ namespace EvsonHardware
                 stagedPrice = popup.SelectedPrice;
                 stagedAvailableStock = popup.AvailableStock;
 
-                lblSelectedProduct.Text = $"Selected: {stagedProductName} — ₱{stagedPrice:F2}  (Stock: {stagedAvailableStock})";
+                lblSelectedProduct.Text = $"Selected: {stagedProductName} — {FormatPeso(stagedPrice)}  (Stock: {stagedAvailableStock})";
                 numQty.Maximum = stagedAvailableStock;
                 numQty.Value = 1;
             }
@@ -112,7 +123,7 @@ namespace EvsonHardware
             }
 
             if (CustomMessageBox.Show(
-                $"Process sale for ₱{currentTotal:F2}?",
+                $"Process sale for {FormatPeso(currentTotal)}?",
                 "Confirm Sale",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question) != DialogResult.Yes) return;
@@ -185,7 +196,7 @@ namespace EvsonHardware
                 }
 
                 tr.Commit();
-                CustomMessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: ₱{currentTotal:F2}",
+                CustomMessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: {FormatPeso(currentTotal)}",
                 "Sale Processed");
                 ClearCart();
                 RefreshDashboard();
@@ -214,7 +225,9 @@ namespace EvsonHardware
             return 0;
         }
 
-        private void UpdateTotal() => lblTotal.Text = $"Total: ₱{currentTotal:F2}";
+        private void UpdateTotal() => lblTotal.Text = $"Total: {FormatPeso(currentTotal)}";
+
+        private static string FormatPeso(decimal amount) => amount.ToString("C2", PhCulture);
 
         private void ResetStaging()
         {

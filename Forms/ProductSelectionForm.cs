@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 using EvsonHardware.Data;
 using EvsonHardware.Forms;
@@ -9,6 +10,7 @@ namespace EvsonHardware
 {
     public class ProductSelectionForm : Form
     {
+        private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
         private Label lblTitle;
         private Guna.UI2.WinForms.Guna2Button exitbtn;
         private Guna.UI2.WinForms.Guna2TextBox txtSearch;
@@ -31,9 +33,35 @@ namespace EvsonHardware
         public ProductSelectionForm()
         {
             InitializeComponent();
+            ApplyGridTheme();
 
             LoadCategories();
-            LoadProducts("", 0);
+            LoadProducts("", "");
+        }
+
+        private void ApplyGridTheme()
+        {
+            dgvProducts.EnableHeadersVisualStyles = false;
+            dgvProducts.BackgroundColor = Color.Ivory;
+            dgvProducts.BorderStyle = BorderStyle.FixedSingle;
+            dgvProducts.GridColor = Color.FromArgb(214, 223, 118);
+
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dgvProducts.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvProducts.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+            dgvProducts.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvProducts.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvProducts.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvProducts.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+            dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
+            dgvProducts.RowHeadersVisible = false;
+            dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
 
@@ -78,14 +106,17 @@ namespace EvsonHardware
             catch (Exception ex) { CustomMessageBox.Show("LoadCategories error: " + ex.Message, "Error"); }
         }
 
-        private int GetSelectedCategoryId()
+        private string GetSelectedCategoryName()
         {
             if (cmbCategory.SelectedItem is DataRowView row)
-                return Convert.ToInt32(row["category_id"]);
-            return 0;
+            {
+                string name = row["category_name"]?.ToString()?.Trim() ?? "";
+                return string.Equals(name, "All Categories", StringComparison.OrdinalIgnoreCase) ? "" : name;
+            }
+            return "";
         }
 
-        private void LoadProducts(string search, int categoryId)
+        private void LoadProducts(string search, string categoryName)
         {
             try
             {
@@ -104,11 +135,11 @@ namespace EvsonHardware
                     FROM product_stock ps
                     JOIN product p ON ps.product_id = p.product_id
                     WHERE ps.product_name LIKE @search
-                      AND (@catId = 0 OR p.category_id = @catId)
+                      AND (@catName = '' OR LOWER(TRIM(ps.category_name)) = LOWER(TRIM(@catName)))
                     ORDER BY ps.product_name;";
 
                 cmd.Parameters.AddWithValue("@search", "%" + search + "%");
-                cmd.Parameters.AddWithValue("@catId", categoryId);
+                cmd.Parameters.AddWithValue("@catName", categoryName);
 
                 var dt = new DataTable();
                 using (var reader = cmd.ExecuteReader())
@@ -116,6 +147,12 @@ namespace EvsonHardware
                     dt.Load(reader);
                 }
                 dgvProducts.DataSource = dt;
+                if (dgvProducts.Columns["Price"] != null)
+                {
+                    dgvProducts.Columns["Price"].DefaultCellStyle.Format = "C2";
+                    dgvProducts.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
+                    dgvProducts.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+                }
                 if (dgvProducts.Rows.Count > 0)
                 {
                     dgvProducts.FirstDisplayedScrollingRowIndex = 0;
@@ -215,7 +252,7 @@ namespace EvsonHardware
             lblTitle.BackColor = Color.Transparent;
             lblTitle.Font = new Font("Sitka Banner", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = Color.White;
-            lblTitle.Location = new Point(240, 11);
+            lblTitle.Location = new Point(12, 9);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(165, 35);
             lblTitle.TabIndex = 1;
@@ -236,11 +273,11 @@ namespace EvsonHardware
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(640, 0);
+            exitbtn.Location = new Point(651, 3);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            exitbtn.Size = new Size(41, 48);
+            exitbtn.Size = new Size(32, 34);
             exitbtn.TabIndex = 20;
             exitbtn.Text = "X";
             exitbtn.Click += exitbtn_Click;
@@ -455,7 +492,7 @@ namespace EvsonHardware
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            LoadProducts(txtSearch.Text, GetSelectedCategoryId());
+            LoadProducts(txtSearch.Text, GetSelectedCategoryName());
         }
 
         private void btnCancel_Clcik(object sender, EventArgs e)
@@ -474,12 +511,12 @@ namespace EvsonHardware
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            LoadProducts(txtSearch.Text, GetSelectedCategoryId());
+            LoadProducts(txtSearch.Text, GetSelectedCategoryName());
         }
 
         private void cmbCategory_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadProducts(txtSearch.Text, GetSelectedCategoryId());
+            LoadProducts(txtSearch.Text, GetSelectedCategoryName());
         }
 
         private void dgvProducts_DoubleClick(object sender, EventArgs e)
@@ -493,4 +530,6 @@ namespace EvsonHardware
         }
     }
 }
+
+
 
