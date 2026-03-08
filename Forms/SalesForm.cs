@@ -43,6 +43,28 @@ namespace EvsonHardware
             dgvCart.Columns[4].Name = "Subtotal";
             dgvCart.Columns[0].Visible = false;
             dgvCart.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+
+            dgvCart.EnableHeadersVisualStyles = false;
+            dgvCart.BackgroundColor = Color.Ivory;
+            dgvCart.BorderStyle = BorderStyle.FixedSingle;
+            dgvCart.GridColor = Color.FromArgb(214, 223, 118);
+
+            dgvCart.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+            dgvCart.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvCart.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+            dgvCart.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvCart.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dgvCart.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvCart.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+            dgvCart.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvCart.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvCart.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dgvCart.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
+            dgvCart.RowHeadersVisible = false;
+            dgvCart.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvCart.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -259,7 +281,7 @@ namespace EvsonHardware
 
         private void exitbtn_Click(object sender, EventArgs e)
         {
-            this.Hide();
+            Close();
         }
 
         private void lblTitle_Click(object sender, EventArgs e)

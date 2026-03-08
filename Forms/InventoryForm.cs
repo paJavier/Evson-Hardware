@@ -43,6 +43,17 @@ namespace EvsonHardware
             dgvInventory.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
             dgvInventory.RowHeadersVisible = false;
             dgvInventory.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvInventory.ThemeStyle.BackColor = Color.Ivory;
+            dgvInventory.ThemeStyle.GridColor = Color.FromArgb(214, 223, 118);
+            dgvInventory.ThemeStyle.HeaderStyle.BackColor = Color.OliveDrab;
+            dgvInventory.ThemeStyle.HeaderStyle.ForeColor = Color.White;
+            dgvInventory.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvInventory.ThemeStyle.RowsStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvInventory.ThemeStyle.RowsStyle.ForeColor = Color.DarkOliveGreen;
+            dgvInventory.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvInventory.ThemeStyle.RowsStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvInventory.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(247, 250, 211);
         }
 
         private void LoadCategories()
@@ -347,7 +358,7 @@ namespace EvsonHardware
 
         private void exitbtn_Click(object sender, EventArgs e)
         {
-            this.Hide();
+            Close();
         }
 
 

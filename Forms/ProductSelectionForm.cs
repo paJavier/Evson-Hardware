@@ -62,6 +62,17 @@ namespace EvsonHardware
             dgvProducts.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
             dgvProducts.RowHeadersVisible = false;
             dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvProducts.ThemeStyle.BackColor = Color.Ivory;
+            dgvProducts.ThemeStyle.GridColor = Color.FromArgb(214, 223, 118);
+            dgvProducts.ThemeStyle.HeaderStyle.BackColor = Color.OliveDrab;
+            dgvProducts.ThemeStyle.HeaderStyle.ForeColor = Color.White;
+            dgvProducts.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvProducts.ThemeStyle.RowsStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvProducts.ThemeStyle.RowsStyle.ForeColor = Color.DarkOliveGreen;
+            dgvProducts.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvProducts.ThemeStyle.RowsStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvProducts.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(247, 250, 211);
         }
 
 

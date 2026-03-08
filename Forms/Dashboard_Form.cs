@@ -50,6 +50,7 @@ namespace EvsonHardware.Forms
             salesbtn.Click += Salesbtn_Click;
             inventorybtn.Click += Inventorybtn_Click;
             expensesbtn.Click += Expensesbtn_Click;
+            returnbtn.Click += Returnbtn_Click;
             reportbtn.Click += Reportbtn_Click;
             logoutbtn.Click += Logoutbtn_Click;
             exitbtn.Click += Exitbtn_Click;
@@ -159,36 +160,31 @@ namespace EvsonHardware.Forms
         private void Salesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(salesbtn);
-            var form = new SalesForm();
-            form.ShowDialog();
-
-            RefreshData();
+            OpenChildForm(new SalesForm());
         }
 
         private void Inventorybtn_Click(object sender, EventArgs e)
         {
             ActivateButton(inventorybtn);
-            var form = new InventoryForm();
-            form.ShowDialog();
-
-            RefreshData();
+            OpenChildForm(new InventoryForm());
         }
 
         private void Expensesbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(expensesbtn);
-            using var form = new ExpenseForm();
-            form.ShowDialog();
+            OpenChildForm(new ExpenseForm());
+        }
 
-            RefreshData();
+        private void Returnbtn_Click(object sender, EventArgs e)
+        {
+            ActivateButton(returnbtn);
+            OpenChildForm(new ReturnsForm());
         }
 
         private void Reportbtn_Click(object sender, EventArgs e)
         {
             ActivateButton(reportbtn);
-            CustomMessageBox.Show("Open Reports Module");
-
-            RefreshData();
+            OpenChildForm(new ReportsForm());
         }
 
         private void Logoutbtn_Click(object sender, EventArgs e)
@@ -626,6 +622,18 @@ namespace EvsonHardware.Forms
         {
             LoadDashboardStats(loadGrid: false);
             ClearDashboardGrid();
+        }
+
+        private void OpenChildForm(Form childForm)
+        {
+            using (childForm)
+            {
+                Hide();
+                childForm.ShowDialog(this);
+                Show();
+                Activate();
+                RefreshData();
+            }
         }
 
         private void LoadStockGrid()

@@ -1,20 +1,436 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing.Printing;
+using System.Globalization;
 using System.Windows.Forms;
+using EvsonHardware.Data;
+using Microsoft.Data.Sqlite;
 
 namespace EvsonHardware.Forms
 {
     public partial class ReportsForm : Form
     {
+        private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
+        private readonly Guna.UI2.WinForms.Guna2DateTimePicker endDatePicker = new();
+        private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblFrom = new();
+        private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblTo = new();
+        private readonly List<string> printLines = new();
+        private int printLineIndex = 0;
+
         public ReportsForm()
         {
             InitializeComponent();
+            ApplyGridTheme();
+            InitializeActions();
+            InitializeReportState();
+        }
+
+        private void ApplyGridTheme()
+        {
+            dgvReports.EnableHeadersVisualStyles = false;
+            dgvReports.BackgroundColor = Color.Ivory;
+            dgvReports.BorderStyle = BorderStyle.FixedSingle;
+            dgvReports.GridColor = Color.FromArgb(214, 223, 118);
+
+            dgvReports.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+            dgvReports.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvReports.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+            dgvReports.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvReports.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dgvReports.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvReports.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+            dgvReports.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvReports.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvReports.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dgvReports.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+            dgvReports.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
+            dgvReports.RowHeadersVisible = false;
+            dgvReports.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            dgvReports.ThemeStyle.BackColor = Color.Ivory;
+            dgvReports.ThemeStyle.GridColor = Color.FromArgb(214, 223, 118);
+            dgvReports.ThemeStyle.HeaderStyle.BackColor = Color.OliveDrab;
+            dgvReports.ThemeStyle.HeaderStyle.ForeColor = Color.White;
+            dgvReports.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvReports.ThemeStyle.RowsStyle.BackColor = Color.FromArgb(255, 252, 224);
+            dgvReports.ThemeStyle.RowsStyle.ForeColor = Color.DarkOliveGreen;
+            dgvReports.ThemeStyle.RowsStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+            dgvReports.ThemeStyle.RowsStyle.SelectionForeColor = Color.DarkOliveGreen;
+            dgvReports.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(247, 250, 211);
+        }
+
+        private void InitializeReportState()
+        {
+            DateTime today = DateTime.Today;
+            if (today < salesdaterevenue.MinDate) today = salesdaterevenue.MinDate;
+            if (today > salesdaterevenue.MaxDate) today = salesdaterevenue.MaxDate;
+            salesdaterevenue.Value = today;
+            endDatePicker.Value = today;
+
+            salesdaterevenue.ValueChanged += (_, __) => LoadSalesReportByDateRange();
+            endDatePicker.ValueChanged += (_, __) => LoadSalesReportByDateRange();
+            LoadSalesReportByDateRange();
+        }
+
+        private void InitializeActions()
+        {
+            dgvReports.CellDoubleClick += DgvReports_CellDoubleClick;
+
+            lblFrom.BackColor = Color.Transparent;
+            lblFrom.ForeColor = Color.DarkGreen;
+            lblFrom.Text = "From";
+            lblFrom.Location = new Point(292, 18);
+
+            salesdaterevenue.Location = new Point(329, 19);
+            salesdaterevenue.Size = new Size(92, 23);
+            salesdaterevenue.Format = DateTimePickerFormat.Short;
+
+            lblTo.BackColor = Color.Transparent;
+            lblTo.ForeColor = Color.DarkGreen;
+            lblTo.Text = "To";
+            lblTo.Location = new Point(427, 18);
+
+            endDatePicker.Checked = true;
+            endDatePicker.FillColor = salesdaterevenue.FillColor;
+            endDatePicker.FocusedColor = salesdaterevenue.FocusedColor;
+            endDatePicker.Font = salesdaterevenue.Font;
+            endDatePicker.ForeColor = salesdaterevenue.ForeColor;
+            endDatePicker.Format = DateTimePickerFormat.Short;
+            endDatePicker.Location = new Point(449, 19);
+            endDatePicker.Size = new Size(84, 23);
+            endDatePicker.MinDate = salesdaterevenue.MinDate;
+            endDatePicker.MaxDate = salesdaterevenue.MaxDate;
+
+            btnPrintReport.Text = "Print";
+            btnPrintReport.Size = new Size(97, 23);
+            btnPrintReport.Location = new Point(539, 19);
+            btnPrintReport.Click += BtnPrintReport_Click;
+
+            TopPanel.Controls.Add(lblFrom);
+            TopPanel.Controls.Add(lblTo);
+            TopPanel.Controls.Add(endDatePicker);
+        }
+
+        private void LoadSalesReportByDateRange()
+        {
+            try
+            {
+                using var conn = Database.GetConnection();
+                conn.Open();
+
+                string saleTable = ResolveSaleTable(conn);
+                DateTime fromDate = salesdaterevenue.Value.Date;
+                DateTime toDate = endDatePicker.Value.Date;
+                if (fromDate > toDate)
+                {
+                    (fromDate, toDate) = (toDate, fromDate);
+                }
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = $@"
+                    SELECT
+                        COALESCE(CAST(sale_id AS INTEGER), 0) AS [__SaleId],
+                        COALESCE(receipt_number, '-')         AS [Receipt #],
+                        sale_date                              AS [Date/Time],
+                        COALESCE(customer_name, 'Walk-in')     AS [Customer],
+                        COALESCE(total_amount, 0)              AS [Total]
+                    FROM {saleTable}
+                    WHERE DATE(sale_date) BETWEEN @fromDay AND @toDay
+                    ORDER BY sale_date DESC;";
+                cmd.Parameters.AddWithValue("@fromDay", fromDate.ToString("yyyy-MM-dd"));
+                cmd.Parameters.AddWithValue("@toDay", toDate.ToString("yyyy-MM-dd"));
+
+                var dt = new DataTable();
+                using var reader = cmd.ExecuteReader();
+                dt.Load(reader);
+
+                dgvReports.DataSource = dt;
+                dgvReports.ReadOnly = true;
+                dgvReports.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dgvReports.AllowUserToAddRows = false;
+                dgvReports.AllowUserToDeleteRows = false;
+                dgvReports.MultiSelect = false;
+
+                if (dgvReports.Columns["__SaleId"] != null)
+                {
+                    dgvReports.Columns["__SaleId"].Visible = false;
+                }
+
+                if (dgvReports.Columns["Total"] != null)
+                {
+                    dgvReports.Columns["Total"].DefaultCellStyle.Format = "C2";
+                    dgvReports.Columns["Total"].DefaultCellStyle.FormatProvider = PhCulture;
+                    dgvReports.Columns["Total"].DefaultCellStyle.Font =
+                        new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+                }
+
+                if (dgvReports.Columns["Date/Time"] != null)
+                {
+                    dgvReports.Columns["Date/Time"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show("Load reports error: " + ex.Message, "Error");
+            }
+        }
+
+        private void DgvReports_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dgvReports.Rows.Count) return;
+
+            var row = dgvReports.Rows[e.RowIndex];
+            if (row.Cells["__SaleId"]?.Value == null) return;
+
+            int saleId = Convert.ToInt32(row.Cells["__SaleId"].Value);
+            string receipt = row.Cells["Receipt #"]?.Value?.ToString() ?? "-";
+            ShowSaleDetails(saleId, receipt);
+        }
+
+        private void ShowSaleDetails(int saleId, string receiptNumber)
+        {
+            try
+            {
+                using var conn = Database.GetConnection();
+                conn.Open();
+
+                string salesDetailsTable = ResolveSalesDetailsTable(conn);
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = $@"
+                    SELECT
+                        COALESCE(p.product_name, 'Product ' || CAST(sd.product_id AS TEXT)) AS [Product],
+                        COALESCE(CAST(sd.quantity AS INTEGER), 0)                            AS [Qty],
+                        COALESCE(sd.unit_price, 0)                                           AS [Unit Price],
+                        COALESCE(sd.subtotal, 0)                                             AS [Subtotal]
+                    FROM {salesDetailsTable} sd
+                    LEFT JOIN product p ON CAST(p.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
+                    WHERE CAST(sd.sale_id AS INTEGER) = @saleId
+                    ORDER BY ROWID;";
+                cmd.Parameters.AddWithValue("@saleId", saleId);
+
+                var dt = new DataTable();
+                using var reader = cmd.ExecuteReader();
+                dt.Load(reader);
+
+                if (dt.Rows.Count == 0)
+                {
+                    CustomMessageBox.Show("No sale details found for this transaction.", "Sale Details");
+                    return;
+                }
+
+                var detailsForm = new Form
+                {
+                    Text = $"Sale Details - {receiptNumber}",
+                    StartPosition = FormStartPosition.CenterParent,
+                    Size = new Size(760, 460),
+                    BackColor = Color.Ivory
+                };
+
+                var detailsGrid = new DataGridView
+                {
+                    Dock = DockStyle.Fill,
+                    DataSource = dt,
+                    ReadOnly = true,
+                    AllowUserToAddRows = false,
+                    AllowUserToDeleteRows = false,
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    RowHeadersVisible = false,
+                    BackgroundColor = Color.Ivory,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    GridColor = Color.FromArgb(214, 223, 118)
+                };
+
+                detailsGrid.EnableHeadersVisualStyles = false;
+                detailsGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
+                detailsGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                detailsGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
+                detailsGrid.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+                detailsGrid.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
+                detailsGrid.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
+                detailsGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
+                detailsGrid.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
+                detailsGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
+
+                if (detailsGrid.Columns["Unit Price"] != null)
+                {
+                    detailsGrid.Columns["Unit Price"].DefaultCellStyle.Format = "C2";
+                    detailsGrid.Columns["Unit Price"].DefaultCellStyle.FormatProvider = PhCulture;
+                }
+
+                if (detailsGrid.Columns["Subtotal"] != null)
+                {
+                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.Format = "C2";
+                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.FormatProvider = PhCulture;
+                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                }
+
+                decimal total = 0m;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    total += Convert.ToDecimal(dr["Subtotal"]);
+                }
+
+                var bottomPanel = new Panel
+                {
+                    Dock = DockStyle.Bottom,
+                    Height = 44,
+                    BackColor = Color.PaleGoldenrod
+                };
+
+                var lblTotal = new Label
+                {
+                    AutoSize = true,
+                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    ForeColor = Color.DarkGreen,
+                    Text = $"Total: {total.ToString("C2", PhCulture)}",
+                    Location = new Point(12, 12)
+                };
+                bottomPanel.Controls.Add(lblTotal);
+
+                detailsForm.Controls.Add(detailsGrid);
+                detailsForm.Controls.Add(bottomPanel);
+                detailsForm.ShowDialog(this);
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show("Load sale details error: " + ex.Message, "Error");
+            }
+        }
+
+        private void BtnPrintReport_Click(object? sender, EventArgs e)
+        {
+            if (dgvReports.DataSource is not DataTable dt || dt.Rows.Count == 0)
+            {
+                CustomMessageBox.Show("No report rows to print for the selected date range.", "Print Report");
+                return;
+            }
+
+            BuildPrintLines(dt);
+
+            using var printDocument = new PrintDocument();
+            DateTime fromDate = salesdaterevenue.Value.Date;
+            DateTime toDate = endDatePicker.Value.Date;
+            if (fromDate > toDate)
+            {
+                (fromDate, toDate) = (toDate, fromDate);
+            }
+            printDocument.DocumentName = fromDate == toDate
+                ? $"Sales Report {fromDate:yyyy-MM-dd}"
+                : $"Sales Report {fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}";
+            printDocument.PrintPage += PrintDocument_PrintPage;
+
+            using var printDialog = new PrintDialog
+            {
+                Document = printDocument,
+                UseEXDialog = true
+            };
+
+            if (printDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                printDocument.Print();
+            }
+        }
+
+        private void BuildPrintLines(DataTable dt)
+        {
+            printLines.Clear();
+            printLineIndex = 0;
+
+            DateTime fromDate = salesdaterevenue.Value.Date;
+            DateTime toDate = endDatePicker.Value.Date;
+            if (fromDate > toDate)
+            {
+                (fromDate, toDate) = (toDate, fromDate);
+            }
+            string reportDate = fromDate == toDate
+                ? fromDate.ToString("yyyy-MM-dd")
+                : $"{fromDate:yyyy-MM-dd} to {toDate:yyyy-MM-dd}";
+            printLines.Add("EVSON HARDWARE - SALES REPORT");
+            printLines.Add($"Date Filter: {reportDate}");
+            printLines.Add($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            printLines.Add(new string('-', 95));
+            printLines.Add(string.Format("{0,-15} {1,-20} {2,-35} {3,18}", "Receipt #", "Date/Time", "Customer", "Total"));
+            printLines.Add(new string('-', 95));
+
+            decimal grandTotal = 0m;
+            foreach (DataRow row in dt.Rows)
+            {
+                string receipt = row["Receipt #"]?.ToString() ?? "-";
+                string dateTime = row["Date/Time"]?.ToString() ?? "-";
+                string customer = row["Customer"]?.ToString() ?? "Walk-in";
+                decimal total = Convert.ToDecimal(row["Total"]);
+                grandTotal += total;
+
+                if (customer.Length > 35) customer = customer[..35];
+                printLines.Add(string.Format(
+                    "{0,-15} {1,-20} {2,-35} {3,18}",
+                    receipt,
+                    dateTime,
+                    customer,
+                    total.ToString("C2", PhCulture)));
+            }
+
+            printLines.Add(new string('-', 95));
+            printLines.Add($"Transactions: {dt.Rows.Count}");
+            printLines.Add($"Grand Total: {grandTotal.ToString("C2", PhCulture)}");
+        }
+
+        private void PrintDocument_PrintPage(object? sender, PrintPageEventArgs e)
+        {
+            if (e.Graphics == null)
+            {
+                e.HasMorePages = false;
+                return;
+            }
+
+            using var font = new Font("Consolas", 10F, FontStyle.Regular);
+            float lineHeight = font.GetHeight() + 2;
+            float y = e.MarginBounds.Top;
+
+            while (printLineIndex < printLines.Count && y + lineHeight <= e.MarginBounds.Bottom)
+            {
+                e.Graphics.DrawString(printLines[printLineIndex], font, Brushes.Black, e.MarginBounds.Left, y);
+                printLineIndex++;
+                y += lineHeight;
+            }
+
+            e.HasMorePages = printLineIndex < printLines.Count;
+            if (!e.HasMorePages)
+            {
+                printLineIndex = 0;
+            }
+        }
+
+        private static bool TableExists(SqliteConnection conn, string tableName)
+        {
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=@name LIMIT 1;";
+            cmd.Parameters.AddWithValue("@name", tableName);
+            return cmd.ExecuteScalar() != null;
+        }
+
+        private static string ResolveSaleTable(SqliteConnection conn)
+        {
+            if (TableExists(conn, "sale")) return "sale";
+            if (TableExists(conn, "sales")) return "sales";
+            throw new InvalidOperationException("No sales table found (expected sale or sales).");
+        }
+
+        private static string ResolveSalesDetailsTable(SqliteConnection conn)
+        {
+            if (TableExists(conn, "sales_details_fixed")) return "sales_details_fixed";
+            if (TableExists(conn, "sales_details")) return "sales_details";
+            throw new InvalidOperationException("No sales details table found (expected sales_details or sales_details_fixed).");
+        }
+
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

@@ -24,6 +24,8 @@ namespace EvsonHardware.Forms
 
         private void InitializeFormState()
         {
+            ApplyGridTheme();
+
             cmbType.Items.Clear();
             cmbType.Items.AddRange(new object[]
             {
@@ -46,6 +48,43 @@ namespace EvsonHardware.Forms
             InitializeAllDatesToggle();
 
             LoadExpenseHistory();
+        }
+
+        private void ApplyGridTheme()
+        {
+            expensesgdv.EnableHeadersVisualStyles = false;
+            expensesgdv.BackgroundColor = System.Drawing.Color.Ivory;
+            expensesgdv.BorderStyle = BorderStyle.FixedSingle;
+            expensesgdv.GridColor = System.Drawing.Color.FromArgb(214, 223, 118);
+
+            expensesgdv.ColumnHeadersDefaultCellStyle.BackColor = System.Drawing.Color.OliveDrab;
+            expensesgdv.ColumnHeadersDefaultCellStyle.ForeColor = System.Drawing.Color.White;
+            expensesgdv.ColumnHeadersDefaultCellStyle.SelectionBackColor = System.Drawing.Color.OliveDrab;
+            expensesgdv.ColumnHeadersDefaultCellStyle.SelectionForeColor = System.Drawing.Color.White;
+            expensesgdv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            expensesgdv.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(255, 252, 224);
+            expensesgdv.DefaultCellStyle.ForeColor = System.Drawing.Color.DarkOliveGreen;
+            expensesgdv.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(226, 239, 169);
+            expensesgdv.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.DarkOliveGreen;
+            expensesgdv.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            expensesgdv.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+
+            expensesgdv.AlternatingRowsDefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(247, 250, 211);
+            expensesgdv.RowHeadersVisible = false;
+            expensesgdv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            expensesgdv.ThemeStyle.BackColor = System.Drawing.Color.Ivory;
+            expensesgdv.ThemeStyle.GridColor = System.Drawing.Color.FromArgb(214, 223, 118);
+            expensesgdv.ThemeStyle.HeaderStyle.BackColor = System.Drawing.Color.OliveDrab;
+            expensesgdv.ThemeStyle.HeaderStyle.ForeColor = System.Drawing.Color.White;
+            expensesgdv.ThemeStyle.HeaderStyle.BorderStyle = DataGridViewHeaderBorderStyle.None;
+            expensesgdv.ThemeStyle.HeaderStyle.HeaightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
+            expensesgdv.ThemeStyle.RowsStyle.BackColor = System.Drawing.Color.FromArgb(255, 252, 224);
+            expensesgdv.ThemeStyle.RowsStyle.ForeColor = System.Drawing.Color.DarkOliveGreen;
+            expensesgdv.ThemeStyle.RowsStyle.SelectionBackColor = System.Drawing.Color.FromArgb(226, 239, 169);
+            expensesgdv.ThemeStyle.RowsStyle.SelectionForeColor = System.Drawing.Color.DarkOliveGreen;
+            expensesgdv.ThemeStyle.AlternatingRowsStyle.BackColor = System.Drawing.Color.FromArgb(247, 250, 211);
         }
 
         private void InitializeAllDatesToggle()
