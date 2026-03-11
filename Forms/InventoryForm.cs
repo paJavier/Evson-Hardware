@@ -118,7 +118,7 @@ namespace EvsonHardware
                             COALESCE(
                                 (SELECT SUM(quantity) FROM {salesDetailsTable} WHERE CAST(product_id AS INTEGER) = p.product_id), 0
                             )
-                        ) AS Stock
+                        )              AS Stock
                     FROM product p
                     LEFT JOIN category c ON c.category_id = p.category_id
                     ORDER BY p.product_name;";
@@ -126,21 +126,17 @@ namespace EvsonHardware
                 var dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
                 dgvInventory.DataSource = dt;
-
                 if (dgvInventory.Columns["Price"] != null)
                 {
                     dgvInventory.Columns["Price"].DefaultCellStyle.Format = "C2";
                     dgvInventory.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
                     dgvInventory.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
                 }
-
-                // FIX #4: Hide the raw ID column — it was visible to users in the original code
-                if (dgvInventory.Columns["ID"] != null)
-                    dgvInventory.Columns["ID"].Visible = false;
-
                 dgvInventory.ClearSelection();
                 if (dgvInventory.Rows.Count > 0)
+                {
                     dgvInventory.FirstDisplayedScrollingRowIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -191,6 +187,7 @@ namespace EvsonHardware
 
                 if (selectedProductId == 0)
                 {
+                    // product columns: product_name, unit, price, category_id, description, brandname, reorder_level
                     cmd.CommandText = @"
                         INSERT INTO product (product_id, product_name, unit, price, category_id, description, brandname, reorder_level)
                         VALUES (
@@ -247,6 +244,7 @@ namespace EvsonHardware
                 conn.Open();
                 using var tr = conn.BeginTransaction();
 
+                // supply columns: supply_date, supplier_name, employee_id, user_id, total_amount
                 var c1 = conn.CreateCommand();
                 c1.Transaction = tr;
                 long supplyId = GetNextNumericId(conn, "supply", "supply_id", tr);
@@ -257,6 +255,7 @@ namespace EvsonHardware
                 c1.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 c1.ExecuteNonQuery();
 
+                // supply_details columns: supply_id, product_id, quantity, unit_cost, subtotal
                 string supplyDetailsTable = ResolveSupplyDetailsTable(conn, tr);
                 var c3 = conn.CreateCommand();
                 c3.Transaction = tr;
@@ -283,10 +282,7 @@ namespace EvsonHardware
 
         private void btnClear_Click(object sender, EventArgs e) => ClearForm();
 
-        private static bool TableExists(
-            Microsoft.Data.Sqlite.SqliteConnection conn,
-            string tableName,
-            Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        private static bool TableExists(Microsoft.Data.Sqlite.SqliteConnection conn, string tableName, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
         {
             var cmd = conn.CreateCommand();
             cmd.Transaction = tr;
@@ -295,18 +291,14 @@ namespace EvsonHardware
             return cmd.ExecuteScalar() != null;
         }
 
-        private static string ResolveSupplyDetailsTable(
-            Microsoft.Data.Sqlite.SqliteConnection conn,
-            Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        private static string ResolveSupplyDetailsTable(Microsoft.Data.Sqlite.SqliteConnection conn, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
         {
             if (TableExists(conn, "supply_details_fixed", tr)) return "supply_details_fixed";
             if (TableExists(conn, "supply_details", tr)) return "supply_details";
             throw new InvalidOperationException("No supply details table found (expected supply_details or supply_details_fixed).");
         }
 
-        private static string ResolveSalesDetailsTable(
-            Microsoft.Data.Sqlite.SqliteConnection conn,
-            Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
+        private static string ResolveSalesDetailsTable(Microsoft.Data.Sqlite.SqliteConnection conn, Microsoft.Data.Sqlite.SqliteTransaction? tr = null)
         {
             if (TableExists(conn, "sales_details_fixed", tr)) return "sales_details_fixed";
             if (TableExists(conn, "sales_details", tr)) return "sales_details";
@@ -364,6 +356,11 @@ namespace EvsonHardware
             dgvInventory.ClearSelection();
         }
 
-        private void exitbtn_Click(object sender, EventArgs e) => Close();
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 
 namespace EvsonHardware
@@ -18,15 +19,9 @@ namespace EvsonHardware
         private int stagedAvailableStock = 0;
         private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
 
-        // FIX #2: Store the actual logged-in user ID instead of hardcoding 1.
-        //         SalesForm now accepts userId from the caller (Dashboard).
-        private readonly int _userId;
-
-        // FIX #2: Constructor now requires userId passed in from Dashboard_Form
-        public SalesForm(int userId = 1)
+        public SalesForm()
         {
             InitializeComponent();
-            _userId = userId;
             ApplyCurrencyFonts();
             SetupCartGrid();
         }
@@ -47,7 +42,7 @@ namespace EvsonHardware
             dgvCart.Columns[3].Name = "Qty";
             dgvCart.Columns[4].Name = "Subtotal";
             dgvCart.Columns[0].Visible = false;
-            dgvCart.DefaultCellStyle.Font = new Font("Segoe UI", 9.5F);
+            dgvCart.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
 
             dgvCart.EnableHeadersVisualStyles = false;
             dgvCart.BackgroundColor = Color.Ivory;
@@ -107,9 +102,9 @@ namespace EvsonHardware
                     int newQty = existingQty + qtyToAdd;
                     if (newQty > stagedAvailableStock)
                     {
-                        CustomMessageBox.Show(
-                            $"Only {stagedAvailableStock - existingQty} more unit(s) available.",
+                        CustomMessageBox.Show($"Only {stagedAvailableStock - existingQty} more unit(s) available.",
                             "Insufficient Stock");
+
                         return;
                     }
                     decimal newSub = stagedPrice * newQty;
@@ -142,6 +137,7 @@ namespace EvsonHardware
 
         private void btnSale_Click(object sender, EventArgs e)
         {
+
             if (dgvCart.Rows.Count == 0)
             {
                 CustomMessageBox.Show("Cart is empty.", "Nothing to Checkout");
@@ -160,6 +156,7 @@ namespace EvsonHardware
 
             try
             {
+                // Check stock via product_stock view before committing
                 using var conn = Database.GetConnection();
                 conn.Open();
 
@@ -167,7 +164,7 @@ namespace EvsonHardware
                 cmd.CommandText = "PRAGMA busy_timeout = 5000;";
                 cmd.ExecuteNonQuery();
 
-                // Check stock for every cart row before committing
+                // Check stock using the same connection
                 foreach (DataGridViewRow row in dgvCart.Rows)
                 {
                     if (row.IsNewRow) continue;
@@ -180,32 +177,30 @@ namespace EvsonHardware
 
                     if (inStock < reqQty)
                     {
-                        CustomMessageBox.Show(
-                            $"Not enough stock for '{pname}'.\nNeeded: {reqQty}, Available: {inStock}",
+                        CustomMessageBox.Show($"Not enough stock for '{pname}'.\nNeeded: {reqQty}, Available: {inStock}",
                             "Stock Error");
                         return;
                     }
                 }
 
+
                 using var tr = conn.BeginTransaction();
 
-                // FIX #2: Use _userId parameter instead of hardcoded literal 1
+                // sale columns: receipt_number, sale_date, customer_name, total_amount, user_id
                 var c1 = conn.CreateCommand();
                 c1.Transaction = tr;
                 c1.CommandText = @"
                     INSERT INTO sale (receipt_number, sale_date, customer_name, total_amount, user_id)
-                    VALUES (@r, @d, @c, @t, @uid);
+                    VALUES (@r, @d, @c, @t, 1);
                     SELECT last_insert_rowid();";
                 c1.Parameters.AddWithValue("@r", receiptNum);
                 c1.Parameters.AddWithValue("@d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 c1.Parameters.AddWithValue("@c", string.IsNullOrWhiteSpace(txtCustomer.Text)
-                                                       ? (object)DBNull.Value
-                                                       : txtCustomer.Text.Trim());
+                    ? (object)DBNull.Value : txtCustomer.Text.Trim());
                 c1.Parameters.AddWithValue("@t", currentTotal);
-                c1.Parameters.AddWithValue("@uid", _userId);   // ← actual user, not hardcoded 1
                 long saleId = Convert.ToInt64(c1.ExecuteScalar());
 
-                // Insert each cart line into sales_details_fixed
+                // sales_details columns: sale_id, product_id, quantity, unit_price, subtotal
                 foreach (DataGridViewRow row in dgvCart.Rows)
                 {
                     if (row.IsNewRow) continue;
@@ -223,9 +218,8 @@ namespace EvsonHardware
                 }
 
                 tr.Commit();
-                CustomMessageBox.Show(
-                    $"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: {FormatPeso(currentTotal)}",
-                    "Sale Processed");
+                CustomMessageBox.Show($"✔ Sale complete!\nReceipt: {receiptNum}\nTotal: {FormatPeso(currentTotal)}",
+                "Sale Processed");
                 ClearCart();
                 RefreshDashboard();
 
@@ -246,7 +240,11 @@ namespace EvsonHardware
             cmd.Parameters.AddWithValue("@id", productId);
 
             object result = cmd.ExecuteScalar();
-            return (result != null && result != DBNull.Value) ? Convert.ToInt32(result) : 0;
+
+            if (result != null && result != DBNull.Value)
+                return Convert.ToInt32(result);
+
+            return 0;
         }
 
         private void UpdateTotal() => lblTotal.Text = $"Total: {FormatPeso(currentTotal)}";
@@ -255,20 +253,19 @@ namespace EvsonHardware
 
         private void ResetStaging()
         {
-            stagedProductId = 0;
-            stagedProductName = "";
-            stagedPrice = 0m;
-            stagedAvailableStock = 0;
-            numQty.Value = 1;
-            numQty.Maximum = 9999;
+            stagedProductId = 0; stagedProductName = "";
+            stagedPrice = 0m; stagedAvailableStock = 0;
+            numQty.Value = 1; numQty.Maximum = 9999;
             lblSelectedProduct.Text = "Selected: None";
         }
 
         private void ClearCart()
         {
             dgvCart.Rows.Clear();
+
             currentTotal = 0m;
             UpdateTotal();
+
             txtCustomer.Clear();
             txtReceipt.Clear();
             ResetStaging();
@@ -277,11 +274,20 @@ namespace EvsonHardware
         private void RefreshDashboard()
         {
             if (Application.OpenForms["Dashboard_Form"] is Dashboard_Form dashboard)
+            {
                 dashboard.RefreshData();
+            }
         }
 
-        private void exitbtn_Click(object sender, EventArgs e) => Close();
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
 
-        private void lblTitle_Click(object sender, EventArgs e) { }
+        private void lblTitle_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

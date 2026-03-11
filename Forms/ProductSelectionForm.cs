@@ -34,6 +34,7 @@ namespace EvsonHardware
         {
             InitializeComponent();
             ApplyGridTheme();
+
             LoadCategories();
             LoadProducts("", "");
         }
@@ -73,6 +74,7 @@ namespace EvsonHardware
             dgvProducts.ThemeStyle.RowsStyle.SelectionForeColor = Color.DarkOliveGreen;
             dgvProducts.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(247, 250, 211);
         }
+
 
         private void LoadCategories()
         {
@@ -156,20 +158,19 @@ namespace EvsonHardware
                     dt.Load(reader);
                 }
                 dgvProducts.DataSource = dt;
-
                 if (dgvProducts.Columns["Price"] != null)
                 {
                     dgvProducts.Columns["Price"].DefaultCellStyle.Format = "C2";
                     dgvProducts.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
                     dgvProducts.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
                 }
+                if (dgvProducts.Rows.Count > 0)
+                {
+                    dgvProducts.FirstDisplayedScrollingRowIndex = 0;
+                }
 
-                // FIX #1: Hide the ID column so it's not visible to users
                 if (dgvProducts.Columns["ID"] != null)
                     dgvProducts.Columns["ID"].Visible = false;
-
-                if (dgvProducts.Rows.Count > 0)
-                    dgvProducts.FirstDisplayedScrollingRowIndex = 0;
 
                 lblStock.Text = $"{dt.Rows.Count} product(s) found";
             }
@@ -220,6 +221,7 @@ namespace EvsonHardware
             DialogResult = DialogResult.OK;
             Close();
         }
+
 
         private void InitializeComponent()
         {
@@ -311,8 +313,6 @@ namespace EvsonHardware
             txtSearch.ShadowDecoration.CustomizableEdges = customizableEdges4;
             txtSearch.Size = new Size(335, 30);
             txtSearch.TabIndex = 21;
-            // FIX #1: Wire up the TextChanged event so search actually works
-            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // lblSearch
             // 
@@ -497,6 +497,7 @@ namespace EvsonHardware
             ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();
             ResumeLayout(false);
             PerformLayout();
+
         }
 
         protected override void OnShown(EventArgs e)
@@ -509,6 +510,7 @@ namespace EvsonHardware
         {
             DialogResult = DialogResult.Cancel;
             Close();
+
         }
 
         private Guna.UI2.WinForms.Guna2ComboBox cmbCategory;
@@ -539,3 +541,6 @@ namespace EvsonHardware
         }
     }
 }
+
+
+
