@@ -13,6 +13,7 @@ namespace EvsonHardware.Forms
     public partial class ReportsForm : Form
     {
         private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
+        private const string SaleKeyColumn = "__SaleKey";
         private readonly Guna.UI2.WinForms.Guna2DateTimePicker endDatePicker = new();
         private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblFrom = new();
         private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblTo = new();
@@ -78,7 +79,8 @@ namespace EvsonHardware.Forms
 
         private void InitializeActions()
         {
-            dgvReports.CellDoubleClick += DgvReports_CellDoubleClick;
+            dgvReports.CellMouseClick += DgvReports_CellMouseClick;
+            dgvReports.CellMouseDoubleClick += DgvReports_CellMouseDoubleClick;
 
             lblFrom.BackColor = Color.Transparent;
             lblFrom.ForeColor = Color.DarkGreen;
@@ -133,7 +135,10 @@ namespace EvsonHardware.Forms
                 var cmd = conn.CreateCommand();
                 cmd.CommandText = $@"
                     SELECT
-                        COALESCE(CAST(sale_id AS INTEGER), 0) AS [__SaleId],
+                        COALESCE(
+                            NULLIF(CAST(sale_id AS INTEGER), 0),
+                            CAST(ROWID AS INTEGER)
+                        ) AS [{SaleKeyColumn}],
                         COALESCE(receipt_number, '-')         AS [Receipt #],
                         sale_date                              AS [Date/Time],
                         COALESCE(customer_name, 'Walk-in')     AS [Customer],
@@ -155,9 +160,9 @@ namespace EvsonHardware.Forms
                 dgvReports.AllowUserToDeleteRows = false;
                 dgvReports.MultiSelect = false;
 
-                if (dgvReports.Columns["__SaleId"] != null)
+                if (dgvReports.Columns[SaleKeyColumn] != null)
                 {
-                    dgvReports.Columns["__SaleId"].Visible = false;
+                    dgvReports.Columns[SaleKeyColumn].Visible = false;
                 }
 
                 if (dgvReports.Columns["Total"] != null)
@@ -177,123 +182,37 @@ namespace EvsonHardware.Forms
             {
                 CustomMessageBox.Show("Load reports error: " + ex.Message, "Error");
             }
+            finally
+            {
+                dgvReports.ClearSelection();
+            }
         }
 
-        private void DgvReports_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+        private void DgvReports_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.RowIndex < 0 || e.RowIndex >= dgvReports.Rows.Count) return;
-
-            var row = dgvReports.Rows[e.RowIndex];
-            if (row.Cells["__SaleId"]?.Value == null) return;
-
-            int saleId = Convert.ToInt32(row.Cells["__SaleId"].Value);
-            string receipt = row.Cells["Receipt #"]?.Value?.ToString() ?? "-";
-            ShowSaleDetails(saleId, receipt);
+            HandleReportRowRequest(e.RowIndex);
         }
 
-        private void ShowSaleDetails(int saleId, string receiptNumber)
+        private void DgvReports_CellMouseDoubleClick(object? sender, DataGridViewCellMouseEventArgs e)
+        {
+            HandleReportRowRequest(e.RowIndex);
+        }
+
+        private void HandleReportRowRequest(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= dgvReports.Rows.Count) return;
+            var row = dgvReports.Rows[rowIndex];
+            if (row.Cells[SaleKeyColumn]?.Value == null) return;
+            int saleKey = Convert.ToInt32(row.Cells[SaleKeyColumn].Value);
+            ShowSaleDetails(saleKey);
+            dgvReports.ClearSelection();
+        }
+
+        private void ShowSaleDetails(int saleKey)
         {
             try
             {
-                using var conn = Database.GetConnection();
-                conn.Open();
-
-                string salesDetailsTable = ResolveSalesDetailsTable(conn);
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = $@"
-                    SELECT
-                        COALESCE(p.product_name, 'Product ' || CAST(sd.product_id AS TEXT)) AS [Product],
-                        COALESCE(CAST(sd.quantity AS INTEGER), 0)                            AS [Qty],
-                        COALESCE(sd.unit_price, 0)                                           AS [Unit Price],
-                        COALESCE(sd.subtotal, 0)                                             AS [Subtotal]
-                    FROM {salesDetailsTable} sd
-                    LEFT JOIN product p ON CAST(p.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
-                    WHERE CAST(sd.sale_id AS INTEGER) = @saleId
-                    ORDER BY ROWID;";
-                cmd.Parameters.AddWithValue("@saleId", saleId);
-
-                var dt = new DataTable();
-                using var reader = cmd.ExecuteReader();
-                dt.Load(reader);
-
-                if (dt.Rows.Count == 0)
-                {
-                    CustomMessageBox.Show("No sale details found for this transaction.", "Sale Details");
-                    return;
-                }
-
-                var detailsForm = new Form
-                {
-                    Text = $"Sale Details - {receiptNumber}",
-                    StartPosition = FormStartPosition.CenterParent,
-                    Size = new Size(760, 460),
-                    BackColor = Color.Ivory
-                };
-
-                var detailsGrid = new DataGridView
-                {
-                    Dock = DockStyle.Fill,
-                    DataSource = dt,
-                    ReadOnly = true,
-                    AllowUserToAddRows = false,
-                    AllowUserToDeleteRows = false,
-                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                    RowHeadersVisible = false,
-                    BackgroundColor = Color.Ivory,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    GridColor = Color.FromArgb(214, 223, 118)
-                };
-
-                detailsGrid.EnableHeadersVisualStyles = false;
-                detailsGrid.ColumnHeadersDefaultCellStyle.BackColor = Color.OliveDrab;
-                detailsGrid.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-                detailsGrid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.OliveDrab;
-                detailsGrid.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
-                detailsGrid.DefaultCellStyle.BackColor = Color.FromArgb(255, 252, 224);
-                detailsGrid.DefaultCellStyle.ForeColor = Color.DarkOliveGreen;
-                detailsGrid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 169);
-                detailsGrid.DefaultCellStyle.SelectionForeColor = Color.DarkOliveGreen;
-                detailsGrid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 250, 211);
-
-                if (detailsGrid.Columns["Unit Price"] != null)
-                {
-                    detailsGrid.Columns["Unit Price"].DefaultCellStyle.Format = "C2";
-                    detailsGrid.Columns["Unit Price"].DefaultCellStyle.FormatProvider = PhCulture;
-                }
-
-                if (detailsGrid.Columns["Subtotal"] != null)
-                {
-                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.Format = "C2";
-                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.FormatProvider = PhCulture;
-                    detailsGrid.Columns["Subtotal"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-                }
-
-                decimal total = 0m;
-                foreach (DataRow dr in dt.Rows)
-                {
-                    total += Convert.ToDecimal(dr["Subtotal"]);
-                }
-
-                var bottomPanel = new Panel
-                {
-                    Dock = DockStyle.Bottom,
-                    Height = 44,
-                    BackColor = Color.PaleGoldenrod
-                };
-
-                var lblTotal = new Label
-                {
-                    AutoSize = true,
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
-                    ForeColor = Color.DarkGreen,
-                    Text = $"Total: {total.ToString("C2", PhCulture)}",
-                    Location = new Point(12, 12)
-                };
-                bottomPanel.Controls.Add(lblTotal);
-
-                detailsForm.Controls.Add(detailsGrid);
-                detailsForm.Controls.Add(bottomPanel);
+                using var detailsForm = new SalesDetailsForm(saleKey);
                 detailsForm.ShowDialog(this);
             }
             catch (Exception ex)

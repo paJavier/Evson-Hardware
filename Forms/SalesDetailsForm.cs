@@ -12,11 +12,11 @@ namespace EvsonHardware.Forms
     {
         private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
 
-        public SalesDetailsForm(int saleId)
+        public SalesDetailsForm(int saleKey)
         {
             InitializeComponent();
             ApplyGridTheme();
-            LoadSaleDetails(saleId);
+            LoadSaleDetails(saleKey);
         }
 
         // Extra grid styling on top of Designer defaults
@@ -26,7 +26,7 @@ namespace EvsonHardware.Forms
         }
 
         // Load sale header + itemized products
-        private void LoadSaleDetails(int saleId)
+        private void LoadSaleDetails(int saleKey)
         {
             try
             {
@@ -45,20 +45,32 @@ namespace EvsonHardware.Forms
                            COALESCE(customer_name, 'Walk-in') AS customer_name,
                            total_amount
                     FROM {saleTable}
-                    WHERE sale_id = @id
+                    WHERE COALESCE(
+                              NULLIF(CAST(sale_id AS INTEGER), 0),
+                              CAST(rowid AS INTEGER)
+                          ) = @key
                     LIMIT 1;";
-                hCmd.Parameters.AddWithValue("@id", saleId);
+                hCmd.Parameters.AddWithValue("@key", saleKey);
 
+                bool headerFound = false;
                 using (var r = hCmd.ExecuteReader())
                 {
                     if (r.Read())
                     {
+                        headerFound = true;
                         lblReceiptVal.Text = r["receipt_number"] == DBNull.Value ? "—" : r["receipt_number"].ToString();
                         lblDateVal.Text = r["sale_date"] == DBNull.Value ? "—" : r["sale_date"].ToString();
                         lblCustomerVal.Text = r["customer_name"] == DBNull.Value ? "Walk-in" : r["customer_name"].ToString();
                         lblTotalVal.Text = r["total_amount"] == DBNull.Value ? "—"
                                                  : Convert.ToDecimal(r["total_amount"]).ToString("C2", PhCulture);
                     }
+                }
+                if (!headerFound)
+                {
+                    MessageBox.Show("Sale record not found for the selected row.",
+                        "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    dgvItems.DataSource = null;
+                    return;
                 }
 
                 // Products the customer bought
@@ -74,13 +86,19 @@ namespace EvsonHardware.Forms
                     FROM {detailsTable} sd
                     LEFT JOIN product p
                            ON CAST(p.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
-                    WHERE CAST(sd.sale_id AS INTEGER) = @id
-                    ORDER BY ROWID;";
-                dCmd.Parameters.AddWithValue("@id", saleId);
+                    WHERE CAST(sd.sale_id AS INTEGER) = @key
+                    ORDER BY sd.rowid;";
+                dCmd.Parameters.AddWithValue("@key", saleKey);
 
                 var dt = new DataTable();
                 dt.Load(dCmd.ExecuteReader());
                 dgvItems.DataSource = dt;
+
+                if (dt.Rows.Count == 0)
+                {
+                    MessageBox.Show("No line items recorded for this sale.",
+                        "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
 
                 // Format columns after DataSource is set
                 if (dgvItems.Columns["Unit Price"] != null)
@@ -133,6 +151,11 @@ namespace EvsonHardware.Forms
             if (TableExists(conn, "sales_details_fixed")) return "sales_details_fixed";
             if (TableExists(conn, "sales_details")) return "sales_details";
             throw new InvalidOperationException("No sales details table found.");
+        }
+
+        private void exitbtn_Click(object sender, EventArgs e)
+        {
+            this.Hide();
         }
     }
 }

@@ -103,8 +103,8 @@
             // cmbType
             // 
             cmbType.BackColor = Color.PaleGoldenrod;
-            cmbType.BorderColor = Color.Transparent;
-            cmbType.BorderThickness = 0;
+            cmbType.BorderColor = Color.DarkGreen;
+            cmbType.BorderRadius = 10;
             cmbType.CustomizableEdges = customizableEdges3;
             cmbType.DrawMode = DrawMode.OwnerDrawFixed;
             cmbType.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -158,6 +158,8 @@
             // 
             // txtdescription
             // 
+            txtdescription.BorderColor = Color.DarkGreen;
+            txtdescription.BorderRadius = 10;
             txtdescription.CustomizableEdges = customizableEdges5;
             txtdescription.DefaultText = "";
             txtdescription.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -182,6 +184,8 @@
             // 
             // txtamt
             // 
+            txtamt.BorderColor = Color.DarkGreen;
+            txtamt.BorderRadius = 10;
             txtamt.CustomizableEdges = customizableEdges7;
             txtamt.DefaultText = "";
             txtamt.DisabledState.BorderColor = Color.FromArgb(208, 208, 208);
@@ -205,7 +209,7 @@
             // 
             btnAdd.BackColor = Color.Transparent;
             btnAdd.BorderColor = Color.WhiteSmoke;
-            btnAdd.BorderRadius = 20;
+            btnAdd.BorderRadius = 15;
             btnAdd.BorderThickness = 1;
             btnAdd.CustomizableEdges = customizableEdges9;
             btnAdd.DisabledState.BorderColor = Color.DarkGray;
@@ -228,7 +232,7 @@
             // 
             btnCancel.BackColor = Color.Transparent;
             btnCancel.BorderColor = Color.WhiteSmoke;
-            btnCancel.BorderRadius = 20;
+            btnCancel.BorderRadius = 15;
             btnCancel.BorderThickness = 1;
             btnCancel.CustomizableEdges = customizableEdges11;
             btnCancel.DisabledState.BorderColor = Color.DarkGray;
