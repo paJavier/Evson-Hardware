@@ -31,22 +31,26 @@
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportsForm));
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportsForm));
             lblTitle = new Label();
             dgvReports = new Guna.UI2.WinForms.Guna2DataGridView();
             TopPanel = new Guna.UI2.WinForms.Guna2ShadowPanel();
             btnPrintReport = new Guna.UI2.WinForms.Guna2Button();
             salesdaterevenue = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            endDatePicker = new Guna.UI2.WinForms.Guna2DateTimePicker();
             logo = new Guna.UI2.WinForms.Guna2CirclePictureBox();
             guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
+            guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             ((System.ComponentModel.ISupportInitialize)dgvReports).BeginInit();
             TopPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)logo).BeginInit();
@@ -117,6 +121,9 @@
             // TopPanel
             // 
             TopPanel.BackColor = Color.Transparent;
+            TopPanel.Controls.Add(guna2HtmlLabel3);
+            TopPanel.Controls.Add(endDatePicker);
+            TopPanel.Controls.Add(guna2HtmlLabel2);
             TopPanel.Controls.Add(btnPrintReport);
             TopPanel.Controls.Add(salesdaterevenue);
             TopPanel.Controls.Add(logo);
@@ -134,39 +141,57 @@
             // 
             btnPrintReport.BackgroundImageLayout = ImageLayout.None;
             btnPrintReport.BorderRadius = 10;
-            btnPrintReport.CustomizableEdges = customizableEdges1;
+            btnPrintReport.CustomizableEdges = customizableEdges3;
             btnPrintReport.DisabledState.BorderColor = Color.DarkGray;
             btnPrintReport.DisabledState.CustomBorderColor = Color.DarkGray;
             btnPrintReport.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             btnPrintReport.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
-            btnPrintReport.FillColor = Color.ForestGreen;
+            btnPrintReport.FillColor = Color.DarkOliveGreen;
             btnPrintReport.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnPrintReport.ForeColor = Color.White;
-            btnPrintReport.Location = new Point(539, 19);
+            btnPrintReport.Location = new Point(550, 16);
             btnPrintReport.Name = "btnPrintReport";
-            btnPrintReport.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            btnPrintReport.Size = new Size(97, 23);
+            btnPrintReport.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            btnPrintReport.Size = new Size(96, 29);
             btnPrintReport.TabIndex = 28;
             btnPrintReport.Text = "Print";
             // 
             // salesdaterevenue
             // 
             salesdaterevenue.Checked = true;
-            salesdaterevenue.CustomizableEdges = customizableEdges3;
+            salesdaterevenue.CustomizableEdges = customizableEdges5;
             salesdaterevenue.FillColor = Color.FromArgb(255, 255, 192);
             salesdaterevenue.FocusedColor = Color.FromArgb(255, 255, 128);
-            salesdaterevenue.Font = new Font("Sitka Display", 11.249999F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            salesdaterevenue.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             salesdaterevenue.ForeColor = Color.DarkGreen;
             salesdaterevenue.Format = DateTimePickerFormat.Short;
-            salesdaterevenue.Location = new Point(396, 19);
+            salesdaterevenue.Location = new Point(280, 20);
             salesdaterevenue.Margin = new Padding(2);
             salesdaterevenue.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
             salesdaterevenue.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
             salesdaterevenue.Name = "salesdaterevenue";
-            salesdaterevenue.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            salesdaterevenue.Size = new Size(128, 23);
+            salesdaterevenue.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            salesdaterevenue.Size = new Size(92, 22);
             salesdaterevenue.TabIndex = 27;
             salesdaterevenue.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
+            // 
+            // endDatePicker
+            // 
+            endDatePicker.Checked = true;
+            endDatePicker.FillColor = Color.FromArgb(255, 255, 192);
+            endDatePicker.FocusedColor = Color.FromArgb(255, 255, 128);
+            endDatePicker.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            endDatePicker.ForeColor = Color.DarkGreen;
+            endDatePicker.Format = DateTimePickerFormat.Short;
+            endDatePicker.Location = new Point(414, 20);
+            endDatePicker.Margin = new Padding(2);
+            endDatePicker.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
+            endDatePicker.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
+            endDatePicker.Name = "endDatePicker";
+            endDatePicker.ShadowDecoration.CustomizableEdges = customizableEdges7;
+            endDatePicker.Size = new Size(92, 22);
+            endDatePicker.TabIndex = 29;
+            endDatePicker.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
             // 
             // logo
             // 
@@ -178,7 +203,7 @@
             logo.Location = new Point(13, 0);
             logo.Margin = new Padding(2);
             logo.Name = "logo";
-            logo.ShadowDecoration.CustomizableEdges = customizableEdges5;
+            logo.ShadowDecoration.CustomizableEdges = customizableEdges10;
             logo.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
             logo.Size = new Size(70, 62);
             logo.SizeMode = PictureBoxSizeMode.CenterImage;
@@ -204,7 +229,7 @@
             exitbtn.AutoRoundedCorners = true;
             exitbtn.BackColor = Color.Transparent;
             exitbtn.BorderColor = Color.Transparent;
-            exitbtn.CustomizableEdges = customizableEdges6;
+            exitbtn.CustomizableEdges = customizableEdges8;
             exitbtn.DisabledState.BorderColor = Color.DarkGray;
             exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -217,11 +242,35 @@
             exitbtn.Location = new Point(671, 6);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
-            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges7;
+            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges9;
             exitbtn.Size = new Size(30, 38);
             exitbtn.TabIndex = 27;
             exitbtn.Text = "X";
             exitbtn.Click += exitbtn_Click;
+            // 
+            // guna2HtmlLabel2
+            // 
+            guna2HtmlLabel2.BackColor = Color.Transparent;
+            guna2HtmlLabel2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            guna2HtmlLabel2.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel2.Location = new Point(236, 22);
+            guna2HtmlLabel2.Margin = new Padding(2);
+            guna2HtmlLabel2.Name = "guna2HtmlLabel2";
+            guna2HtmlLabel2.Size = new Size(40, 17);
+            guna2HtmlLabel2.TabIndex = 30;
+            guna2HtmlLabel2.Text = "From";
+            // 
+            // guna2HtmlLabel3
+            // 
+            guna2HtmlLabel3.BackColor = Color.Transparent;
+            guna2HtmlLabel3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            guna2HtmlLabel3.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel3.Location = new Point(382, 22);
+            guna2HtmlLabel3.Margin = new Padding(2);
+            guna2HtmlLabel3.Name = "guna2HtmlLabel3";
+            guna2HtmlLabel3.Size = new Size(21, 17);
+            guna2HtmlLabel3.TabIndex = 31;
+            guna2HtmlLabel3.Text = "To";
             // 
             // ReportsForm
             // 
@@ -254,7 +303,10 @@
         private Guna.UI2.WinForms.Guna2CirclePictureBox logo;
         private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
         private Guna.UI2.WinForms.Guna2DateTimePicker salesdaterevenue;
+        private Guna.UI2.WinForms.Guna2DateTimePicker endDatePicker;
         private Guna.UI2.WinForms.Guna2Button btnPrintReport;
         private Guna.UI2.WinForms.Guna2Button exitbtn;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel3;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel2;
     }
 }

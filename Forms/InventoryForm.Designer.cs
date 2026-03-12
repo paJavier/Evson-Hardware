@@ -13,16 +13,13 @@
         private System.Windows.Forms.Label lblCategory;
         private System.Windows.Forms.ComboBox cmbCategory;
         private System.Windows.Forms.Label lblPrice;
-        private System.Windows.Forms.NumericUpDown numPrice;
         private System.Windows.Forms.Label lblUnit;
         private System.Windows.Forms.TextBox txtUnit;
         private System.Windows.Forms.Label lblReorder;
-        private System.Windows.Forms.NumericUpDown numReorder;
 
         private System.Windows.Forms.GroupBox grpRestock;
         private System.Windows.Forms.Label lblSelectedStock;
         private System.Windows.Forms.Label lblRestockQty;
-        private System.Windows.Forms.NumericUpDown numRestockQty;
 
         protected override void Dispose(bool disposing)
         {
@@ -40,12 +37,23 @@
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges14 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges15 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges16 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(InventoryForm));
             lblTitle = new Label();
             grpDetails = new GroupBox();
+            numPrice1 = new Guna.UI2.WinForms.Guna2NumericUpDown();
+            numReorder1 = new Guna.UI2.WinForms.Guna2NumericUpDown();
+            btnDelete = new Guna.UI2.WinForms.Guna2Button();
             btnClear = new Guna.UI2.WinForms.Guna2Button();
             btnSave = new Guna.UI2.WinForms.Guna2Button();
             lblName = new Label();
@@ -57,21 +65,19 @@
             lblUnit = new Label();
             txtUnit = new TextBox();
             lblPrice = new Label();
-            numPrice = new NumericUpDown();
             lblReorder = new Label();
-            numReorder = new NumericUpDown();
             grpRestock = new GroupBox();
+            numRestockQty1 = new Guna.UI2.WinForms.Guna2NumericUpDown();
             btnRestock = new Guna.UI2.WinForms.Guna2Button();
             lblSelectedStock = new Label();
             lblRestockQty = new Label();
-            numRestockQty = new NumericUpDown();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
             dgvInventory = new Guna.UI2.WinForms.Guna2DataGridView();
             grpDetails.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numPrice).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)numReorder).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numPrice1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numReorder1).BeginInit();
             grpRestock.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numRestockQty).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numRestockQty1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvInventory).BeginInit();
             SuspendLayout();
             // 
@@ -90,6 +96,9 @@
             // grpDetails
             // 
             grpDetails.BackColor = Color.Ivory;
+            grpDetails.Controls.Add(numPrice1);
+            grpDetails.Controls.Add(numReorder1);
+            grpDetails.Controls.Add(btnDelete);
             grpDetails.Controls.Add(btnClear);
             grpDetails.Controls.Add(btnSave);
             grpDetails.Controls.Add(lblName);
@@ -101,9 +110,7 @@
             grpDetails.Controls.Add(lblUnit);
             grpDetails.Controls.Add(txtUnit);
             grpDetails.Controls.Add(lblPrice);
-            grpDetails.Controls.Add(numPrice);
             grpDetails.Controls.Add(lblReorder);
-            grpDetails.Controls.Add(numReorder);
             grpDetails.Location = new Point(26, 390);
             grpDetails.Name = "grpDetails";
             grpDetails.Size = new Size(542, 200);
@@ -111,11 +118,76 @@
             grpDetails.TabStop = false;
             grpDetails.Text = "Product Information (Add/Edit)";
             // 
+            // numPrice1
+            // 
+            numPrice1.BackColor = Color.Transparent;
+            numPrice1.BorderColor = Color.DarkGreen;
+            numPrice1.BorderRadius = 5;
+            numPrice1.Cursor = Cursors.IBeam;
+            numPrice1.CustomizableEdges = customizableEdges1;
+            numPrice1.Font = new Font("Segoe UI", 9F);
+            numPrice1.ForeColor = Color.DarkGreen;
+            numPrice1.Location = new Point(120, 112);
+            numPrice1.Margin = new Padding(4, 3, 4, 3);
+            numPrice1.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            numPrice1.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
+            numPrice1.DecimalPlaces = 2;
+            numPrice1.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            numPrice1.Name = "numPrice1";
+            numPrice1.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            numPrice1.Size = new Size(137, 23);
+            numPrice1.TabIndex = 18;
+            numPrice1.UpDownButtonFillColor = Color.DarkOliveGreen;
+            numPrice1.Value = new decimal(new int[] { 0, 0, 0, 0 });
+            // 
+            // numReorder1
+            // 
+            numReorder1.BackColor = Color.Transparent;
+            numReorder1.BorderColor = Color.DarkGreen;
+            numReorder1.BorderRadius = 5;
+            numReorder1.Cursor = Cursors.IBeam;
+            numReorder1.CustomizableEdges = customizableEdges3;
+            numReorder1.Font = new Font("Segoe UI", 9F);
+            numReorder1.ForeColor = Color.DarkGreen;
+            numReorder1.Location = new Point(364, 112);
+            numReorder1.Margin = new Padding(4, 3, 4, 3);
+            numReorder1.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            numReorder1.Minimum = new decimal(new int[] { 0, 0, 0, 0 });
+            numReorder1.Name = "numReorder1";
+            numReorder1.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            numReorder1.Size = new Size(137, 23);
+            numReorder1.TabIndex = 17;
+            numReorder1.UpDownButtonFillColor = Color.DarkOliveGreen;
+            numReorder1.Value = new decimal(new int[] { 0, 0, 0, 0 });
+            // 
+            // btnDelete
+            // 
+            btnDelete.BackColor = Color.Transparent;
+            btnDelete.BorderRadius = 10;
+            btnDelete.BorderThickness = 1;
+            btnDelete.CustomizableEdges = customizableEdges5;
+            btnDelete.DisabledState.BorderColor = Color.DarkGray;
+            btnDelete.DisabledState.CustomBorderColor = Color.DarkGray;
+            btnDelete.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
+            btnDelete.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
+            btnDelete.FillColor = Color.Firebrick;
+            btnDelete.FocusedColor = Color.LightGreen;
+            btnDelete.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnDelete.ForeColor = Color.White;
+            btnDelete.Location = new Point(49, 153);
+            btnDelete.Name = "btnDelete";
+            btnDelete.PressedColor = Color.SeaGreen;
+            btnDelete.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            btnDelete.Size = new Size(112, 29);
+            btnDelete.TabIndex = 16;
+            btnDelete.Text = "Delete Product";
+            btnDelete.Click += btnDelete_Click;
+            // 
             // btnClear
             // 
-            btnClear.BorderRadius = 15;
+            btnClear.BorderRadius = 10;
             btnClear.BorderThickness = 1;
-            btnClear.CustomizableEdges = customizableEdges1;
+            btnClear.CustomizableEdges = customizableEdges7;
             btnClear.DisabledState.BorderColor = Color.DarkGray;
             btnClear.DisabledState.CustomBorderColor = Color.DarkGray;
             btnClear.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -123,11 +195,11 @@
             btnClear.FillColor = Color.Honeydew;
             btnClear.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnClear.ForeColor = Color.DarkGreen;
-            btnClear.Location = new Point(284, 153);
+            btnClear.Location = new Point(364, 153);
             btnClear.Name = "btnClear";
             btnClear.PressedColor = Color.Green;
-            btnClear.ShadowDecoration.CustomizableEdges = customizableEdges2;
-            btnClear.Size = new Size(108, 29);
+            btnClear.ShadowDecoration.CustomizableEdges = customizableEdges8;
+            btnClear.Size = new Size(112, 29);
             btnClear.TabIndex = 15;
             btnClear.Text = "Clear";
             btnClear.Click += btnClear_Click;
@@ -135,23 +207,22 @@
             // btnSave
             // 
             btnSave.BackColor = Color.Transparent;
-            btnSave.BorderColor = Color.DarkOliveGreen;
-            btnSave.BorderRadius = 15;
+            btnSave.BorderRadius = 10;
             btnSave.BorderThickness = 1;
-            btnSave.CustomizableEdges = customizableEdges3;
+            btnSave.CustomizableEdges = customizableEdges9;
             btnSave.DisabledState.BorderColor = Color.DarkGray;
             btnSave.DisabledState.CustomBorderColor = Color.DarkGray;
             btnSave.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             btnSave.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
-            btnSave.FillColor = Color.LimeGreen;
+            btnSave.FillColor = Color.DarkOliveGreen;
             btnSave.FocusedColor = Color.LightGreen;
             btnSave.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnSave.ForeColor = Color.White;
-            btnSave.Location = new Point(133, 153);
+            btnSave.Location = new Point(209, 153);
             btnSave.Name = "btnSave";
             btnSave.PressedColor = Color.SeaGreen;
-            btnSave.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            btnSave.Size = new Size(108, 29);
+            btnSave.ShadowDecoration.CustomizableEdges = customizableEdges10;
+            btnSave.Size = new Size(112, 29);
             btnSave.TabIndex = 14;
             btnSave.Text = "Save Product";
             btnSave.Click += btnSave_Click;
@@ -225,15 +296,6 @@
             lblPrice.TabIndex = 8;
             lblPrice.Text = "Retail Price ₱:";
             // 
-            // numPrice
-            // 
-            numPrice.DecimalPlaces = 2;
-            numPrice.Location = new Point(120, 112);
-            numPrice.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
-            numPrice.Name = "numPrice";
-            numPrice.Size = new Size(137, 23);
-            numPrice.TabIndex = 9;
-            // 
             // lblReorder
             // 
             lblReorder.Location = new Point(284, 115);
@@ -242,20 +304,13 @@
             lblReorder.TabIndex = 10;
             lblReorder.Text = "Reorder:";
             // 
-            // numReorder
-            // 
-            numReorder.Location = new Point(364, 112);
-            numReorder.Name = "numReorder";
-            numReorder.Size = new Size(135, 23);
-            numReorder.TabIndex = 11;
-            // 
             // grpRestock
             // 
             grpRestock.BackColor = Color.Ivory;
+            grpRestock.Controls.Add(numRestockQty1);
             grpRestock.Controls.Add(btnRestock);
             grpRestock.Controls.Add(lblSelectedStock);
             grpRestock.Controls.Add(lblRestockQty);
-            grpRestock.Controls.Add(numRestockQty);
             grpRestock.Location = new Point(574, 390);
             grpRestock.Name = "grpRestock";
             grpRestock.Size = new Size(299, 200);
@@ -263,22 +318,42 @@
             grpRestock.TabStop = false;
             grpRestock.Text = "Quick Restock (Incoming Delivery)";
             // 
+            // numRestockQty1
+            // 
+            numRestockQty1.BackColor = Color.Transparent;
+            numRestockQty1.BorderColor = Color.DarkGreen;
+            numRestockQty1.BorderRadius = 5;
+            numRestockQty1.Cursor = Cursors.IBeam;
+            numRestockQty1.CustomizableEdges = customizableEdges11;
+            numRestockQty1.Font = new Font("Segoe UI", 9F);
+            numRestockQty1.ForeColor = Color.DarkGreen;
+            numRestockQty1.Location = new Point(150, 90);
+            numRestockQty1.Margin = new Padding(4, 3, 4, 3);
+            numRestockQty1.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            numRestockQty1.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numRestockQty1.Name = "numRestockQty1";
+            numRestockQty1.ShadowDecoration.CustomizableEdges = customizableEdges12;
+            numRestockQty1.Size = new Size(100, 23);
+            numRestockQty1.TabIndex = 19;
+            numRestockQty1.UpDownButtonFillColor = Color.DarkOliveGreen;
+            numRestockQty1.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
             // btnRestock
             // 
-            btnRestock.BorderRadius = 15;
+            btnRestock.BorderRadius = 10;
             btnRestock.BorderThickness = 1;
-            btnRestock.CustomizableEdges = customizableEdges5;
+            btnRestock.CustomizableEdges = customizableEdges13;
             btnRestock.DisabledState.BorderColor = Color.DarkGray;
             btnRestock.DisabledState.CustomBorderColor = Color.DarkGray;
             btnRestock.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
             btnRestock.DisabledState.ForeColor = Color.FromArgb(141, 141, 141);
-            btnRestock.FillColor = Color.SeaGreen;
+            btnRestock.FillColor = Color.DarkGreen;
             btnRestock.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnRestock.ForeColor = Color.White;
             btnRestock.Location = new Point(102, 153);
             btnRestock.Name = "btnRestock";
             btnRestock.PressedColor = Color.LightGreen;
-            btnRestock.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            btnRestock.ShadowDecoration.CustomizableEdges = customizableEdges14;
             btnRestock.Size = new Size(112, 29);
             btnRestock.TabIndex = 16;
             btnRestock.Text = "Add Stock";
@@ -303,20 +378,12 @@
             lblRestockQty.TabIndex = 1;
             lblRestockQty.Text = "Quantity Delivered:";
             // 
-            // numRestockQty
-            // 
-            numRestockQty.Location = new Point(150, 88);
-            numRestockQty.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
-            numRestockQty.Name = "numRestockQty";
-            numRestockQty.Size = new Size(100, 23);
-            numRestockQty.TabIndex = 2;
-            // 
             // exitbtn
             // 
             exitbtn.AutoRoundedCorners = true;
             exitbtn.BackColor = Color.Transparent;
             exitbtn.BorderColor = Color.Transparent;
-            exitbtn.CustomizableEdges = customizableEdges7;
+            exitbtn.CustomizableEdges = customizableEdges15;
             exitbtn.DisabledState.BorderColor = Color.DarkGray;
             exitbtn.DisabledState.CustomBorderColor = Color.DarkGray;
             exitbtn.DisabledState.FillColor = Color.FromArgb(169, 169, 169);
@@ -329,7 +396,7 @@
             exitbtn.Location = new Point(868, 5);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
-            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges8;
+            exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges16;
             exitbtn.Size = new Size(30, 38);
             exitbtn.TabIndex = 19;
             exitbtn.Text = "X";
@@ -403,11 +470,11 @@
             Text = "Evson Hardware - Inventory";
             grpDetails.ResumeLayout(false);
             grpDetails.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numPrice).EndInit();
-            ((System.ComponentModel.ISupportInitialize)numReorder).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numPrice1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numReorder1).EndInit();
             grpRestock.ResumeLayout(false);
             grpRestock.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numRestockQty).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numRestockQty1).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvInventory).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -417,5 +484,9 @@
         private Guna.UI2.WinForms.Guna2Button btnSave;
         private Guna.UI2.WinForms.Guna2Button btnClear;
         private Guna.UI2.WinForms.Guna2Button btnRestock;
+        private Guna.UI2.WinForms.Guna2Button btnDelete;
+        private Guna.UI2.WinForms.Guna2NumericUpDown numReorder1;
+        private Guna.UI2.WinForms.Guna2NumericUpDown numPrice1;
+        private Guna.UI2.WinForms.Guna2NumericUpDown numRestockQty1;
     }
 }

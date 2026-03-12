@@ -277,7 +277,12 @@ namespace EvsonHardware.Forms
         {
             var cmd = conn.CreateCommand();
             cmd.Transaction = tr;
-            cmd.CommandText = "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = @name LIMIT 1;";
+            cmd.CommandText = @"
+                SELECT 1
+                FROM sqlite_master
+                WHERE type IN ('table', 'view')
+                  AND LOWER(name) = LOWER(@name)
+                LIMIT 1;";
             cmd.Parameters.AddWithValue("@name", tableName);
             return cmd.ExecuteScalar() != null;
         }
@@ -317,28 +322,47 @@ namespace EvsonHardware.Forms
                 return;
             }
 
-            var row = dgvSaleItems.SelectedRows[0];
+            ApplySaleItemSelection(dgvSaleItems.SelectedRows[0]);
+        }
+
+        private void dgvSaleItems_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dgvSaleItems.Rows.Count) return;
+            dgvSaleItems.Rows[e.RowIndex].Selected = true;
+            ApplySaleItemSelection(dgvSaleItems.Rows[e.RowIndex]);
+        }
+
+        private void ApplySaleItemSelection(DataGridViewRow? row)
+        {
             if (row == null || row.Cells.Count == 0)
             {
                 ResetSelectionState();
                 return;
             }
 
-            _selectedProductId = Convert.ToInt32(row.Cells["ProductId"].Value);
-            _selectedProductName = row.Cells["Product"].Value?.ToString() ?? "Unknown Product";
-            _selectedAvailableQty = Convert.ToInt32(row.Cells["Quantity"].Value);
-            decimal price = ParseDecimal(row.Cells["UnitPrice"].Value);
+            object? productIdValue = row.Cells["ProductId"]?.Value;
+            if (productIdValue == null || productIdValue == DBNull.Value)
+            {
+                ResetSelectionState();
+                return;
+            }
+
+            _selectedProductId = Convert.ToInt32(productIdValue);
+            _selectedProductName = row.Cells["Product"]?.Value?.ToString() ?? "Unknown Product";
+            _selectedAvailableQty = Convert.ToInt32(row.Cells["Quantity"]?.Value ?? 0);
+            decimal price = ParseDecimal(row.Cells["UnitPrice"]?.Value);
 
             if (_selectedAvailableQty < 1)
                 _selectedAvailableQty = 1;
 
-            numReturnQty.Maximum = _selectedAvailableQty;
+            numReturnQty.Maximum = Math.Max(1, _selectedAvailableQty);
             if (numReturnQty.Value > _selectedAvailableQty)
                 numReturnQty.Value = _selectedAvailableQty;
             if (numReturnQty.Value < 1)
                 numReturnQty.Value = 1;
 
-            lblSelection.Text = $"{_selectedProductName} — Sold Qty: {_selectedAvailableQty} @ {price.ToString("C2", PhCulture)}";
+            lblSelection.Text =
+                $"{_selectedProductName} ? Sold Qty: {_selectedAvailableQty} @ {price.ToString("C2", PhCulture)}";
         }
 
         private void btnProcess_Click(object sender, EventArgs e)

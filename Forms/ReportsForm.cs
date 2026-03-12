@@ -14,9 +14,6 @@ namespace EvsonHardware.Forms
     {
         private static readonly CultureInfo PhCulture = CultureInfo.GetCultureInfo("en-PH");
         private const string SaleKeyColumn = "__SaleKey";
-        private readonly Guna.UI2.WinForms.Guna2DateTimePicker endDatePicker = new();
-        private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblFrom = new();
-        private readonly Guna.UI2.WinForms.Guna2HtmlLabel lblTo = new();
         private readonly List<string> printLines = new();
         private int printLineIndex = 0;
 
@@ -53,6 +50,7 @@ namespace EvsonHardware.Forms
             dgvReports.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             dgvReports.ThemeStyle.BackColor = Color.Ivory;
+            dgvReports.ThemeStyle.BackColor = Color.Ivory;
             dgvReports.ThemeStyle.GridColor = Color.FromArgb(214, 223, 118);
             dgvReports.ThemeStyle.HeaderStyle.BackColor = Color.OliveDrab;
             dgvReports.ThemeStyle.HeaderStyle.ForeColor = Color.White;
@@ -69,6 +67,14 @@ namespace EvsonHardware.Forms
             DateTime today = DateTime.Today;
             if (today < salesdaterevenue.MinDate) today = salesdaterevenue.MinDate;
             if (today > salesdaterevenue.MaxDate) today = salesdaterevenue.MaxDate;
+            endDatePicker.MinDate = salesdaterevenue.MinDate;
+            endDatePicker.MaxDate = salesdaterevenue.MaxDate;
+            endDatePicker.FillColor = salesdaterevenue.FillColor;
+            endDatePicker.FocusedColor = salesdaterevenue.FocusedColor;
+            endDatePicker.Font = salesdaterevenue.Font;
+            endDatePicker.ForeColor = salesdaterevenue.ForeColor;
+            endDatePicker.Format = salesdaterevenue.Format;
+
             salesdaterevenue.Value = today;
             endDatePicker.Value = today;
 
@@ -81,40 +87,7 @@ namespace EvsonHardware.Forms
         {
             dgvReports.CellMouseClick += DgvReports_CellMouseClick;
             dgvReports.CellMouseDoubleClick += DgvReports_CellMouseDoubleClick;
-
-            lblFrom.BackColor = Color.Transparent;
-            lblFrom.ForeColor = Color.DarkGreen;
-            lblFrom.Text = "From";
-            lblFrom.Location = new Point(292, 18);
-
-            salesdaterevenue.Location = new Point(329, 19);
-            salesdaterevenue.Size = new Size(92, 23);
-            salesdaterevenue.Format = DateTimePickerFormat.Short;
-
-            lblTo.BackColor = Color.Transparent;
-            lblTo.ForeColor = Color.DarkGreen;
-            lblTo.Text = "To";
-            lblTo.Location = new Point(427, 18);
-
-            endDatePicker.Checked = true;
-            endDatePicker.FillColor = salesdaterevenue.FillColor;
-            endDatePicker.FocusedColor = salesdaterevenue.FocusedColor;
-            endDatePicker.Font = salesdaterevenue.Font;
-            endDatePicker.ForeColor = salesdaterevenue.ForeColor;
-            endDatePicker.Format = DateTimePickerFormat.Short;
-            endDatePicker.Location = new Point(449, 19);
-            endDatePicker.Size = new Size(84, 23);
-            endDatePicker.MinDate = salesdaterevenue.MinDate;
-            endDatePicker.MaxDate = salesdaterevenue.MaxDate;
-
-            btnPrintReport.Text = "Print";
-            btnPrintReport.Size = new Size(97, 23);
-            btnPrintReport.Location = new Point(539, 19);
             btnPrintReport.Click += BtnPrintReport_Click;
-
-            TopPanel.Controls.Add(lblFrom);
-            TopPanel.Controls.Add(lblTo);
-            TopPanel.Controls.Add(endDatePicker);
         }
 
         private void LoadSalesReportByDateRange()

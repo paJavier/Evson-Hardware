@@ -110,15 +110,22 @@ namespace EvsonHardware
                         COALESCE(p.price, 0)          AS Price,
                         COALESCE(p.unit, 'pcs')       AS Unit,
                         COALESCE(p.reorder_level, 10) AS Reorder,
-                        (
-                            COALESCE(
-                                (SELECT SUM(quantity) FROM {supplyDetailsTable} WHERE CAST(product_id AS INTEGER) = p.product_id), 0
-                            )
-                            -
-                            COALESCE(
-                                (SELECT SUM(quantity) FROM {salesDetailsTable} WHERE CAST(product_id AS INTEGER) = p.product_id), 0
-                            )
-                        )              AS Stock
+                            (
+                                COALESCE(
+                                    (SELECT SUM(quantity) FROM {supplyDetailsTable}
+                                     WHERE CAST(product_id AS INTEGER) = p.product_id), 0
+                                )
+                                -
+                                COALESCE(
+                                    (SELECT SUM(quantity) FROM {salesDetailsTable}
+                                     WHERE CAST(product_id AS INTEGER) = p.product_id), 0
+                                )
+                                +
+                                COALESCE(
+                                    (SELECT SUM(quantity) FROM adjustment_details
+                                     WHERE CAST(product_id AS INTEGER) = p.product_id), 0
+                                )
+                            ) AS Stock                    
                     FROM product p
                     LEFT JOIN category c ON c.category_id = p.category_id
                     ORDER BY p.product_name;";
@@ -154,8 +161,8 @@ namespace EvsonHardware
             txtName.Text = GetCellString(row, "Name", "");
             txtBrand.Text = GetCellString(row, "Brand", "");
             txtUnit.Text = GetCellString(row, "Unit", "pcs");
-            numPrice.Value = GetCellDecimal(row, "Price", 0m);
-            numReorder.Value = GetCellDecimal(row, "Reorder", 10m);
+            numPrice1.Value = GetCellDecimal(row, "Price", 0m);
+            numReorder1.Value = GetCellDecimal(row, "Reorder", 10m);
             cmbCategory.Text = GetCellString(row, "Category", "");
 
             decimal stock = GetCellDecimal(row, "Stock", 0m);
@@ -212,11 +219,11 @@ namespace EvsonHardware
 
                 cmd.Parameters.AddWithValue("@name", txtName.Text.Trim());
                 cmd.Parameters.AddWithValue("@unit", txtUnit.Text.Trim());
-                cmd.Parameters.AddWithValue("@price", numPrice.Value);
+                cmd.Parameters.AddWithValue("@price", numPrice1.Value);
                 cmd.Parameters.AddWithValue("@catId", catId);
                 cmd.Parameters.AddWithValue("@desc", "");
                 cmd.Parameters.AddWithValue("@brand", txtBrand.Text.Trim());
-                cmd.Parameters.AddWithValue("@reorder", numReorder.Value);
+                cmd.Parameters.AddWithValue("@reorder", numReorder1.Value);
 
                 cmd.ExecuteNonQuery();
                 MessageBox.Show("Product saved!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -231,7 +238,7 @@ namespace EvsonHardware
 
         private void btnRestock_Click(object sender, EventArgs e)
         {
-            if (selectedProductId == 0 || numRestockQty.Value <= 0)
+            if (selectedProductId == 0 || numRestockQty1.Value <= 0)
             {
                 MessageBox.Show("Select a product and enter quantity > 0.", "Validation",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -264,14 +271,14 @@ namespace EvsonHardware
                     VALUES (@sid, @pid, @qty, 0, 0);";
                 c3.Parameters.AddWithValue("@sid", supplyId);
                 c3.Parameters.AddWithValue("@pid", selectedProductId);
-                c3.Parameters.AddWithValue("@qty", (int)numRestockQty.Value);
+                c3.Parameters.AddWithValue("@qty", (int)numRestockQty1.Value);
                 c3.ExecuteNonQuery();
 
                 tr.Commit();
-                MessageBox.Show($"Added {(int)numRestockQty.Value} units. Supply ID: {supplyId}",
+                MessageBox.Show($"Added {(int)numRestockQty1.Value} units. Supply ID: {supplyId}",
                     "Restock Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                numRestockQty.Value = 0;
+                numRestockQty1.Value = numRestockQty1.Minimum;
                 LoadInventory();
             }
             catch (Exception ex)
@@ -350,8 +357,8 @@ namespace EvsonHardware
             txtName.Clear();
             txtBrand.Clear();
             txtUnit.Text = "pcs";
-            numPrice.Value = 0;
-            numReorder.Value = 10;
+            numPrice1.Value = 0;
+            numReorder1.Value = 0;
             lblSelectedStock.Text = "Selected Stock: 0";
             dgvInventory.ClearSelection();
         }
@@ -361,6 +368,77 @@ namespace EvsonHardware
             Close();
         }
 
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (selectedProductId == 0)
+            {
+                MessageBox.Show("Select a product first.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            int qty = (int)numRestockQty1.Value;
+
+            if (qty <= 0)
+            {
+                MessageBox.Show("Enter quantity to remove.", "Validation",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                using var conn = Database.GetConnection();
+                conn.Open();
+                using var tr = conn.BeginTransaction();
+
+                // create adjustment record
+                long adjustmentId = GetNextNumericId(conn, "inventory_adjustment", "adjustment_id", tr);
+
+                var cmd1 = conn.CreateCommand();
+                cmd1.Transaction = tr;
+                cmd1.CommandText = @"
+            INSERT INTO inventory_adjustment
+            (adjustment_id, adjustment_date, reason, user_id)
+            VALUES (@id, @date, 'Manual stock removal', 1);";
+
+                cmd1.Parameters.AddWithValue("@id", adjustmentId);
+                cmd1.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                cmd1.ExecuteNonQuery();
+
+                // subtract quantity
+                long detailId = GetNextNumericId(conn, "adjustment_details", "adjustment_detail_id", tr);
+
+                var cmd2 = conn.CreateCommand();
+                cmd2.Transaction = tr;
+                cmd2.CommandText = @"
+            INSERT INTO adjustment_details
+            (adjustment_detail_id, adjustment_id, product_id, quantity)
+            VALUES (@did, @aid, @pid, @qty);";
+
+                cmd2.Parameters.AddWithValue("@did", detailId);
+                cmd2.Parameters.AddWithValue("@aid", adjustmentId);
+                cmd2.Parameters.AddWithValue("@pid", selectedProductId);
+
+                // negative quantity removes stock
+                cmd2.Parameters.AddWithValue("@qty", -qty);
+
+                cmd2.ExecuteNonQuery();
+
+                tr.Commit();
+
+                MessageBox.Show($"Removed {qty} units from stock.",
+                    "Stock Updated",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                numRestockQty1.Value = numRestockQty1.Minimum;
+                LoadInventory();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Stock removal error: " + ex.Message);
+            }
+        }
     }
 }

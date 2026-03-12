@@ -336,6 +336,7 @@ namespace EvsonHardware.Forms
             this.dgvSaleItems.Size = new System.Drawing.Size(773, 152);
             this.dgvSaleItems.TabIndex = 4;
             this.dgvSaleItems.SelectionChanged += new System.EventHandler(this.dgvSaleItems_SelectionChanged);
+            this.dgvSaleItems.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvSaleItems_CellMouseClick);
             // 
             // lblSaleStatus
             // 
