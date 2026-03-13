@@ -42,14 +42,16 @@
             usertxt = new Guna.UI2.WinForms.Guna2TextBox();
             passwordtxt = new Guna.UI2.WinForms.Guna2TextBox();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
+            lblShowPass = new Label();
             SuspendLayout();
             // 
             // forgotpass
             // 
-            forgotpass.ActiveLinkColor = Color.Blue;
+            forgotpass.ActiveLinkColor = Color.MediumBlue;
             forgotpass.AutoSize = true;
             forgotpass.BackColor = Color.Transparent;
-            forgotpass.Location = new Point(229, 283);
+            forgotpass.LinkColor = Color.Navy;
+            forgotpass.Location = new Point(221, 273);
             forgotpass.Name = "forgotpass";
             forgotpass.Size = new Size(127, 24);
             forgotpass.TabIndex = 8;
@@ -159,6 +161,20 @@
             exitbtn.Text = "X";
             exitbtn.Click += exitbtn_Click_1;
             // 
+            // lblShowPass
+            // 
+            lblShowPass.AutoSize = true;
+            lblShowPass.BackColor = Color.LemonChiffon;
+            lblShowPass.Cursor = Cursors.Hand;
+            lblShowPass.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblShowPass.ForeColor = Color.DarkGreen;
+            lblShowPass.Location = new Point(304, 231);
+            lblShowPass.Name = "lblShowPass";
+            lblShowPass.Size = new Size(30, 20);
+            lblShowPass.TabIndex = 20;
+            lblShowPass.Text = "👁";
+            lblShowPass.Click += lblShowPass_Click;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(120F, 120F);
@@ -168,6 +184,7 @@
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(396, 437);
+            Controls.Add(lblShowPass);
             Controls.Add(exitbtn);
             Controls.Add(passwordtxt);
             Controls.Add(usertxt);
@@ -194,5 +211,8 @@
         private Guna.UI2.WinForms.Guna2TextBox usertxt;
         private Guna.UI2.WinForms.Guna2TextBox passwordtxt;
         private Guna.UI2.WinForms.Guna2Button exitbtn;
+        private System.Windows.Forms.Label lblShowPass;
+
+
     }
 }

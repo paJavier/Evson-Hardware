@@ -84,5 +84,15 @@ namespace EvsonHardware.Forms
             using var form = new ForgotPasswordForm();
             form.ShowDialog(this);
         }
+
+
+
+        private bool _showPass = false;
+        private void lblShowPass_Click(object sender, EventArgs e)
+        {
+            _showPass = !_showPass;
+            passwordtxt.UseSystemPasswordChar = !_showPass;
+            lblShowPass.Text = _showPass ? "🙈" : "👁";
+        }
     }
 }
