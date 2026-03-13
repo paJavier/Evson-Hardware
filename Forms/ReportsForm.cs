@@ -16,11 +16,13 @@ namespace EvsonHardware.Forms
         private const string SaleKeyColumn = "__SaleKey";
         private readonly List<string> printLines = new();
         private int printLineIndex = 0;
+        private bool reportColumnsConfigured;
 
         public ReportsForm()
         {
             InitializeComponent();
             ApplyGridTheme();
+            ConfigureReportColumns();
             InitializeActions();
             InitializeReportState();
         }
@@ -62,6 +64,56 @@ namespace EvsonHardware.Forms
             dgvReports.ThemeStyle.AlternatingRowsStyle.BackColor = Color.FromArgb(247, 250, 211);
         }
 
+        private void ConfigureReportColumns()
+        {
+            if (reportColumnsConfigured)
+            {
+                return;
+            }
+
+            reportColumnsConfigured = true;
+            dgvReports.AutoGenerateColumns = false;
+            dgvReports.Columns.Clear();
+
+            var saleKeyColumn = new DataGridViewTextBoxColumn
+            {
+                Name = SaleKeyColumn,
+                HeaderText = SaleKeyColumn,
+                DataPropertyName = SaleKeyColumn,
+                Visible = false,
+                ReadOnly = true
+            };
+
+            var receiptColumn = CreateTextColumn("Receipt #", 18f);
+            var dateColumn = CreateTextColumn("Date/Time", 25f);
+            var customerColumn = CreateTextColumn("Customer", 37f);
+            var totalColumn = CreateTextColumn("Total", 20f);
+            totalColumn.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+            dgvReports.Columns.AddRange(new DataGridViewColumn[]
+            {
+                saleKeyColumn,
+                receiptColumn,
+                dateColumn,
+                customerColumn,
+                totalColumn
+            });
+        }
+
+        private static DataGridViewTextBoxColumn CreateTextColumn(string columnKey, float fillWeight)
+        {
+            return new DataGridViewTextBoxColumn
+            {
+                Name = columnKey,
+                HeaderText = columnKey,
+                DataPropertyName = columnKey,
+                FillWeight = fillWeight,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                SortMode = DataGridViewColumnSortMode.Automatic,
+                ReadOnly = true
+            };
+        }
+
         private void InitializeReportState()
         {
             DateTime today = DateTime.Today;
@@ -87,6 +139,7 @@ namespace EvsonHardware.Forms
         {
             dgvReports.CellMouseClick += DgvReports_CellMouseClick;
             dgvReports.CellMouseDoubleClick += DgvReports_CellMouseDoubleClick;
+            dgvReports.DataError += DgvReports_DataError;
             btnPrintReport.Click += BtnPrintReport_Click;
         }
 
@@ -94,6 +147,7 @@ namespace EvsonHardware.Forms
         {
             try
             {
+                ConfigureReportColumns();
                 using var conn = Database.GetConnection();
                 conn.Open();
 
@@ -159,6 +213,12 @@ namespace EvsonHardware.Forms
             {
                 dgvReports.ClearSelection();
             }
+        }
+
+        private void DgvReports_DataError(object? sender, DataGridViewDataErrorEventArgs e)
+        {
+            e.ThrowException = false;
+            e.Cancel = true;
         }
 
         private void DgvReports_CellMouseClick(object? sender, DataGridViewCellMouseEventArgs e)

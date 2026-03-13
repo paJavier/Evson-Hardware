@@ -372,9 +372,9 @@ namespace EvsonHardware.Forms
                 productGrid.Rows.Add(r[0], r[1], r[2], r[3], r[4]);
         }
 
-        // ================================================================
+        // ===============================================
         // DASHBOARD STATS
-        // ================================================================
+        // ===============================================
         private void SetDashboardDateToToday()
         {
             var today = DateTime.Today;
@@ -489,9 +489,8 @@ namespace EvsonHardware.Forms
         // ================================================================
         private void ConfigureAccess()
         {
-            returnbtn.Visible = _role != "Cashier";
-            expensesbtn.Visible = _role != "Cashier";
-            reportbtn.Visible = _role != "Cashier";
+            //expensesbtn.Visible = _role != "Cashier";
+           // reportbtn.Visible = _role != "Cashier";
         }
 
         private void LoadCurrentUser()
@@ -501,7 +500,7 @@ namespace EvsonHardware.Forms
 
             var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-                SELECT COALESCE(e.employee_name, u.username)
+                SELECT COALESCE(NULLIF(TRIM(e.employee_name), ''), u.username)
                 FROM users u
                 LEFT JOIN employee e ON u.employee_id = e.employee_id
                 WHERE u.user_id = $id LIMIT 1";

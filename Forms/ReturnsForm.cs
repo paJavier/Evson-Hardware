@@ -1,4 +1,5 @@
 using EvsonHardware.Data;
+using EvsonHardware.Models;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,10 @@ namespace EvsonHardware.Forms
             _userId = userId <= 0 ? 1 : userId;
             cmbReturnType.SelectedIndex = 0;
             ResetSelectionState();
+
+            // Manager verification now uses a password prompt instead of manual ID entry.
+            txtEmployeeId.Visible = false;
+            lblEmployee.Visible = false;
         }
 
         /// <summary>
@@ -389,10 +394,8 @@ namespace EvsonHardware.Forms
                 return;
             }
 
-            if (!int.TryParse(txtEmployeeId.Text.Trim(), out int employeeId) || employeeId <= 0)
+            if (!ConfirmManagerPassword())
             {
-                MessageBox.Show("Enter a valid employee ID for verification.", "Validation",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -415,12 +418,52 @@ namespace EvsonHardware.Forms
                 quantity,
                 returnType,
                 txtReason.Text.Trim(),
-                employeeId,
+                _userId,
                 customCustomer);
 
             if (isProcessed)
             {
                 LoadSaleByReceipt(receiptNumber);
+            }
+        }
+
+        private bool ConfirmManagerPassword()
+        {
+            using var prompt = new PasswordPromptForm("Manager Verification");
+            if (prompt.ShowDialog(this) != DialogResult.OK || string.IsNullOrWhiteSpace(prompt.EnteredPassword))
+            {
+                MessageBox.Show("Manager password is required to process returns.", "Verification",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
+            }
+
+            string hash = PasswordHasher.Hash(prompt.EnteredPassword);
+
+            try
+            {
+                using var conn = Database.GetConnection();
+                conn.Open();
+
+                var cmd = conn.CreateCommand();
+                cmd.CommandText = "SELECT COUNT(1) FROM users WHERE user_id = @id AND password_hash = @hash;";
+                cmd.Parameters.AddWithValue("@id", _userId);
+                cmd.Parameters.AddWithValue("@hash", hash);
+
+                int matched = Convert.ToInt32(cmd.ExecuteScalar());
+                if (matched == 0)
+                {
+                    MessageBox.Show("Manager verification failed. Please try again.", "Verification Failed",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to verify manager password: " + ex.Message, "Verification Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
         }
 
