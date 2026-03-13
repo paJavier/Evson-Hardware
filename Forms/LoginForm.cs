@@ -78,5 +78,11 @@ namespace EvsonHardware.Forms
         {
             this.Close();
         }
+
+        private void forgotpass_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using var form = new ForgotPasswordForm();
+            form.ShowDialog(this);
+        }
     }
 }

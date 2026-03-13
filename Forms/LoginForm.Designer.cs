@@ -51,10 +51,11 @@
             forgotpass.BackColor = Color.Transparent;
             forgotpass.Location = new Point(229, 283);
             forgotpass.Name = "forgotpass";
-            forgotpass.Size = new Size(103, 20);
+            forgotpass.Size = new Size(127, 24);
             forgotpass.TabIndex = 8;
             forgotpass.TabStop = true;
             forgotpass.Text = "Forgot Password?";
+            forgotpass.LinkClicked += forgotpass_LinkClicked;
             // 
             // loginbtn
             // 
@@ -160,7 +161,7 @@
             // 
             // LoginForm
             // 
-            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleDimensions = new SizeF(120F, 120F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = Color.Green;
