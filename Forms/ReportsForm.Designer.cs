@@ -31,26 +31,27 @@
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportsForm));
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
             Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReportsForm));
             lblTitle = new Label();
             dgvReports = new Guna.UI2.WinForms.Guna2DataGridView();
             TopPanel = new Guna.UI2.WinForms.Guna2ShadowPanel();
+            guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            endDatePicker = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             btnPrintReport = new Guna.UI2.WinForms.Guna2Button();
             salesdaterevenue = new Guna.UI2.WinForms.Guna2DateTimePicker();
-            endDatePicker = new Guna.UI2.WinForms.Guna2DateTimePicker();
             logo = new Guna.UI2.WinForms.Guna2CirclePictureBox();
             guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             exitbtn = new Guna.UI2.WinForms.Guna2Button();
-            guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             ((System.ComponentModel.ISupportInitialize)dgvReports).BeginInit();
             TopPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)logo).BeginInit();
@@ -62,9 +63,10 @@
             lblTitle.BackColor = Color.Transparent;
             lblTitle.Font = new Font("Sitka Banner", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = Color.White;
-            lblTitle.Location = new Point(12, 9);
+            lblTitle.Location = new Point(17, 15);
+            lblTitle.Margin = new Padding(4, 0, 4, 0);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(92, 35);
+            lblTitle.Size = new Size(138, 52);
             lblTitle.TabIndex = 2;
             lblTitle.Text = "Reports";
             // 
@@ -91,10 +93,13 @@
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
             dgvReports.DefaultCellStyle = dataGridViewCellStyle3;
             dgvReports.GridColor = Color.Cornsilk;
-            dgvReports.Location = new Point(22, 151);
+            dgvReports.Location = new Point(31, 252);
+            dgvReports.Margin = new Padding(4, 5, 4, 5);
             dgvReports.Name = "dgvReports";
             dgvReports.RowHeadersVisible = false;
-            dgvReports.Size = new Size(666, 319);
+            dgvReports.RowHeadersWidth = 62;
+            dgvReports.RowTemplate.Height = 25;
+            dgvReports.Size = new Size(951, 532);
             dgvReports.TabIndex = 25;
             dgvReports.ThemeStyle.AlternatingRowsStyle.BackColor = Color.White;
             dgvReports.ThemeStyle.AlternatingRowsStyle.Font = null;
@@ -129,13 +134,52 @@
             TopPanel.Controls.Add(logo);
             TopPanel.Controls.Add(guna2HtmlLabel1);
             TopPanel.FillColor = Color.LightGoldenrodYellow;
-            TopPanel.Location = new Point(22, 57);
-            TopPanel.Margin = new Padding(2);
+            TopPanel.Location = new Point(31, 95);
             TopPanel.Name = "TopPanel";
             TopPanel.Radius = 10;
             TopPanel.ShadowColor = Color.Goldenrod;
-            TopPanel.Size = new Size(666, 64);
+            TopPanel.Size = new Size(951, 107);
             TopPanel.TabIndex = 26;
+            // 
+            // guna2HtmlLabel3
+            // 
+            guna2HtmlLabel3.BackColor = Color.Transparent;
+            guna2HtmlLabel3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            guna2HtmlLabel3.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel3.Location = new Point(584, 37);
+            guna2HtmlLabel3.Name = "guna2HtmlLabel3";
+            guna2HtmlLabel3.Size = new Size(25, 27);
+            guna2HtmlLabel3.TabIndex = 31;
+            guna2HtmlLabel3.Text = "To";
+            // 
+            // endDatePicker
+            // 
+            endDatePicker.Checked = true;
+            endDatePicker.CustomizableEdges = customizableEdges1;
+            endDatePicker.FillColor = Color.FromArgb(255, 255, 192);
+            endDatePicker.FocusedColor = Color.FromArgb(255, 255, 128);
+            endDatePicker.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            endDatePicker.ForeColor = Color.DarkGreen;
+            endDatePicker.Format = DateTimePickerFormat.Short;
+            endDatePicker.Location = new Point(615, 33);
+            endDatePicker.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
+            endDatePicker.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
+            endDatePicker.Name = "endDatePicker";
+            endDatePicker.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            endDatePicker.Size = new Size(144, 37);
+            endDatePicker.TabIndex = 29;
+            endDatePicker.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
+            // 
+            // guna2HtmlLabel2
+            // 
+            guna2HtmlLabel2.BackColor = Color.Transparent;
+            guna2HtmlLabel2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            guna2HtmlLabel2.ForeColor = Color.DarkGreen;
+            guna2HtmlLabel2.Location = new Point(348, 37);
+            guna2HtmlLabel2.Name = "guna2HtmlLabel2";
+            guna2HtmlLabel2.Size = new Size(46, 27);
+            guna2HtmlLabel2.TabIndex = 30;
+            guna2HtmlLabel2.Text = "From";
             // 
             // btnPrintReport
             // 
@@ -149,10 +193,11 @@
             btnPrintReport.FillColor = Color.DarkOliveGreen;
             btnPrintReport.Font = new Font("Sitka Banner", 9.749999F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnPrintReport.ForeColor = Color.White;
-            btnPrintReport.Location = new Point(550, 16);
+            btnPrintReport.Location = new Point(786, 27);
+            btnPrintReport.Margin = new Padding(4, 5, 4, 5);
             btnPrintReport.Name = "btnPrintReport";
             btnPrintReport.ShadowDecoration.CustomizableEdges = customizableEdges4;
-            btnPrintReport.Size = new Size(96, 29);
+            btnPrintReport.Size = new Size(137, 48);
             btnPrintReport.TabIndex = 28;
             btnPrintReport.Text = "Print";
             // 
@@ -165,33 +210,14 @@
             salesdaterevenue.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
             salesdaterevenue.ForeColor = Color.DarkGreen;
             salesdaterevenue.Format = DateTimePickerFormat.Short;
-            salesdaterevenue.Location = new Point(280, 20);
-            salesdaterevenue.Margin = new Padding(2);
+            salesdaterevenue.Location = new Point(400, 33);
             salesdaterevenue.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
             salesdaterevenue.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
             salesdaterevenue.Name = "salesdaterevenue";
             salesdaterevenue.ShadowDecoration.CustomizableEdges = customizableEdges6;
-            salesdaterevenue.Size = new Size(92, 22);
+            salesdaterevenue.Size = new Size(149, 37);
             salesdaterevenue.TabIndex = 27;
             salesdaterevenue.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
-            // 
-            // endDatePicker
-            // 
-            endDatePicker.Checked = true;
-            endDatePicker.FillColor = Color.FromArgb(255, 255, 192);
-            endDatePicker.FocusedColor = Color.FromArgb(255, 255, 128);
-            endDatePicker.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            endDatePicker.ForeColor = Color.DarkGreen;
-            endDatePicker.Format = DateTimePickerFormat.Short;
-            endDatePicker.Location = new Point(414, 20);
-            endDatePicker.Margin = new Padding(2);
-            endDatePicker.MaxDate = new DateTime(9998, 12, 31, 0, 0, 0, 0);
-            endDatePicker.MinDate = new DateTime(1753, 1, 1, 0, 0, 0, 0);
-            endDatePicker.Name = "endDatePicker";
-            endDatePicker.ShadowDecoration.CustomizableEdges = customizableEdges7;
-            endDatePicker.Size = new Size(92, 22);
-            endDatePicker.TabIndex = 29;
-            endDatePicker.Value = new DateTime(2026, 3, 4, 18, 34, 2, 233);
             // 
             // logo
             // 
@@ -200,12 +226,11 @@
             logo.FillColor = Color.Transparent;
             logo.Image = (Image)resources.GetObject("logo.Image");
             logo.ImageRotate = 0F;
-            logo.Location = new Point(13, 0);
-            logo.Margin = new Padding(2);
+            logo.Location = new Point(19, 0);
             logo.Name = "logo";
-            logo.ShadowDecoration.CustomizableEdges = customizableEdges10;
+            logo.ShadowDecoration.CustomizableEdges = customizableEdges7;
             logo.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            logo.Size = new Size(70, 62);
+            logo.Size = new Size(100, 103);
             logo.SizeMode = PictureBoxSizeMode.CenterImage;
             logo.TabIndex = 18;
             logo.TabStop = false;
@@ -217,10 +242,9 @@
             guna2HtmlLabel1.BackgroundImageLayout = ImageLayout.Zoom;
             guna2HtmlLabel1.Font = new Font("Sitka Banner Semibold", 10F, FontStyle.Bold, GraphicsUnit.Point, 0);
             guna2HtmlLabel1.ForeColor = Color.DarkGreen;
-            guna2HtmlLabel1.Location = new Point(87, 21);
-            guna2HtmlLabel1.Margin = new Padding(2);
+            guna2HtmlLabel1.Location = new Point(124, 35);
             guna2HtmlLabel1.Name = "guna2HtmlLabel1";
-            guna2HtmlLabel1.Size = new Size(90, 21);
+            guna2HtmlLabel1.Size = new Size(137, 31);
             guna2HtmlLabel1.TabIndex = 16;
             guna2HtmlLabel1.Text = "Evson Hardware";
             // 
@@ -239,51 +263,29 @@
             exitbtn.ForeColor = Color.DarkRed;
             exitbtn.HoverState.FillColor = Color.FromArgb(128, 255, 128);
             exitbtn.ImageSize = new Size(260, 220);
-            exitbtn.Location = new Point(671, 6);
+            exitbtn.Location = new Point(959, 10);
+            exitbtn.Margin = new Padding(4, 5, 4, 5);
             exitbtn.Name = "exitbtn";
             exitbtn.PressedColor = Color.DarkGreen;
             exitbtn.ShadowDecoration.CustomizableEdges = customizableEdges9;
-            exitbtn.Size = new Size(30, 38);
+            exitbtn.Size = new Size(43, 63);
             exitbtn.TabIndex = 27;
             exitbtn.Text = "X";
             exitbtn.Click += exitbtn_Click;
             // 
-            // guna2HtmlLabel2
-            // 
-            guna2HtmlLabel2.BackColor = Color.Transparent;
-            guna2HtmlLabel2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            guna2HtmlLabel2.ForeColor = Color.DarkGreen;
-            guna2HtmlLabel2.Location = new Point(236, 22);
-            guna2HtmlLabel2.Margin = new Padding(2);
-            guna2HtmlLabel2.Name = "guna2HtmlLabel2";
-            guna2HtmlLabel2.Size = new Size(40, 17);
-            guna2HtmlLabel2.TabIndex = 30;
-            guna2HtmlLabel2.Text = "From";
-            // 
-            // guna2HtmlLabel3
-            // 
-            guna2HtmlLabel3.BackColor = Color.Transparent;
-            guna2HtmlLabel3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            guna2HtmlLabel3.ForeColor = Color.DarkGreen;
-            guna2HtmlLabel3.Location = new Point(382, 22);
-            guna2HtmlLabel3.Margin = new Padding(2);
-            guna2HtmlLabel3.Name = "guna2HtmlLabel3";
-            guna2HtmlLabel3.Size = new Size(21, 17);
-            guna2HtmlLabel3.TabIndex = 31;
-            guna2HtmlLabel3.Text = "To";
-            // 
             // ReportsForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImage = (Image)resources.GetObject("$this.BackgroundImage");
             BackgroundImageLayout = ImageLayout.Stretch;
-            ClientSize = new Size(708, 524);
+            ClientSize = new Size(1011, 873);
             Controls.Add(exitbtn);
             Controls.Add(TopPanel);
             Controls.Add(dgvReports);
             Controls.Add(lblTitle);
             FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(4, 5, 4, 5);
             Name = "ReportsForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "ReportsForm";
