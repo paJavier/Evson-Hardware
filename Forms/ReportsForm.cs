@@ -25,6 +25,7 @@ namespace EvsonHardware.Forms
             ApplyGridTheme();
             ConfigureReportColumns();
             InitializeActions();
+            EnableGridCopy(dgvReports);
             InitializeReportState();
         }
 
@@ -142,6 +143,27 @@ namespace EvsonHardware.Forms
             dgvReports.CellMouseDoubleClick += DgvReports_CellMouseDoubleClick;
             dgvReports.DataError += DgvReports_DataError;
             btnPrintReport.Click += BtnPrintReport_Click;
+        }
+
+        private void EnableGridCopy(DataGridView grid)
+        {
+            grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            grid.MultiSelect = true;
+            grid.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            grid.KeyDown += Grid_KeyDownCopy;
+        }
+
+        private void Grid_KeyDownCopy(object? sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.C && sender is DataGridView grid)
+            {
+                var data = grid.GetClipboardContent();
+                if (data != null)
+                {
+                    Clipboard.SetDataObject(data);
+                }
+                e.Handled = true;
+            }
         }
 
         private void LoadSalesReportByDateRange()
