@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>android-chrome-512x512.ico</ApplicationIcon>
+    <ApplicationIcon>finaldesktopicon__1_-removebg-preview.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="android-chrome-512x512.ico" />
     <Content Include="Data\evson_hardware.sqlite">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Include="finaldesktopicon__1_-removebg-preview.ico" />
   </ItemGroup>
 
   <ItemGroup>
