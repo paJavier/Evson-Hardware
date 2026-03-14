@@ -1,8 +1,9 @@
 using System;
 using System.Data;
-using System.Globalization;
-using System.Windows.Forms;
 using EvsonHardware.Data;
+using System.Globalization;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
 {
@@ -186,61 +187,77 @@ namespace EvsonHardware.Forms
 
         private void LoadExpenseHistory()
         {
-            try
+            _ = Task.Run(() =>
             {
-                using var conn = Database.GetConnection();
-                conn.Open();
-
-                expenseTableName = ResolveExpenseTable(conn);
-                var columns = GetTableColumns(conn, expenseTableName);
-                amountColumn = ResolveColumn(columns, "amount") ?? "amount";
-                dateColumn = ResolveColumn(columns, "expense_date") ?? "expense_date";
-                typeColumn = ResolveColumn(columns, "expense_type") ?? "expense_type";
-                descriptionColumn = ResolveColumn(columns, "description") ?? "description";
-
-                var cmd = conn.CreateCommand();
-                if (chkAllDates.Checked)
+                DataTable? dt = null;
+                string? error = null;
+                try
                 {
-                    cmd.CommandText = $@"
-                    SELECT
-                        {dateColumn}        AS Date,
-                        {typeColumn}        AS Category,
-                        {descriptionColumn} AS Description,
-                        {amountColumn}      AS Amount
-                    FROM {expenseTableName}
-                    ORDER BY ROWID DESC
-                    LIMIT 200;";
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+
+                    expenseTableName = ResolveExpenseTable(conn);
+                    var columns = GetTableColumns(conn, expenseTableName);
+                    amountColumn = ResolveColumn(columns, "amount") ?? "amount";
+                    dateColumn = ResolveColumn(columns, "expense_date") ?? "expense_date";
+                    typeColumn = ResolveColumn(columns, "expense_type") ?? "expense_type";
+                    descriptionColumn = ResolveColumn(columns, "description") ?? "description";
+
+                    var cmd = conn.CreateCommand();
+                    if (chkAllDates.Checked)
+                    {
+                        cmd.CommandText = $@"
+                        SELECT
+                            {dateColumn}        AS Date,
+                            {typeColumn}        AS Category,
+                            {descriptionColumn} AS Description,
+                            {amountColumn}      AS Amount
+                        FROM {expenseTableName}
+                        ORDER BY ROWID DESC
+                        LIMIT 200;";
+                    }
+                    else
+                    {
+                        cmd.CommandText = $@"
+                        SELECT
+                            {dateColumn}        AS Date,
+                            {typeColumn}        AS Category,
+                            {descriptionColumn} AS Description,
+                            {amountColumn}      AS Amount
+                        FROM {expenseTableName}
+                        WHERE DATE({dateColumn}) = @day
+                        ORDER BY ROWID DESC
+                        LIMIT 200;";
+                        cmd.Parameters.AddWithValue("@day", expensesdate.Value.Date.ToString("yyyy-MM-dd"));
+                    }
+
+                    dt = new DataTable();
+                    using var reader = cmd.ExecuteReader();
+                    dt.Load(reader);
                 }
-                else
+                catch (Exception ex)
                 {
-                    cmd.CommandText = $@"
-                    SELECT
-                        {dateColumn}        AS Date,
-                        {typeColumn}        AS Category,
-                        {descriptionColumn} AS Description,
-                        {amountColumn}      AS Amount
-                    FROM {expenseTableName}
-                    WHERE DATE({dateColumn}) = @day
-                    ORDER BY ROWID DESC
-                    LIMIT 200;";
-                    cmd.Parameters.AddWithValue("@day", expensesdate.Value.Date.ToString("yyyy-MM-dd"));
+                    error = ex.Message;
                 }
 
-                var dt = new DataTable();
-                using var reader = cmd.ExecuteReader();
-                dt.Load(reader);
-                expensesgdv.DataSource = dt;
-
-                if (expensesgdv.Columns["Amount"] != null)
+                void Apply()
                 {
-                    expensesgdv.Columns["Amount"].DefaultCellStyle.Format = "C2";
-                    expensesgdv.Columns["Amount"].DefaultCellStyle.FormatProvider = PhCulture;
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("Load expenses error: " + error, "Error");
+                        return;
+                    }
+
+                    expensesgdv.DataSource = dt;
+                    if (expensesgdv.Columns["Amount"] != null)
+                    {
+                        expensesgdv.Columns["Amount"].DefaultCellStyle.Format = "C2";
+                        expensesgdv.Columns["Amount"].DefaultCellStyle.FormatProvider = PhCulture;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                CustomMessageBox.Show("Load expenses error: " + ex.Message, "Error");
-            }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         private static string ResolveExpenseTable(Microsoft.Data.Sqlite.SqliteConnection conn)

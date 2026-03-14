@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
@@ -28,100 +29,123 @@ namespace EvsonHardware.Forms
         // Load sale header + itemized products
         private void LoadSaleDetails(int saleKey)
         {
-            try
+            _ = Task.Run(() =>
             {
-                using var conn = Database.GetConnection();
-                conn.Open();
-
-                // FIX #5: Use the resolver instead of hardcoding 'sale'
-                //         so it works whether the table is 'sale' or 'sales'
-                string saleTable = ResolveSaleTable(conn);
-
-                // Header
-                var hCmd = conn.CreateCommand();
-                hCmd.CommandText = $@"
-                    SELECT receipt_number,
-                           sale_date,
-                           COALESCE(customer_name, 'Walk-in') AS customer_name,
-                           total_amount
-                    FROM {saleTable}
-                    WHERE COALESCE(
-                              NULLIF(CAST(sale_id AS INTEGER), 0),
-                              CAST(rowid AS INTEGER)
-                          ) = @key
-                    LIMIT 1;";
-                hCmd.Parameters.AddWithValue("@key", saleKey);
-
+                string receipt = "—";
+                string saleDate = "—";
+                string customerName = "Walk-in";
+                string totalText = "—";
+                DataTable? dt = null;
+                string? error = null;
                 bool headerFound = false;
-                using (var r = hCmd.ExecuteReader())
+                bool hasLineItems = true;
+
+                try
                 {
-                    if (r.Read())
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+
+                    string saleTable = ResolveSaleTable(conn);
+
+                    var hCmd = conn.CreateCommand();
+                    hCmd.CommandText = $@"
+                        SELECT receipt_number,
+                               sale_date,
+                               COALESCE(customer_name, 'Walk-in') AS customer_name,
+                               total_amount
+                        FROM {saleTable}
+                        WHERE COALESCE(
+                                  NULLIF(CAST(sale_id AS INTEGER), 0),
+                                  CAST(rowid AS INTEGER)
+                              ) = @key
+                        LIMIT 1;";
+                    hCmd.Parameters.AddWithValue("@key", saleKey);
+
+                    using (var r = hCmd.ExecuteReader())
                     {
-                        headerFound = true;
-                        lblReceiptVal.Text = r["receipt_number"] == DBNull.Value ? "—" : r["receipt_number"].ToString();
-                        lblDateVal.Text = r["sale_date"] == DBNull.Value ? "—" : r["sale_date"].ToString();
-                        lblCustomerVal.Text = r["customer_name"] == DBNull.Value ? "Walk-in" : r["customer_name"].ToString();
-                        lblTotalVal.Text = r["total_amount"] == DBNull.Value ? "—"
-                                                 : Convert.ToDecimal(r["total_amount"]).ToString("C2", PhCulture);
+                        if (r.Read())
+                        {
+                            headerFound = true;
+                            receipt = r["receipt_number"] == DBNull.Value ? "—" : r["receipt_number"].ToString();
+                            saleDate = r["sale_date"] == DBNull.Value ? "—" : r["sale_date"].ToString();
+                            customerName = r["customer_name"] == DBNull.Value ? "Walk-in" : r["customer_name"].ToString();
+                            totalText = r["total_amount"] == DBNull.Value ? "—"
+                                : Convert.ToDecimal(r["total_amount"]).ToString("C2", PhCulture);
+                        }
+                    }
+
+                    if (!headerFound)
+                    {
+                        error = "Sale record not found for the selected row.";
+                    }
+                    else
+                    {
+                        string detailsTable = ResolveSalesDetailsTable(conn);
+                        var dCmd = conn.CreateCommand();
+                        dCmd.CommandText = $@"
+                            SELECT
+                                COALESCE(p.product_name,
+                                    'Product #' || CAST(sd.product_id AS TEXT)) AS Product,
+                                CAST(sd.quantity AS INTEGER)                     AS Qty,
+                                sd.unit_price                                    AS [Unit Price],
+                                sd.subtotal                                      AS Subtotal
+                            FROM {detailsTable} sd
+                            LEFT JOIN product p
+                                   ON CAST(p.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
+                            WHERE CAST(sd.sale_id AS INTEGER) = @key
+                            ORDER BY sd.rowid;";
+                        dCmd.Parameters.AddWithValue("@key", saleKey);
+
+                        dt = new DataTable();
+                        dt.Load(dCmd.ExecuteReader());
+                        hasLineItems = dt.Rows.Count > 0;
                     }
                 }
-                if (!headerFound)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Sale record not found for the selected row.",
-                        "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    dgvItems.DataSource = null;
-                    return;
+                    error = "Error loading sale details:\n" + ex.Message;
                 }
 
-                // Products the customer bought
-                string detailsTable = ResolveSalesDetailsTable(conn);
-                var dCmd = conn.CreateCommand();
-                dCmd.CommandText = $@"
-                    SELECT
-                        COALESCE(p.product_name,
-                            'Product #' || CAST(sd.product_id AS TEXT)) AS Product,
-                        CAST(sd.quantity AS INTEGER)                     AS Qty,
-                        sd.unit_price                                    AS [Unit Price],
-                        sd.subtotal                                      AS Subtotal
-                    FROM {detailsTable} sd
-                    LEFT JOIN product p
-                           ON CAST(p.product_id AS INTEGER) = CAST(sd.product_id AS INTEGER)
-                    WHERE CAST(sd.sale_id AS INTEGER) = @key
-                    ORDER BY sd.rowid;";
-                dCmd.Parameters.AddWithValue("@key", saleKey);
-
-                var dt = new DataTable();
-                dt.Load(dCmd.ExecuteReader());
-                dgvItems.DataSource = dt;
-
-                if (dt.Rows.Count == 0)
+                void Apply()
                 {
-                    MessageBox.Show("No line items recorded for this sale.",
-                        "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (error != null)
+                    {
+                        MessageBox.Show(error, "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        dgvItems.DataSource = null;
+                        return;
+                    }
+
+                    lblReceiptVal.Text = receipt;
+                    lblDateVal.Text = saleDate;
+                    lblCustomerVal.Text = customerName;
+                    lblTotalVal.Text = totalText;
+                    dgvItems.DataSource = dt;
+
+                    if (!hasLineItems)
+                    {
+                        MessageBox.Show("No line items recorded for this sale.",
+                            "Sale Details", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    if (dgvItems.Columns["Unit Price"] != null)
+                    {
+                        dgvItems.Columns["Unit Price"].DefaultCellStyle.Format = "C2";
+                        dgvItems.Columns["Unit Price"].DefaultCellStyle.FormatProvider = PhCulture;
+                        dgvItems.Columns["Unit Price"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    }
+                    if (dgvItems.Columns["Subtotal"] != null)
+                    {
+                        dgvItems.Columns["Subtotal"].DefaultCellStyle.Format = "C2";
+                        dgvItems.Columns["Subtotal"].DefaultCellStyle.FormatProvider = PhCulture;
+                        dgvItems.Columns["Subtotal"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                        dgvItems.Columns["Subtotal"].DefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                    }
+                    if (dgvItems.Columns["Qty"] != null)
+                        dgvItems.Columns["Qty"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                 }
 
-                // Format columns after DataSource is set
-                if (dgvItems.Columns["Unit Price"] != null)
-                {
-                    dgvItems.Columns["Unit Price"].DefaultCellStyle.Format = "C2";
-                    dgvItems.Columns["Unit Price"].DefaultCellStyle.FormatProvider = PhCulture;
-                    dgvItems.Columns["Unit Price"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                }
-                if (dgvItems.Columns["Subtotal"] != null)
-                {
-                    dgvItems.Columns["Subtotal"].DefaultCellStyle.Format = "C2";
-                    dgvItems.Columns["Subtotal"].DefaultCellStyle.FormatProvider = PhCulture;
-                    dgvItems.Columns["Subtotal"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                    dgvItems.Columns["Subtotal"].DefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-                }
-                if (dgvItems.Columns["Qty"] != null)
-                    dgvItems.Columns["Qty"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading sale details:\n" + ex.Message,
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         // Button click handlers (referenced by Designer)

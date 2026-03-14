@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EvsonHardware.Forms
@@ -140,97 +141,118 @@ namespace EvsonHardware.Forms
         // ================================================================
         private void LoadTransactionsGrid()
         {
-            _transactionSaleIds.Clear();
-
             if (productGrid == null) return;
 
-            productGrid.DataSource = null;
-            productGrid.Rows.Clear();
-            productGrid.Columns.Clear();
+            DateTime selectedDate = salesdaterevenue.Value.Date;
 
-            productGrid.Columns.Add(new DataGridViewTextBoxColumn
+            _ = Task.Run(() =>
             {
-                Name = "colReceipt",
-                HeaderText = "Receipt #",
-                FillWeight = 25
-            });
-            productGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colDate",
-                HeaderText = "Date / Time",
-                FillWeight = 30
-            });
-            productGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colCustomer",
-                HeaderText = "Customer",
-                FillWeight = 25
-            });
-            productGrid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colTotal",
-                HeaderText = "Total (₱)",
-                FillWeight = 20,
-                DefaultCellStyle =
+                var saleIds = new List<int>();
+                var rows = new List<object[]>();
+                string? error = null;
+
+                try
                 {
-                    Alignment  = DataGridViewContentAlignment.MiddleRight,
-                    Format     = "N2",
-                    Font       = new Font("Segoe UI", 9.5F, FontStyle.Bold),
-                    ForeColor  = Color.DarkGreen
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+
+                    string saleTable = ResolveSaleTable(conn);
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = $@"
+                        SELECT
+                            sale_id,
+                            COALESCE(receipt_number, '-')      AS receipt_number,
+                            sale_date,
+                            COALESCE(customer_name, 'Walk-in') AS customer_name,
+                            CAST(total_amount AS REAL)          AS total_amount
+                        FROM {saleTable}
+                        WHERE DATE(sale_date) = @day
+                        ORDER BY sale_date DESC;";
+                    cmd.Parameters.AddWithValue("@day", selectedDate.ToString("yyyy-MM-dd"));
+
+                    using var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int saleId = reader["sale_id"] == DBNull.Value
+                            ? 0 : Convert.ToInt32(reader["sale_id"]);
+                        saleIds.Add(saleId);
+
+                        double total = reader["total_amount"] == DBNull.Value
+                            ? 0.0 : Convert.ToDouble(reader["total_amount"]);
+
+                        rows.Add(new object[]
+                        {
+                            reader["receipt_number"] == DBNull.Value ? "-" : reader["receipt_number"].ToString(),
+                            reader["sale_date"] == DBNull.Value ? "-" : reader["sale_date"].ToString(),
+                            reader["customer_name"] == DBNull.Value ? "Walk-in" : reader["customer_name"].ToString(),
+                            total
+                        });
+                    }
                 }
-            });
-
-            try
-            {
-                using var conn = Database.GetConnection();
-                conn.Open();
-
-                string saleTable = ResolveSaleTable(conn);
-                string selectedDate = salesdaterevenue.Value.Date.ToString("yyyy-MM-dd");
-
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = $@"
-                    SELECT
-                        sale_id,
-                        COALESCE(receipt_number, '-')      AS receipt_number,
-                        sale_date,
-                        COALESCE(customer_name, 'Walk-in') AS customer_name,
-                        CAST(total_amount AS REAL)          AS total_amount
-                    FROM {saleTable}
-                    WHERE DATE(sale_date) = @day
-                    ORDER BY sale_date DESC;";
-                cmd.Parameters.AddWithValue("@day", selectedDate);
-
-                using var reader = cmd.ExecuteReader();
-                while (reader.Read())
+                catch (Exception ex)
                 {
-                    // FIX: Guard every column against DBNull before converting
-                    int saleId = reader["sale_id"] == DBNull.Value
-                        ? 0 : Convert.ToInt32(reader["sale_id"]);
-                    _transactionSaleIds.Add(saleId);
-
-                    double total = reader["total_amount"] == DBNull.Value
-                        ? 0.0 : Convert.ToDouble(reader["total_amount"]);
-
-                    productGrid.Rows.Add(
-                        reader["receipt_number"] == DBNull.Value ? "-" : reader["receipt_number"].ToString(),
-                        reader["sale_date"] == DBNull.Value ? "-" : reader["sale_date"].ToString(),
-                        reader["customer_name"] == DBNull.Value ? "Walk-in" : reader["customer_name"].ToString(),
-                        total
-                    );
+                    error = ex.Message;
                 }
 
-                if (productGrid.Rows.Count > 0)
-                    productGrid.Rows[0].Selected = false;
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("Load transactions error: " + error, "Error");
+                        return;
+                    }
 
-                // Grid is now showing transactions — clicks should open SalesDetailsForm
-                _isShowingTransactions = true;
-                productGrid.Cursor = Cursors.Hand;
-            }
-            catch (Exception ex)
-            {
-                CustomMessageBox.Show("Load transactions error: " + ex.Message, "Error");
-            }
+                    _transactionSaleIds.Clear();
+                    _transactionSaleIds.AddRange(saleIds);
+
+                    productGrid.DataSource = null;
+                    productGrid.Rows.Clear();
+                    productGrid.Columns.Clear();
+
+                    productGrid.Columns.Add(new DataGridViewTextBoxColumn
+                    {
+                        Name = "colReceipt",
+                        HeaderText = "Receipt #",
+                        FillWeight = 25
+                    });
+                    productGrid.Columns.Add(new DataGridViewTextBoxColumn
+                    {
+                        Name = "colDate",
+                        HeaderText = "Date / Time",
+                        FillWeight = 30
+                    });
+                    productGrid.Columns.Add(new DataGridViewTextBoxColumn
+                    {
+                        Name = "colCustomer",
+                        HeaderText = "Customer",
+                        FillWeight = 25
+                    });
+                    productGrid.Columns.Add(new DataGridViewTextBoxColumn
+                    {
+                        Name = "colTotal",
+                        HeaderText = "Total (₱)",
+                        FillWeight = 20,
+                        DefaultCellStyle =
+                        {
+                            Alignment  = DataGridViewContentAlignment.MiddleRight,
+                            Format     = "N2",
+                            Font       = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                            ForeColor  = Color.DarkGreen
+                        }
+                    });
+
+                    foreach (var row in rows)
+                        productGrid.Rows.Add(row);
+
+                    if (productGrid.Rows.Count > 0)
+                        productGrid.Rows[0].Selected = false;
+
+                    _isShowingTransactions = true;
+                    productGrid.Cursor = Cursors.Hand;
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         // ================================================================
@@ -351,25 +373,52 @@ namespace EvsonHardware.Forms
             productGrid.Columns.Add("colPrice", "Price");
             productGrid.Columns.Add("colStock", "Stock");
 
-            using var conn = Database.GetConnection();
-            conn.Open();
+            _ = Task.Run(() =>
+            {
+                var rows = new List<object[]>();
+                string? error = null;
 
-            var cmd = conn.CreateCommand();
-            cmd.CommandText = @"
-                SELECT ps.product_name, ps.category_name,
-                       IFNULL(p.brandname,'') AS brandname,
-                       ROUND(ps.price,2), CAST(ps.stock AS INTEGER)
-                FROM product_stock ps
-                LEFT JOIN product p ON p.product_id = ps.product_id
-                WHERE ps.product_name   LIKE $s
-                   OR ps.category_name  LIKE $s
-                   OR IFNULL(p.brandname,'') LIKE $s
-                LIMIT 20;";
-            cmd.Parameters.AddWithValue("$s", "%" + searchText + "%");
+                try
+                {
+                    using var conn = Database.GetConnection();
+                    conn.Open();
 
-            using var r = cmd.ExecuteReader();
-            while (r.Read())
-                productGrid.Rows.Add(r[0], r[1], r[2], r[3], r[4]);
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = @"
+                        SELECT ps.product_name, ps.category_name,
+                               IFNULL(p.brandname,'') AS brandname,
+                               ROUND(ps.price,2), CAST(ps.stock AS INTEGER)
+                        FROM product_stock ps
+                        LEFT JOIN product p ON p.product_id = ps.product_id
+                        WHERE ps.product_name   LIKE $s
+                           OR ps.category_name  LIKE $s
+                           OR IFNULL(p.brandname,'') LIKE $s
+                        LIMIT 20;";
+                    cmd.Parameters.AddWithValue("$s", "%" + searchText + "%");
+
+                    using var r = cmd.ExecuteReader();
+                    while (r.Read())
+                        rows.Add(new object[] { r[0], r[1], r[2], r[3], r[4] });
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
+
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("Product search error: " + error, "Error");
+                        return;
+                    }
+
+                    foreach (var row in rows)
+                        productGrid.Rows.Add(row);
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         // ===============================================
@@ -389,10 +438,21 @@ namespace EvsonHardware.Forms
             salesprogressperday.Text = FormatPeso(0m);
             salesprogressperday.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
 
-            selectedRevenueDetail = CreateSalesPanelLabel(new Point(12, 192), $"Revenue: {FormatPeso(0m)}");
-            selectedExpensesDetail = CreateSalesPanelLabel(new Point(12, 212), $"Expenses: {FormatPeso(0m)}");
-            selectedProfitDetail = CreateSalesPanelLabel(new Point(12, 232), $"Profit: {FormatPeso(0m)}");
-            selectedMarginDetail = CreateSalesPanelLabel(new Point(12, 252), "Margin: 0.00%");
+            int labelWidth = Math.Max(160, salesprogressperday.Width + 30);
+            int labelX = salesprogressperday.Left + (salesprogressperday.Width - labelWidth) / 2;
+            int labelY = salesprogressperday.Bottom + 10;
+            int labelSpacing = 4;
+
+            selectedRevenueDetail = CreateSalesPanelLabel(labelX, labelY, labelWidth, $"Revenue: {FormatPeso(0m)}");
+            labelY += selectedRevenueDetail.Height + labelSpacing;
+
+            selectedExpensesDetail = CreateSalesPanelLabel(labelX, labelY, labelWidth, $"Expenses: {FormatPeso(0m)}");
+            labelY += selectedExpensesDetail.Height + labelSpacing;
+
+            selectedProfitDetail = CreateSalesPanelLabel(labelX, labelY, labelWidth, $"Profit: {FormatPeso(0m)}");
+            labelY += selectedProfitDetail.Height + labelSpacing;
+
+            selectedMarginDetail = CreateSalesPanelLabel(labelX, labelY, labelWidth, "Margin: 0.00%");
 
             salespanel.Controls.Add(selectedRevenueDetail);
             salespanel.Controls.Add(selectedExpensesDetail);
@@ -400,14 +460,16 @@ namespace EvsonHardware.Forms
             salespanel.Controls.Add(selectedMarginDetail);
         }
 
-        private static Guna2HtmlLabel CreateSalesPanelLabel(Point location, string text) =>
+        private static Guna2HtmlLabel CreateSalesPanelLabel(int x, int y, int width, string text) =>
             new Guna2HtmlLabel
             {
                 BackColor = Color.Transparent,
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.DarkGreen,
-                Location = location,
-                AutoSize = true,
+                AutoSize = false,
+                Size = new Size(width, 20),
+                Location = new Point(x, y),
+                TextAlignment = System.Drawing.ContentAlignment.MiddleCenter,
                 Text = text
             };
 
@@ -421,48 +483,70 @@ namespace EvsonHardware.Forms
 
         private void LoadDashboardStats()
         {
-            using var conn = Database.GetConnection();
-            conn.Open();
+            _ = Task.Run(() =>
+            {
+                decimal revenue = 0m;
+                decimal expenses = 0m;
+                decimal cogs = 0m;
+                string? error = null;
 
-            string date = salesdaterevenue.Value.Date.ToString("yyyy-MM-dd");
-            string saleTable = ResolveSaleTable(conn);
-            string salesDetailsTable = ResolveSalesDetailsTable(conn);
-            string supplyDetailsTable = ResolveSupplyDetailsTable(conn);
+                try
+                {
+                    using var conn = Database.GetConnection();
+                    conn.Open();
 
-            // Revenue
-            var cmd = conn.CreateCommand();
-            cmd.CommandText = $"SELECT COALESCE(SUM(total_amount),0) FROM {saleTable} WHERE DATE(sale_date)=@d";
-            cmd.Parameters.AddWithValue("@d", date);
-            decimal revenue = Convert.ToDecimal(cmd.ExecuteScalar());
-            revenueamt.Text = FormatPeso(revenue);
+                    string date = salesdaterevenue.Value.Date.ToString("yyyy-MM-dd");
+                    string saleTable = ResolveSaleTable(conn);
+                    string salesDetailsTable = ResolveSalesDetailsTable(conn);
+                    string supplyDetailsTable = ResolveSupplyDetailsTable(conn);
 
-            // Expenses
-            cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT COALESCE(SUM(amount),0) FROM expense WHERE DATE(expense_date)=@d";
-            cmd.Parameters.AddWithValue("@d", date);
-            decimal expenses = Convert.ToDecimal(cmd.ExecuteScalar());
-            expensesamt.Text = FormatPeso(expenses);
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = $"SELECT COALESCE(SUM(total_amount),0) FROM {saleTable} WHERE DATE(sale_date)=@d";
+                    cmd.Parameters.AddWithValue("@d", date);
+                    revenue = Convert.ToDecimal(cmd.ExecuteScalar());
 
-            // COGS
-            cmd = conn.CreateCommand();
-            cmd.CommandText = $@"
-                SELECT COALESCE(SUM(
-                    CAST(sd.quantity AS REAL) * COALESCE(
-                        (SELECT CAST(sup.unit_cost AS REAL)
-                         FROM {supplyDetailsTable} sup
-                         WHERE CAST(sup.product_id AS INTEGER)=CAST(sd.product_id AS INTEGER)
-                           AND COALESCE(CAST(sup.unit_cost AS REAL),0)>0
-                         ORDER BY ROWID DESC LIMIT 1),0)),0)
-                FROM {salesDetailsTable} sd
-                INNER JOIN {saleTable} s ON CAST(s.sale_id AS INTEGER)=CAST(sd.sale_id AS INTEGER)
-                WHERE DATE(s.sale_date)=@d";
-            cmd.Parameters.AddWithValue("@d", date);
-            decimal cogs = Convert.ToDecimal(cmd.ExecuteScalar());
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = "SELECT COALESCE(SUM(amount),0) FROM expense WHERE DATE(expense_date)=@d";
+                    cmd.Parameters.AddWithValue("@d", date);
+                    expenses = Convert.ToDecimal(cmd.ExecuteScalar());
 
-            decimal profit = revenue - cogs - expenses;
-            profitamt.Text = FormatPeso(profit);
+                    cmd = conn.CreateCommand();
+                    cmd.CommandText = $@"
+                        SELECT COALESCE(SUM(
+                            CAST(sd.quantity AS REAL) * COALESCE(
+                                (SELECT CAST(sup.unit_cost AS REAL)
+                                 FROM {supplyDetailsTable} sup
+                                 WHERE CAST(sup.product_id AS INTEGER)=CAST(sd.product_id AS INTEGER)
+                                   AND COALESCE(CAST(sup.unit_cost AS REAL),0)>0
+                                 ORDER BY ROWID DESC LIMIT 1),0)),0)
+                        FROM {salesDetailsTable} sd
+                        INNER JOIN {saleTable} s ON CAST(s.sale_id AS INTEGER)=CAST(sd.sale_id AS INTEGER)
+                        WHERE DATE(s.sale_date)=@d";
+                    cmd.Parameters.AddWithValue("@d", date);
+                    cogs = Convert.ToDecimal(cmd.ExecuteScalar());
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
 
-            UpdateProfitCircle(revenue, expenses, cogs, profit);
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("Load dashboard stats error: " + error, "Error");
+                        return;
+                    }
+
+                    decimal profit = revenue - cogs - expenses;
+                    revenueamt.Text = FormatPeso(revenue);
+                    expensesamt.Text = FormatPeso(expenses);
+                    profitamt.Text = FormatPeso(profit);
+                    UpdateProfitCircle(revenue, expenses, cogs, profit);
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         private void UpdateProfitCircle(decimal revenue, decimal expenses, decimal cogs, decimal profit)

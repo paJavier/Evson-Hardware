@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using EvsonHardware.Data;
 using Microsoft.Data.Sqlite;
@@ -145,74 +146,89 @@ namespace EvsonHardware.Forms
 
         private void LoadSalesReportByDateRange()
         {
-            try
+            DateTime fromDate = salesdaterevenue.Value.Date;
+            DateTime toDate = endDatePicker.Value.Date;
+            if (fromDate > toDate)
             {
-                ConfigureReportColumns();
-                using var conn = Database.GetConnection();
-                conn.Open();
-
-                string saleTable = ResolveSaleTable(conn);
-                DateTime fromDate = salesdaterevenue.Value.Date;
-                DateTime toDate = endDatePicker.Value.Date;
-                if (fromDate > toDate)
-                {
-                    (fromDate, toDate) = (toDate, fromDate);
-                }
-
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = $@"
-                    SELECT
-                        COALESCE(
-                            NULLIF(CAST(sale_id AS INTEGER), 0),
-                            CAST(ROWID AS INTEGER)
-                        ) AS [{SaleKeyColumn}],
-                        COALESCE(receipt_number, '-')         AS [Receipt #],
-                        sale_date                              AS [Date/Time],
-                        COALESCE(customer_name, 'Walk-in')     AS [Customer],
-                        COALESCE(total_amount, 0)              AS [Total]
-                    FROM {saleTable}
-                    WHERE DATE(sale_date) BETWEEN @fromDay AND @toDay
-                    ORDER BY sale_date DESC;";
-                cmd.Parameters.AddWithValue("@fromDay", fromDate.ToString("yyyy-MM-dd"));
-                cmd.Parameters.AddWithValue("@toDay", toDate.ToString("yyyy-MM-dd"));
-
-                var dt = new DataTable();
-                using var reader = cmd.ExecuteReader();
-                dt.Load(reader);
-
-                dgvReports.DataSource = dt;
-                dgvReports.ReadOnly = true;
-                dgvReports.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-                dgvReports.AllowUserToAddRows = false;
-                dgvReports.AllowUserToDeleteRows = false;
-                dgvReports.MultiSelect = false;
-
-                if (dgvReports.Columns[SaleKeyColumn] != null)
-                {
-                    dgvReports.Columns[SaleKeyColumn].Visible = false;
-                }
-
-                if (dgvReports.Columns["Total"] != null)
-                {
-                    dgvReports.Columns["Total"].DefaultCellStyle.Format = "C2";
-                    dgvReports.Columns["Total"].DefaultCellStyle.FormatProvider = PhCulture;
-                    dgvReports.Columns["Total"].DefaultCellStyle.Font =
-                        new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-                }
-
-                if (dgvReports.Columns["Date/Time"] != null)
-                {
-                    dgvReports.Columns["Date/Time"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
-                }
+                (fromDate, toDate) = (toDate, fromDate);
             }
-            catch (Exception ex)
+
+            _ = Task.Run(() =>
             {
-                CustomMessageBox.Show("Load reports error: " + ex.Message, "Error");
-            }
-            finally
-            {
-                dgvReports.ClearSelection();
-            }
+                DataTable? dt = null;
+                string? error = null;
+                try
+                {
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+
+                    string saleTable = ResolveSaleTable(conn);
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = $@"
+                        SELECT
+                            COALESCE(
+                                NULLIF(CAST(sale_id AS INTEGER), 0),
+                                CAST(ROWID AS INTEGER)
+                            ) AS [{SaleKeyColumn}],
+                            COALESCE(receipt_number, '-')         AS [Receipt #],
+                            sale_date                              AS [Date/Time],
+                            COALESCE(customer_name, 'Walk-in')     AS [Customer],
+                            COALESCE(total_amount, 0)              AS [Total]
+                        FROM {saleTable}
+                        WHERE DATE(sale_date) BETWEEN @fromDay AND @toDay
+                        ORDER BY sale_date DESC;";
+                    cmd.Parameters.AddWithValue("@fromDay", fromDate.ToString("yyyy-MM-dd"));
+                    cmd.Parameters.AddWithValue("@toDay", toDate.ToString("yyyy-MM-dd"));
+
+                    dt = new DataTable();
+                    using var reader = cmd.ExecuteReader();
+                    dt.Load(reader);
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
+
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("Load reports error: " + error, "Error");
+                        dgvReports.ClearSelection();
+                        return;
+                    }
+
+                    ConfigureReportColumns();
+                    dgvReports.DataSource = dt;
+                    dgvReports.ReadOnly = true;
+                    dgvReports.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dgvReports.AllowUserToAddRows = false;
+                    dgvReports.AllowUserToDeleteRows = false;
+                    dgvReports.MultiSelect = false;
+
+                    if (dgvReports.Columns[SaleKeyColumn] != null)
+                    {
+                        dgvReports.Columns[SaleKeyColumn].Visible = false;
+                    }
+
+                    if (dgvReports.Columns["Total"] != null)
+                    {
+                        dgvReports.Columns["Total"].DefaultCellStyle.Format = "C2";
+                        dgvReports.Columns["Total"].DefaultCellStyle.FormatProvider = PhCulture;
+                        dgvReports.Columns["Total"].DefaultCellStyle.Font =
+                            new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+                    }
+
+                    if (dgvReports.Columns["Date/Time"] != null)
+                    {
+                        dgvReports.Columns["Date/Time"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm:ss";
+                    }
+
+                    dgvReports.ClearSelection();
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         private void DgvReports_DataError(object? sender, DataGridViewDataErrorEventArgs e)

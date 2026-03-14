@@ -2,6 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using EvsonHardware.Data;
 using EvsonHardware.Forms;
@@ -78,43 +79,60 @@ namespace EvsonHardware
 
         private void LoadCategories()
         {
-            try
+            _ = Task.Run(() =>
             {
-                using var conn = Database.GetConnection();
-                conn.Open();
-                var cmd = conn.CreateCommand();
-                cmd.CommandText = @"
-                    SELECT
-                        COALESCE(
-                            MIN(CASE
-                                WHEN TRIM(IFNULL(category_id, '')) GLOB '[0-9]*'
-                                     AND TRIM(IFNULL(category_id, '')) <> ''
-                                THEN CAST(category_id AS INTEGER)
-                            END),
-                            MIN(rowid)
-                        ) AS category_id,
-                        TRIM(category_name) AS category_name
-                    FROM category
-                    WHERE TRIM(IFNULL(category_name, '')) <> ''
-                    GROUP BY LOWER(TRIM(category_name))
-                    ORDER BY TRIM(category_name);";
-                var dt = new DataTable();
-                using (var reader = cmd.ExecuteReader())
+                DataTable? dt = null;
+                string? error = null;
+                try
                 {
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = @"
+                        SELECT
+                            COALESCE(
+                                MIN(CASE
+                                    WHEN TRIM(IFNULL(category_id, '')) GLOB '[0-9]*'
+                                         AND TRIM(IFNULL(category_id, '')) <> ''
+                                    THEN CAST(category_id AS INTEGER)
+                                END),
+                                MIN(rowid)
+                            ) AS category_id,
+                            TRIM(category_name) AS category_name
+                        FROM category
+                        WHERE TRIM(IFNULL(category_name, '')) <> ''
+                        GROUP BY LOWER(TRIM(category_name))
+                        ORDER BY TRIM(category_name);";
+                    dt = new DataTable();
+                    using var reader = cmd.ExecuteReader();
                     dt.Load(reader);
+
+                    var all = dt.NewRow();
+                    all["category_id"] = 0;
+                    all["category_name"] = "All Categories";
+                    dt.Rows.InsertAt(all, 0);
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
                 }
 
-                var all = dt.NewRow();
-                all["category_id"] = 0;
-                all["category_name"] = "All Categories";
-                dt.Rows.InsertAt(all, 0);
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("LoadCategories error: " + error, "Error");
+                        return;
+                    }
 
-                cmbCategory.DataSource = dt;
-                cmbCategory.DisplayMember = "category_name";
-                cmbCategory.ValueMember = "category_id";
-                cmbCategory.SelectedIndex = 0;
-            }
-            catch (Exception ex) { CustomMessageBox.Show("LoadCategories error: " + ex.Message, "Error"); }
+                    cmbCategory.DataSource = dt;
+                    cmbCategory.DisplayMember = "category_name";
+                    cmbCategory.ValueMember = "category_id";
+                    cmbCategory.SelectedIndex = 0;
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         private string GetSelectedCategoryName()
@@ -129,52 +147,70 @@ namespace EvsonHardware
 
         private void LoadProducts(string search, string categoryName)
         {
-            try
+            _ = Task.Run(() =>
             {
-                using var conn = Database.GetConnection();
-                conn.Open();
-                var cmd = conn.CreateCommand();
-
-                cmd.CommandText = @"
-                    SELECT
-                        ps.product_id    AS ID,
-                        ps.product_name  AS Product,
-                        ps.category_name AS Category,
-                        p.unit           AS Unit,
-                        ps.price         AS Price,
-                        ps.stock         AS Stock
-                    FROM product_stock ps
-                    JOIN product p ON ps.product_id = p.product_id
-                    WHERE ps.product_name LIKE @search
-                      AND (@catName = '' OR LOWER(TRIM(ps.category_name)) = LOWER(TRIM(@catName)))
-                    ORDER BY ps.product_name;";
-
-                cmd.Parameters.AddWithValue("@search", "%" + search + "%");
-                cmd.Parameters.AddWithValue("@catName", categoryName);
-
-                var dt = new DataTable();
-                using (var reader = cmd.ExecuteReader())
+                DataTable? dt = null;
+                string? error = null;
+                try
                 {
+                    using var conn = Database.GetConnection();
+                    conn.Open();
+                    var cmd = conn.CreateCommand();
+
+                    cmd.CommandText = @"
+                        SELECT
+                            ps.product_id    AS ID,
+                            ps.product_name  AS Product,
+                            ps.category_name AS Category,
+                            p.unit           AS Unit,
+                            ps.price         AS Price,
+                            ps.stock         AS Stock
+                        FROM product_stock ps
+                        JOIN product p ON ps.product_id = p.product_id
+                        WHERE ps.product_name LIKE @search
+                          AND (@catName = '' OR LOWER(TRIM(ps.category_name)) = LOWER(TRIM(@catName)))
+                        ORDER BY ps.product_name;";
+
+                    cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                    cmd.Parameters.AddWithValue("@catName", categoryName);
+
+                    dt = new DataTable();
+                    using var reader = cmd.ExecuteReader();
                     dt.Load(reader);
                 }
-                dgvProducts.DataSource = dt;
-                if (dgvProducts.Columns["Price"] != null)
+                catch (Exception ex)
                 {
-                    dgvProducts.Columns["Price"].DefaultCellStyle.Format = "C2";
-                    dgvProducts.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
-                    dgvProducts.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-                }
-                if (dgvProducts.Rows.Count > 0)
-                {
-                    dgvProducts.FirstDisplayedScrollingRowIndex = 0;
+                    error = ex.Message;
                 }
 
-                if (dgvProducts.Columns["ID"] != null)
-                    dgvProducts.Columns["ID"].Visible = false;
+                void Apply()
+                {
+                    if (error != null)
+                    {
+                        CustomMessageBox.Show("LoadProducts error: " + error, "Error");
+                        return;
+                    }
 
-                lblStock.Text = $"{dt.Rows.Count} product(s) found";
-            }
-            catch (Exception ex) { CustomMessageBox.Show("LoadProducts error: " + ex.Message, "Error"); }
+                    dgvProducts.DataSource = dt;
+                    if (dgvProducts.Columns["Price"] != null)
+                    {
+                        dgvProducts.Columns["Price"].DefaultCellStyle.Format = "C2";
+                        dgvProducts.Columns["Price"].DefaultCellStyle.FormatProvider = PhCulture;
+                        dgvProducts.Columns["Price"].DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+                    }
+                    if (dgvProducts.Rows.Count > 0)
+                    {
+                        dgvProducts.FirstDisplayedScrollingRowIndex = 0;
+                    }
+
+                    if (dgvProducts.Columns["ID"] != null)
+                        dgvProducts.Columns["ID"].Visible = false;
+
+                    lblStock.Text = $"{dt.Rows.Count} product(s) found";
+                }
+
+                if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
+            });
         }
 
         private void DgvProducts_SelectionChanged(object sender, EventArgs e)

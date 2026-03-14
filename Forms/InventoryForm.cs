@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Globalization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace EvsonHardware
@@ -16,8 +17,16 @@ namespace EvsonHardware
         {
             InitializeComponent();
             ApplyGridTheme();
-            LoadCategories();
-            LoadInventory();
+            Load += InventoryForm_Load;
+        }
+
+        private async void InventoryForm_Load(object sender, EventArgs e)
+        {
+            await Task.Run(() =>
+            {
+                LoadCategories();
+                LoadInventory();
+            });
         }
 
         private void ApplyGridTheme()
@@ -58,6 +67,8 @@ namespace EvsonHardware
 
         private void LoadCategories()
         {
+            DataTable dt = null;
+            string error = null;
             try
             {
                 using var conn = Database.GetConnection();
@@ -78,20 +89,33 @@ namespace EvsonHardware
                     WHERE TRIM(IFNULL(category_name, '')) <> ''
                     GROUP BY LOWER(TRIM(category_name))
                     ORDER BY TRIM(category_name);";
-                var dt = new DataTable();
+                dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
+            }
+            catch (Exception ex)
+            {
+                error = "LoadCategories error: " + ex.Message;
+            }
+
+            void Apply()
+            {
+                if (error != null)
+                {
+                    MessageBox.Show(error);
+                    return;
+                }
                 cmbCategory.DataSource = dt;
                 cmbCategory.DisplayMember = "category_name";
                 cmbCategory.ValueMember = "category_id";
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("LoadCategories error: " + ex.Message);
-            }
+
+            if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
         }
 
         private void LoadInventory()
         {
+            DataTable dt = null;
+            string error = null;
             try
             {
                 using var conn = Database.GetConnection();
@@ -130,8 +154,22 @@ namespace EvsonHardware
                     LEFT JOIN category c ON c.category_id = p.category_id
                     ORDER BY p.product_name;";
 
-                var dt = new DataTable();
+                dt = new DataTable();
                 dt.Load(cmd.ExecuteReader());
+            }
+            catch (Exception ex)
+            {
+                error = "LoadInventory error: " + ex.Message;
+            }
+
+            void Apply()
+            {
+                if (error != null)
+                {
+                    MessageBox.Show(error);
+                    return;
+                }
+
                 dgvInventory.DataSource = dt;
                 if (dgvInventory.Columns["Price"] != null)
                 {
@@ -145,10 +183,8 @@ namespace EvsonHardware
                     dgvInventory.FirstDisplayedScrollingRowIndex = 0;
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("LoadInventory error: " + ex.Message);
-            }
+
+            if (InvokeRequired) BeginInvoke((Action)Apply); else Apply();
         }
 
         private void dgvInventory_CellClick(object sender, DataGridViewCellEventArgs e)
