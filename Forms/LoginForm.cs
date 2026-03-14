@@ -20,6 +20,7 @@ namespace EvsonHardware.Forms
         {
             InitializeComponent();
             this.AcceptButton = loginbtn;
+            passwordtxt.UseSystemPasswordChar = true;
         }
 
         private void loginbtn_Click(object sender, EventArgs e)

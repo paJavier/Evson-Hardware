@@ -9,12 +9,9 @@ namespace EvsonHardware.Data
     {
         public static SqliteConnection GetConnection()
         {
-            // Go from bin/Debug → project root
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            string dbPath = Path.GetFullPath(
-                Path.Combine(baseDir, @"..\..\..\Data\evson_hardware.sqlite")
-            );
+            string dbPath = Path.Combine(baseDir, "evson_hardware.sqlite");
 
             return new SqliteConnection($"Data Source={dbPath}");
         }
