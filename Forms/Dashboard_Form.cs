@@ -499,11 +499,24 @@ namespace EvsonHardware.Forms
             conn.Open();
 
             var cmd = conn.CreateCommand();
+            // Try matching by employee_id first, then fall back to the first employee with the same position.
             cmd.CommandText = @"
-                SELECT COALESCE(NULLIF(TRIM(e.employee_name), ''), u.username)
+                SELECT 
+                    COALESCE(
+                        NULLIF(TRIM(e.employee_name), ''),
+                        (
+                            SELECT e2.employee_name
+                            FROM employee e2
+                            WHERE e2.position = u.role
+                            ORDER BY e2.employee_id
+                            LIMIT 1
+                        ),
+                        u.username
+                    ) AS display_name
                 FROM users u
                 LEFT JOIN employee e ON u.employee_id = e.employee_id
-                WHERE u.user_id = $id LIMIT 1";
+                WHERE u.user_id = $id
+                LIMIT 1";
             cmd.Parameters.AddWithValue("$id", _userId);
 
             using var r = cmd.ExecuteReader();
@@ -516,10 +529,21 @@ namespace EvsonHardware.Forms
             conn.Open();
 
             var cmd = conn.CreateCommand();
+            // Reuse the same fallback logic so the picker shows proper employee names.
             cmd.CommandText = @"
                 SELECT u.user_id,
-                       COALESCE(e.employee_name, u.username) AS display_name,
-                       COALESCE(e.position, u.role)          AS display_role
+                       COALESCE(
+                           NULLIF(TRIM(e.employee_name), ''),
+                           (
+                               SELECT e2.employee_name
+                               FROM employee e2
+                               WHERE e2.position = u.role
+                               ORDER BY e2.employee_id
+                               LIMIT 1
+                           ),
+                           u.username
+                       ) AS display_name,
+                       COALESCE(NULLIF(TRIM(e.position), ''), u.role) AS display_role
                 FROM users u
                 LEFT JOIN employee e ON u.employee_id = e.employee_id
                 WHERE u.is_active = 1

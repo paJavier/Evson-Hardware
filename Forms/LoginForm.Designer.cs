@@ -53,7 +53,7 @@
             forgotpass.LinkColor = Color.Navy;
             forgotpass.Location = new Point(221, 273);
             forgotpass.Name = "forgotpass";
-            forgotpass.Size = new Size(127, 24);
+            forgotpass.Size = new Size(103, 20);
             forgotpass.TabIndex = 8;
             forgotpass.TabStop = true;
             forgotpass.Text = "Forgot Password?";
@@ -129,7 +129,6 @@
             passwordtxt.Location = new Point(65, 217);
             passwordtxt.Margin = new Padding(4, 5, 4, 5);
             passwordtxt.Name = "passwordtxt";
-            passwordtxt.PasswordChar = '*';
             passwordtxt.PlaceholderForeColor = Color.DarkSeaGreen;
             passwordtxt.PlaceholderText = "Password";
             passwordtxt.SelectedText = "";
@@ -168,16 +167,16 @@
             lblShowPass.Cursor = Cursors.Hand;
             lblShowPass.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblShowPass.ForeColor = Color.DarkGreen;
-            lblShowPass.Location = new Point(304, 231);
+            lblShowPass.Location = new Point(306, 234);
             lblShowPass.Name = "lblShowPass";
-            lblShowPass.Size = new Size(30, 20);
+            lblShowPass.Size = new Size(19, 15);
             lblShowPass.TabIndex = 20;
             lblShowPass.Text = "👁";
             lblShowPass.Click += lblShowPass_Click;
             // 
             // LoginForm
             // 
-            AutoScaleDimensions = new SizeF(120F, 120F);
+            AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = Color.Green;
