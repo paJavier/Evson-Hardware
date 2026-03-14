@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>LOGO (3).ico</ApplicationIcon>
+    <ApplicationIcon>android-chrome-512x512.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="android-chrome-512x512.ico" />
     <Content Include="Data\evson_hardware.sqlite">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Include="LOGO (3).ico" />
   </ItemGroup>
 
   <ItemGroup>
